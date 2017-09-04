@@ -2,10 +2,11 @@
 
 use strict;
 
-use JSON::Parse qw/json_file_to_perl parse_json/;
-use JSON::Tiny qw/ encode_json /;
+use File::Slurp;
+use Mojo::JSON qw(decode_json encode_json);
 
-my $p = json_file_to_perl('/data/G-1');
+my $f = read_file('/data/G-1');
+my $p = decode_json($f);
 
 my $r = int(rand(6)) +1;
 
