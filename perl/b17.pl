@@ -6,11 +6,13 @@ use Mojo::JSON qw(decode_json encode_json);
 
 use lib '/perl';
 
+use B17::Game;
 use B17::LoadTable;
-my $game = $ENV{'GAME'};
-die "No game specified, use -e" unless $game;
 
-my $p = B17::LoadTable::loadTable("/games/$game/data/G-1");
+my $game = new B17::Game('QotS');
+
+my $g = $game->name;
+my $p = B17::LoadTable::loadTable("/games/$g/data/G-1");
 
 my $r = int(rand(6)) +1;
 
