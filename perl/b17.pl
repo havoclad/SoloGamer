@@ -14,8 +14,9 @@ my $p = decode_json($f);
 my $r = int(rand(6)) +1;
 
 my $dest = $p->{$r}->{'Target'};
+my $type = $p->{$r}->{'Type'};
 
-print "We're going to $dest\n";
+print "Our target is the $type in $dest\n";
 
 open (SAVE, ">",  "/save/pat") or die $!;
 print SAVE encode_json($p);
