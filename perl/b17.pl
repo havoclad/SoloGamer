@@ -5,7 +5,10 @@ use strict;
 use File::Slurp;
 use Mojo::JSON qw(decode_json encode_json);
 
-my $f = read_file('/data/G-1');
+my $game = $ENV{'GAME'};
+die "No game specified, use -e" unless $game;
+
+my $f = read_file("/games/$game/data/G-1");
 my $p = decode_json($f);
 
 my $r = int(rand(6)) +1;
