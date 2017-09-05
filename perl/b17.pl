@@ -3,8 +3,6 @@
 use strict;
 use warnings;
 
-use Mojo::JSON qw(decode_json encode_json);
-
 use lib '/perl';
 
 use B17::Game;
