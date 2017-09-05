@@ -7,23 +7,25 @@ use namespace::autoclean;
 
 
 has 'name' => (
-  is       => 'rw',
+  is       => 'ro',
   isa      => 'Str',
   required => 1,
   init_arg => 'name',
 );
 
 has 'source_data' => (
-  is       => 'rw',
+  is       => 'ro',
   isa      => 'Str',
   lazy     => 1,
+  required => 1,
   builder  => '_build_source_data',
 );
 
 has 'source' => (
-  is       => 'rw',
+  is       => 'ro',
   isa      => 'Str',
   lazy     => 1,
+  required => 1,
   builder  => '_build_source',
 );
 

@@ -17,14 +17,15 @@ sub __load_table {
 }
 
 has 'data' => (
- is       => 'rw',
+ is       => 'ro',
  isa      => 'HashRef',
  lazy     => 1,
  builder  => '__load_table',
+ required => 1,
 );
 
 has 'file' => (
-  is       => 'rw',
+  is       => 'ro',
   isa      => 'Str',
   required => 1,
   init_arg => 'file',
