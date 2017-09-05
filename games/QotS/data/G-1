@@ -1,26 +1,26 @@
 {
    "1": {
       "Target": "St. Omer",
-      "Type": " Airfield"
+      "Type": "Airfield"
    },
    "2": {
       "Target": "Cherbourg",
-      "Type": " Airfield"
+      "Type": "Airfield"
    },
    "3": {
-      "Target": " Amiens",
-      "Type": " Rail Yard"
+      "Target": "Amiens",
+      "Type": "Rail Yard"
    },
    "4": {
-      "Target": " Meaulte",
-      "Type": " Aircraft"
+      "Target": "Meaulte",
+      "Type": "Aircraft"
    },
    "5": {
-      "Target": " Abbeville",
-      "Type": " Airfield"
+      "Target": "Abbeville",
+      "Type": "Airfield"
    },
    "6": {
-      "Target": " Lille",
-      "Type": " Industry"
+      "Target": "Lille",
+      "Type": "Industry"
    }
 }
