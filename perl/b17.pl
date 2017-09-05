@@ -18,8 +18,8 @@ my $p = new B17::LoadTable( file => $s . 'G-1');
 
 my $r = $p->roll;
 
-my $dest = $p->data->{$r}->{'Target'};
-my $type = $p->data->{$r}->{'Type'};
+my $dest = $r->{'Target'};
+my $type = $r->{'Type'};
 
 print "Our target is the $type in $dest\n";
 
