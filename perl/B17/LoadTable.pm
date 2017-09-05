@@ -1,6 +1,7 @@
 package B17::LoadTable;
 
 use strict;
+use Data::Dumper;
 
 use File::Slurp;
 use Mojo::JSON qw(decode_json encode_json);
@@ -16,6 +17,13 @@ sub __load_table {
   return $p;
 }
 
+sub __roll {
+  my $self = shift;
+
+  my $d = $self->data;
+  return (keys %$d)[rand keys %$d];
+}
+
 has 'data' => (
  is       => 'ro',
  isa      => 'HashRef',
@@ -29,6 +37,12 @@ has 'file' => (
   isa      => 'Str',
   required => 1,
   init_arg => 'file',
+);
+
+has 'roll' => (
+  is       => 'rw',
+  isa      => 'Int',
+  builder  => '__roll',
 );
 
 __PACKAGE__->meta->make_immutable;

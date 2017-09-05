@@ -16,7 +16,7 @@ my $game = new B17::Game(
 my $s = $game->source_data;
 my $p = new B17::LoadTable( file => $s . 'G-1');
 
-my $r = int(rand(6)) +1;
+my $r = $p->roll;
 
 my $dest = $p->data->{$r}->{'Target'};
 my $type = $p->data->{$r}->{'Type'};
