@@ -9,7 +9,9 @@ use lib '/perl';
 use B17::Game;
 use B17::LoadTable;
 
-my $game = new B17::Game('QotS');
+my $game = new B17::Game(
+  name => $ENV{'GAME'},
+);
 
 my $g = $game->name;
 my $p = B17::LoadTable::loadTable("/games/$g/data/G-1");
