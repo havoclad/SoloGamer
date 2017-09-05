@@ -13,8 +13,8 @@ my $game = new B17::Game(
   name => $ENV{'GAME'},
 );
 
-my $g = $game->name;
-my $p = B17::LoadTable::loadTable("/games/$g/data/G-1");
+my $s = $game->source_data;
+my $p = B17::LoadTable::loadTable($s . "G-1");
 
 my $r = int(rand(6)) +1;
 
