@@ -5,6 +5,7 @@ use strict;
 use File::Slurp;
 use Mojo::JSON qw(decode_json encode_json);
 use Moose;
+use namespace::autoclean;
 
 sub __load_table {
   my $self = shift;
@@ -29,6 +30,5 @@ has 'file' => (
   init_arg => 'file',
 );
 
-no Moose;
 __PACKAGE__->meta->make_immutable;
 1;

@@ -3,6 +3,7 @@ package B17::Game;
 use strict;
 
 use Moose;
+use namespace::autoclean;
 
 
 has 'name' => (
@@ -37,5 +38,4 @@ sub _build_source_data {
 }
 
 
-no Moose;
 __PACKAGE__->meta->make_immutable;
