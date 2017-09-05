@@ -14,12 +14,12 @@ my $game = new B17::Game(
 );
 
 my $s = $game->source_data;
-my $p = B17::LoadTable::loadTable($s . "G-1");
+my $p = new B17::LoadTable( file => $s . 'G-1');
 
 my $r = int(rand(6)) +1;
 
-my $dest = $p->{$r}->{'Target'};
-my $type = $p->{$r}->{'Type'};
+my $dest = $p->data->{$r}->{'Target'};
+my $type = $p->data->{$r}->{'Type'};
 
 print "Our target is the $type in $dest\n";
 
