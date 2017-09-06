@@ -11,7 +11,7 @@ use namespace::autoclean;
 sub __load_table {
   my $self = shift;
 
-  my $f = read_file($self->file);
+  my $f = read_file($self->file . '.json');
   my $p = decode_json($f);
 
   return $p;
