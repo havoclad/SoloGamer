@@ -56,7 +56,8 @@ sub _load_data_tables {
   my $h = {};
   my $dir = $self->source_data;
   foreach my $table (<$dir/*>) {
-    $h->{basename $table} = new B17::LoadTable( file => $table );
+    my ($filename, $dirs, $suffix) = fileparse($table, qr/\.[^.]*/);
+    $h->{$filename} = new B17::LoadTable( file => $table );
   }
   return $h;
 }
