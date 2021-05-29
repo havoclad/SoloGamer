@@ -1,4 +1,7 @@
 {
+   "Title": "Missions 1-5",
+   "rolltype": "1D",
+   "rolls": {
    "1": {
       "Target": "St. Omer",
       "Type": "Airfield"
@@ -22,5 +25,6 @@
    "6": {
       "Target": "Lille",
       "Type": "Industry"
+   }
    }
 }

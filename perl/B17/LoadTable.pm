@@ -20,10 +20,10 @@ sub __load_table {
 sub __roll {
   my $self = shift;
 
-  my $d = $self->data;
+  my $d = $self->data->{rolls};
   my $r = (keys %$d)[rand keys %$d];
 
-  printf "Rolled a $r on table %s\n", $self->name;
+  printf "Rolled a $r on table %s %s\n", $self->name, $self->data->{Title};
   return $d->{$r};
 }
 
