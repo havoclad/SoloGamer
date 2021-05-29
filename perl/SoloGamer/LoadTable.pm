@@ -1,4 +1,4 @@
-package B17::LoadTable;
+package SoloGamer::LoadTable;
 
 use strict;
 
