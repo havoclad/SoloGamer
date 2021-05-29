@@ -1,6 +1,7 @@
 #!/usr/local/bin/perl
 
 use strict;
+use v5.10;
 
 use File::Slurp;
 use Mojo::JSON qw(decode_json encode_json);
@@ -12,7 +13,7 @@ my $r = int(rand(6)) +1;
 
 my $dest = $p->{$r}->{'Target'};
 
-print "We're going to $dest\n";
+say "We're going to $dest";
 
 open (SAVE, ">",  "/save/pat") or die $!;
 print SAVE encode_json($p);
