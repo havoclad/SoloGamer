@@ -1,13 +1,14 @@
-package B17::Game;
+package SoloGamer::Game;
 
 use strict;
+use v5.10;
 
 use File::Basename;
 
 use Moose;
 use namespace::autoclean;
 
-use B17::LoadTable;
+use SoloGamer::LoadTable;
 
 has 'name' => (
   is       => 'ro',
@@ -47,7 +48,7 @@ sub _build_source {
 
 sub _build_source_data {
   my $self = shift;
-  return $self->source . 'data/';
+  return $self->source . 'data';
 }
 
 sub _load_data_tables {
@@ -55,9 +56,11 @@ sub _load_data_tables {
 
   my $h = {};
   my $dir = $self->source_data;
+  say "looking for $dir";
   foreach my $table (<$dir/*>) {
+	  say "loading $table";
     my ($filename, $dirs, $suffix) = fileparse($table, qr/\.[^.]*/);
-    $h->{$filename} = new B17::LoadTable( file => $table );
+    $h->{$filename} = new SoloGamer::LoadTable( file => $table );
   }
   return $h;
 }
