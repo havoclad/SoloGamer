@@ -1,17 +1,20 @@
 #!/usr/local/bin/perl
 
 use strict;
-use warnings;
 
-use lib '/perl';
+use File::Slurp;
+use Mojo::JSON qw(decode_json encode_json);
 
-use B17::Game;
+my $f = read_file('/data/G-1.json');
+my $p = decode_json($f);
 
-my $game = new B17::Game(
-  name => $ENV{'GAME'},
-);
+my $r = int(rand(6)) +1;
 
-my $r = $game->table->{'G-1'}->roll;
+my $dest = $p->{$r}->{'Target'};
 
-printf "Our target is the %s in %s.\n", $r->{Type}, $r->{Target};
+print "We're going to $dest\n";
+
+open (SAVE, ">",  "/save/pat") or die $!;
+print SAVE encode_json($p);
+close SAVE;
 
