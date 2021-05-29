@@ -2,19 +2,13 @@
 
 use strict;
 use v5.10;
+use lib '/perl';
 
-use File::Slurp;
-use Mojo::JSON qw(decode_json encode_json);
+use B17::LoadTable;
 
-my $f = read_file('/data/G-1.json');
-my $p = decode_json($f);
+my $p = B17::LoadTable->new(file=>'data/G-1.json');
 
-my $r = int(rand(6)) +1;
-
-say "We're going to $p->{$r}->{'Target'}";
-say "It's an $p->{$r}->{'Type'}";
-
-open (SAVE, ">",  "/save/pat") or die $!;
-print SAVE encode_json($p);
-close SAVE;
+my $r = $p->roll();
+say "We're going to $r->{'Target'}";
+say "It's an $r->{'Type'}";
 
