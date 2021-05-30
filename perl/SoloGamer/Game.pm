@@ -65,4 +65,10 @@ sub _load_data_tables {
   return $h;
 }
 
+sub run_game {
+  my $self = shift;
+
+  say "Rolling for Mission";
+
+}
 __PACKAGE__->meta->make_immutable;
