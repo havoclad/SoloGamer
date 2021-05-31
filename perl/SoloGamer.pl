@@ -9,6 +9,7 @@ use lib '/perl';
 use SoloGamer::Game;
 
 my $game_name = shift;
+my $next = shift;
 
 #my $p = SoloGamer::LoadTable->new(file=>'data/G-1.json');
 
@@ -21,4 +22,4 @@ my $data = $game->table;
 
 $game->run_game;
 
-say Dumper $data;
+$next and say Dumper $data;
