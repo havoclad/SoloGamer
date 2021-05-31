@@ -1,6 +1,4 @@
-package SoloGamer::LoadTable;
-
-use strict;
+package SoloGamer::Table;
 
 use File::Slurp;
 use File::Basename;
@@ -17,20 +15,16 @@ sub __load_table {
   return $p;
 }
 
-sub __roll {
-  my $self = shift;
-
-  my $d = $self->data->{rolls};
-  my $r = (keys %$d)[rand keys %$d];
-
-  printf "Rolled a $r on table %s %s\n", $self->name, $self->data->{Title};
-  return $d->{$r};
-}
-
 sub __name {
   my $self = shift;
 
   return basename $self->file;
+}
+
+sub __title {
+  my $self = shift;
+
+  return $self->{data}->{'Title'};
 }
 
 has 'data' => (
@@ -48,18 +42,19 @@ has 'file' => (
   init_arg => 'file',
 );
 
-has 'roll' => (
-  is       => 'rw',
-  isa      => 'HashRef',
-  builder  => '__roll',
-);
-
 has 'name' => (
   is       => 'ro',
   isa      => 'Str',
   lazy     => 1,
   required => 1,
   builder  => '__name',
+);
+
+has 'title' => (
+  is       =>'ro',
+  isa      => 'Str',
+  required => 1,
+  builder  => '__title',
 );
 
 __PACKAGE__->meta->make_immutable;
