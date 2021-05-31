@@ -8,6 +8,7 @@ use File::Basename;
 use Moose;
 use namespace::autoclean;
 
+use SoloGamer::FlowTable;
 use SoloGamer::RollTable;
 
 has 'name' => (
@@ -60,8 +61,11 @@ sub _load_data_tables {
   foreach my $table (<$dir/*>) {
 	  say "loading $table";
     my ($filename, $dirs, $suffix) = fileparse($table, qr/\.[^.]*/);
-    $filename eq 'start' and next; #TODO come back after we have RollTable and FlowTable
-    $h->{$filename} = new SoloGamer::RollTable( file => $table );
+    if ($filename eq 'start') {
+      $h->{$filename} = new SoloGamer::FlowTable( file => $table );
+    } else {
+      $h->{$filename} = new SoloGamer::RollTable( file => $table );
+    }
   }
   return $h;
 }
