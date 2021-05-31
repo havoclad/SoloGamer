@@ -60,6 +60,7 @@ sub _load_data_tables {
   foreach my $table (<$dir/*>) {
 	  say "loading $table";
     my ($filename, $dirs, $suffix) = fileparse($table, qr/\.[^.]*/);
+    $filename eq 'start' and next; #TODO come back after we have RollTable and FlowTable
     $h->{$filename} = new SoloGamer::LoadTable( file => $table );
   }
   return $h;
