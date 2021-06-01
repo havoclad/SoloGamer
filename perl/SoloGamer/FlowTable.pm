@@ -40,6 +40,7 @@ sub get_next {
   if (exists $self->order->[$self->current]) {
     my $next = $self->order->[$self->current];
     $self->devel("Next is $next");
+    $self->current($self->current + 1);
     return $self->data->{flow}->{$next};
   }
   return undef;

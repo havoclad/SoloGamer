@@ -1,7 +1,14 @@
 {
 	"Title": "B-17 Queen of the Skies",
 	"flow": {
-		"10": "G-1"
+		"5": {
+			"pre": "Welcome to B-17 Queen of the Skies"
+		},
+		"10": {
+			"pre": "Rolling for Mission",
+			"Table": "G-1",
+			"post": "We're going to <1>"
+		}
 	}
 }
 

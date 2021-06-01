@@ -11,6 +11,8 @@ use namespace::autoclean;
 use SoloGamer::FlowTable;
 use SoloGamer::RollTable;
 
+use Data::Dumper;
+
 extends 'SoloGamer::Base';
 
 has 'verbose' => (
@@ -95,9 +97,18 @@ sub _load_data_tables {
 sub run_game {
   my $self = shift;
 
-  say "Rolling for Mission";
-  $self->devel("Current is: ", $self->table->{'start'}->current);
-  $self->devel("Next is: ", $self->table->{'start'}->get_next);
+  while (my $next_flow = $self->table->{'start'}->get_next) {
+    say $next_flow->{'pre'};
+    if (exists $next_flow->{'Table'}) {
+      $self->devel("Next is: ", $next_flow->{'Table'});
+      my $post = $next_flow->{'post'};
+      my $table = $next_flow->{'Table'};
+      my $roll = $self->table->{$table}->roll;
+      my $output = $roll->{'Target'} . " it's a " . $roll->{'Type'};
+      $post =~ s/<1>/$output/;
+      say $post;
+    }
+  }
 
 }
 __PACKAGE__->meta->make_immutable;
