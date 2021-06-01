@@ -11,7 +11,7 @@ sub __flow {
 
   my $f = $self->data->{flow};
 
-  my $a = [sort keys %$f];
+  my $a = [sort { $a <=> $b } keys %$f];
 
   foreach my $item (@$a) {
     say $item;
