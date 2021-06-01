@@ -74,6 +74,8 @@ sub run_game {
   my $self = shift;
 
   say "Rolling for Mission";
+  say "Current is: ", $self->table->{'start'}->current;
+  say "Next is: ", $self->table->{'start'}->get_next;
 
 }
 __PACKAGE__->meta->make_immutable;
