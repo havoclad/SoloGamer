@@ -10,10 +10,16 @@ sub __roll {
   my $self = shift;
 
   my $d = $self->rolls;
-  my $r = (keys %$d)[rand keys %$d];
 
-  $self->devel("Rolled a $r on table " . $self->name . " " .  $self->title);
-  return $d->{$r};
+  my $result = "";
+  my @dice = split /d/, $self->roll_type;
+  shift @dice;
+  foreach my $die (@dice) {
+    $result .= int(rand($die)+1);
+  }
+
+  $self->devel("Rolled a $result on table " . $self->name . " " .  $self->title);
+  return $d->{$result};
 }
 
 sub __roll_type {

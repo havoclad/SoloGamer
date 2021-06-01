@@ -1,6 +1,6 @@
 {
    "Title": "Missions 1-5",
-   "rolltype": "1D",
+   "rolltype": "d6",
    "rolls": {
    "1": {
       "Target": "St. Omer",
