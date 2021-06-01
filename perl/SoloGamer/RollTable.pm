@@ -19,7 +19,7 @@ sub __roll {
   }
 
   $self->devel("Rolled a $result on table " . $self->name . " " .  $self->title);
-  return $d->{$result};
+  return { $d->{$result}->%* };
 }
 
 sub __roll_type {
