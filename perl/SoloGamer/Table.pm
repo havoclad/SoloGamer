@@ -21,13 +21,15 @@ sub __load_table {
 sub __name {
   my $self = shift;
 
-  return basename $self->file;
+  return basename($self->file, ".json");
 }
 
 sub __title {
   my $self = shift;
 
-  return $self->{data}->{'Title'};
+  my $title = $self->{data}->{'Title'};
+  delete $self->{data}->{'Title'};
+  return $title;
 }
 
 has 'data' => (
@@ -57,6 +59,7 @@ has 'title' => (
   is       =>'ro',
   isa      => 'Str',
   required => 1,
+  lazy     => 1,
   builder  => '__title',
 );
 
