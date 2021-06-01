@@ -9,17 +9,13 @@ use lib '/perl';
 use SoloGamer::Game;
 
 my $game_name = shift;
-my $next = shift;
+my $verbose = shift || 0;
 
-#my $p = SoloGamer::LoadTable->new(file=>'data/G-1.json');
-
-#my $r = $p->roll();
-#say "We're going to $r->{'Target'}";
-#say "It's an $r->{'Type'}";
-my $game = SoloGamer::Game->new(name=>$game_name);
+my $game = SoloGamer::Game->new(name    =>$game_name, 
+	                        verbose => $verbose);
 
 my $data = $game->table;
 
 $game->run_game;
 
-$next and say Dumper $data;
+$verbose == 2 and say Dumper $data;

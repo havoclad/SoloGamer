@@ -11,7 +11,7 @@ sub __roll {
   my $d = $self->data->{rolls};
   my $r = (keys %$d)[rand keys %$d];
 
-  printf "Rolled a $r on table %s %s\n", $self->name, $self->data->{Title};
+  $self->devel("Rolled a $r on table %s %s\n", $self->name, $self->data->{Title});
   return $d->{$r};
 }
 

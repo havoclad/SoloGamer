@@ -16,7 +16,7 @@ sub __order {
   my $a = [sort { $a <=> $b } keys %$f];
 
   foreach my $item (@$a) {
-    say $item;
+    $self->devel($item);
   }
   return $a;
 }
@@ -36,10 +36,10 @@ has 'current' => (
 sub get_next {
   my $self = shift;
 
-  say "In get_next";
+  $self->devel("In get_next");
   if (exists $self->order->[$self->current]) {
     my $next = $self->order->[$self->current];
-    say "Next is $next";
+    $self->devel("Next is $next");
     return $self->data->{flow}->{$next};
   }
   return undef;

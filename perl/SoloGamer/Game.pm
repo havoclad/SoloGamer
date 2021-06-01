@@ -11,6 +11,16 @@ use namespace::autoclean;
 use SoloGamer::FlowTable;
 use SoloGamer::RollTable;
 
+extends 'SoloGamer::Base';
+
+has 'verbose' => (
+  is       => 'ro',
+  isa      => 'Int',
+  init_arg => 'verbose',
+  lazy     => 1,
+  default  => 0,
+);
+
 has 'name' => (
   is       => 'ro',
   isa      => 'Str',
@@ -47,6 +57,14 @@ sub _build_source {
   return '/games/' . $self->name . '/';
 }
 
+sub devel {
+  my $self = shift;
+
+  $self->verbose or return;
+
+  say @_;
+}
+
 sub _build_source_data {
   my $self = shift;
   return $self->source . 'data';
@@ -57,14 +75,18 @@ sub _load_data_tables {
 
   my $h = {};
   my $dir = $self->source_data;
-  say "looking for $dir";
+  $self->devel("looking for $dir");
   foreach my $table (<$dir/*>) {
-	  say "loading $table";
+	  $self->devel("loading $table");
     my ($filename, $dirs, $suffix) = fileparse($table, qr/\.[^.]*/);
     if ($filename eq 'start') {
-      $h->{$filename} = new SoloGamer::FlowTable( file => $table );
+      $h->{$filename} = new SoloGamer::FlowTable( file => $table,
+                                                  verbose => $self->verbose
+						);
     } else {
-      $h->{$filename} = new SoloGamer::RollTable( file => $table );
+      $h->{$filename} = new SoloGamer::RollTable( file => $table,
+                                                  verbose => $self->verbose
+						);
     }
   }
   return $h;
@@ -74,8 +96,8 @@ sub run_game {
   my $self = shift;
 
   say "Rolling for Mission";
-  say "Current is: ", $self->table->{'start'}->current;
-  say "Next is: ", $self->table->{'start'}->get_next;
+  $self->devel("Current is: ", $self->table->{'start'}->current);
+  $self->devel("Next is: ", $self->table->{'start'}->get_next);
 
 }
 __PACKAGE__->meta->make_immutable;

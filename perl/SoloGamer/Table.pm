@@ -1,10 +1,13 @@
 package SoloGamer::Table;
+use v5.10;
 
 use File::Slurp;
 use File::Basename;
 use Mojo::JSON qw(decode_json encode_json);
 use Moose;
 use namespace::autoclean;
+
+extends 'SoloGamer::Base';
 
 sub __load_table {
   my $self = shift;
