@@ -128,14 +128,11 @@ sub load_save {
     $self->save(decode_json($json)) or die $!;
     my $last_mission = $self->save->{mission}->$#* + 1;
     $self->devel("Last mission was: $last_mission");
-    print Dumper $self->mission;
     $self->mission($last_mission+1);
-    print Dumper $self->mission;
-    push $self->save->{mission}->@*, { $self->mission => {} };
   } else {
     $self->devel("No save file found at $save_to_load");
-    my $temp = { mission => [{1=>{}}] };
-    print Dumper $temp;
+    $self->mission(1);
+    my $temp = { mission => [{}] };
     $self->save($temp);
   }
 
@@ -169,6 +166,9 @@ sub run_game {
       my $table = $next_flow->{'Table'};
       my $roll = $self->table->{$table}->roll;
       my $output = $roll->{'Target'} . " it's a " . $roll->{'Type'};
+      $self->save->{'mission'}->[$self->mission-1]->{'Mission'} = $self->mission;
+      $self->save->{'mission'}->[$self->mission-1]->{'Target'} = $roll->{'Target'};
+      $self->save->{'mission'}->[$self->mission-1]->{'Type'} = $roll->{'Type'};
       $post =~ s/<1>/$output/;
       say $post;
     }
