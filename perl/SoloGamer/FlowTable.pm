@@ -8,42 +8,43 @@ use Data::Dumper;
 
 extends 'SoloGamer::Table';
 
-sub __order {
+sub __flow {
   my $self = shift;
 
-  my $f = $self->data->{flow};
-
-  my $a = [sort { $a <=> $b } keys %$f];
-
-  foreach my $item (@$a) {
-    $self->devel($item);
+  my $temp = [];
+  my $json_flow = $self->data->{'flow'};
+  foreach my $item ($json_flow->@*) {
+    push @$temp, $item;
   }
-  return $a;
+  delete $self->data->{'flow'};
+  return $temp;
 }
 
-has 'order' => (
+has 'flow' => (
   is       => 'ro',
   isa      => 'ArrayRef',
-  builder  => '__order',
+  builder  => '__flow',
 );
 
 has 'current' => (
   is       => 'rw',
   isa      => 'Int',
-  default  => '0',
+  default  => '-1',
 );
 
 sub get_next {
   my $self = shift;
 
   $self->devel("In get_next");
-  if (exists $self->order->[$self->current]) {
-    my $next = $self->order->[$self->current];
-    $self->devel("Next is $next");
-    $self->current($self->current + 1);
-    return $self->data->{flow}->{$next};
+  my $current = $self->current($self->current + 1);
+  $self->devel("Current is: ", $current);
+  $self->devel("Last array index is ", $self->flow->$#*);
+
+  if ($current > $self->flow->$#*) {
+    $self->devel("Done with flow");
+    return undef;
   }
-  return undef;
+  return $self->flow->[$current];
 }
 
 __PACKAGE__->meta->make_immutable;
