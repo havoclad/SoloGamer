@@ -23,6 +23,17 @@ has 'verbose' => (
   default  => 0,
 );
 
+has 'save_file' => (
+  is            => 'ro',
+  isa           => 'Str',
+  init_arg      => 'save_file',
+);
+
+has 'mission' => (
+  is       => 'rw',
+  isa      => 'Int',
+);
+
 has 'name' => (
   is       => 'ro',
   isa      => 'Str',
@@ -94,8 +105,34 @@ sub _load_data_tables {
   return $h;
 }
 
+sub load_save {
+  my $self = shift;
+
+  my $save_to_load = $self->save_file or return;
+
+  if (-e $save_to_load) {
+    $self->devel("Trying to load $save_to_load");
+  } else {
+    $self->devel("No save file found at $save_to_load");
+  }
+
+}
+
+sub save_game {
+  my $self = shift;
+
+  if ($self->save_file) {
+    $self->devel("Writing save file");
+    #TODO
+  } else {
+    $self->devel("No save file to write");
+  }
+}
+
 sub run_game {
   my $self = shift;
+
+  $self->load_save;
 
   while (my $next_flow = $self->table->{'start'}->get_next) {
     say $next_flow->{'pre'};
@@ -110,5 +147,6 @@ sub run_game {
     }
   }
 
+  $self->save_game;
 }
 __PACKAGE__->meta->make_immutable;
