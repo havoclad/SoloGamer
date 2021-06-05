@@ -1,0 +1,168 @@
+{
+   "Title": "Missions 11-25",
+   "rolltype": "d6d6",
+   "Notes": {
+      "1": "Add 1 to die roll for flak occurence over target zone.  Table O-2"
+   },
+   "rolls": {
+     "11": {
+        "Target": "St. Omer",
+        "Type": "Airfield"
+     },
+     "12": {
+        "Target": "Cherbourg",
+        "Type": "Airfield"
+     },
+     "13": {
+        "Target": "Amiens",
+        "Type": "Rail Yard"
+     },
+     "14": {
+        "Target": "Meaulte",
+        "Type": "Aircraft"
+     },
+     "15": {
+        "Target": "Abbeville",
+        "Type": "Airfield"
+     },
+     "16": {
+        "Target": "Lille",
+        "Type": "Industry"
+     },
+     "21": {
+        "Target": "Rotterdam",
+        "Type": "Ship Yard"
+     },
+     "22": {
+        "Target": "Antwerp",
+        "Type": "Industry"
+     },
+     "23": {
+        "Target": "Rouen",
+        "Type": "Rail Yard"
+     },
+     "24": {
+        "Target": "Paris",
+        "Type": "Industry"
+     },
+     "25": {
+        "Target": "Paris",
+        "Type": "Industry"
+     },
+     "26": {
+        "Target": "Romilly-S.-S.",
+        "Type": "Aircraft"
+     },
+     "31": {
+        "Target": "Romilly-S.-S.",
+        "Type": "Aircraft"
+     },
+     "32": {
+        "Target": "Rennes",
+        "Type": "Rail Yard"
+     },
+     "33": {
+        "Target": "Rennes",
+        "Type": "Rail Yard"
+     },
+     "34": {
+        "Target": "Brest",
+	"Note": "1",
+        "Type": "U-Boats"
+     },
+     "35": {
+        "Target": "Brest",
+	"Note": "1",
+        "Type": "U-Boats"
+     },
+     "36": {
+        "Target": "Lorient",
+	"Note": "1",
+        "Type": "U-Boats"
+     },
+     "41": {
+        "Target": "Lorient",
+	"Note": "1",
+        "Type": "U-Boats"
+     },
+     "42": {
+        "Target": "St. Nazaire",
+	"Note": "1",
+        "Type": "U-Boats"
+     },
+     "43": {
+        "Target": "St. Nazaire",
+	"Note": "1",
+        "Type": "U-Boats"
+     },
+     "44": {
+        "Target": "St. Nazaire",
+	"Note": "1",
+        "Type": "U-Boats"
+     },
+     "45": {
+        "Target": "Wilhelmshaven",
+	"Note": "1",
+        "Type": "U-Boats"
+     },
+     "46": {
+        "Target": "Wilhelmshaven",
+	"Note": "1",
+        "Type": "U-Boats"
+     },
+     "51": {
+        "Target": "Emden",
+        "Type": "Industry"
+     },
+     "52": {
+        "Target": "Emden",
+        "Type": "Industry"
+     },
+     "53": {
+        "Target": "Vegesack",
+	"Note": "1",
+        "Type": "U-Boats"
+     },
+     "54": {
+        "Target": "Vegesack",
+	"Note": "1",
+        "Type": "U-Boats"
+     },
+     "55": {
+        "Target": "Bremen",
+        "Type": "Aircraft"
+     },
+     "56": {
+        "Target": "Bremen",
+        "Type": "Aircraft"
+     },
+     "61": {
+        "Target": "Hamm",
+        "Type": "Rail Yard"
+     },
+     "62": {
+        "Target": "Hamm",
+        "Type": "Rail Yard"
+     },
+     "63": {
+        "Target": "La Rochelle",
+	"Note": "1",
+        "Type": "U-Boats"
+     },
+     "64": {
+        "Target": "La Rochelle",
+	"Note": "1",
+        "Type": "U-Boats"
+     },
+     "65": {
+        "Target": "Kiel",
+	"Note": "1",
+        "Type": "U-Boats"
+     },
+     "66": {
+        "Target": "Kiel",
+	"Note": "1",
+        "Type": "U-Boats"
+     }
+   }
+}
