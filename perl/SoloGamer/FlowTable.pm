@@ -35,10 +35,8 @@ has 'current' => (
 sub get_next {
   my $self = shift;
 
-  $self->devel("In get_next");
   my $current = $self->current($self->current + 1);
-  $self->devel("Current is: ", $current);
-  $self->devel("Last array index is ", $self->flow->$#*);
+  $self->devel("In get_next with current: ", $current, " and last array index of: ", $self->flow->$#*);
 
   if ($current > $self->flow->$#*) {
     $self->devel("Done with flow");

@@ -153,6 +153,16 @@ sub save_game {
   }
 }
 
+sub do_max {
+  my $self = shift;
+  my $variable = shift;
+  my $choices = shift;
+
+  foreach my $item (@$choices) {
+    return $item->{'Table'} if $variable <= $item->{'max'};
+  }
+}
+
 sub run_game {
   my $self = shift;
 
@@ -160,15 +170,22 @@ sub run_game {
 
   while (my $next_flow = $self->table->{'start'}->get_next) {
     say $next_flow->{'pre'};
-    if (exists $next_flow->{'Table'}) {
-      $self->devel("Next is: ", $next_flow->{'Table'});
+    if (exists $next_flow->{'type'}) {
       my $post = $next_flow->{'post'};
-      my $table = $next_flow->{'Table'};
-      my $roll = $self->table->{$table}->roll;
-      my $output = $roll->{'Target'} . " it's a " . $roll->{'Type'};
-      $self->save->{'mission'}->[$self->mission-1]->{'Mission'} = $self->mission;
-      $self->save->{'mission'}->[$self->mission-1]->{'Target'} = $roll->{'Target'};
-      $self->save->{'mission'}->[$self->mission-1]->{'Type'} = $roll->{'Type'};
+      my $output = "";
+      if ($next_flow->{'type'} eq 'choosemax') {
+	my $choice = $next_flow->{'variable'};
+	my $table = $self->do_max($self->{$choice}, $next_flow->{'choices'});
+        my $roll = $self->table->{$table}->roll;
+        $output = $roll->{'Target'} . " it's a " . $roll->{'Type'};
+        $self->save->{'mission'}->[$self->mission-1]->{'Mission'} = $self->mission;
+        $self->save->{'mission'}->[$self->mission-1]->{'Target'} = $roll->{'Target'};
+        $self->save->{'mission'}->[$self->mission-1]->{'Type'} = $roll->{'Type'};
+      } elsif ($next_flow->{'type'} eq 'table') {
+        my $table = $next_flow->{'Table'};
+        my $roll = $self->table->{$table}->roll;
+        $output = $roll->{'Position'};
+      }
       $post =~ s/<1>/$output/;
       say $post;
     }

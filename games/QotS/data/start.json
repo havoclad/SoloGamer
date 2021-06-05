@@ -5,9 +5,34 @@
 			"pre": "Welcome to B-17 Queen of the Skies"
 		},
 		{
+			"type": "choosemax",
+			"variable": "mission",
 			"pre": "Rolling for Mission",
-			"Table": "G-1",
-			"post": "We're going to <1>"
+			"post": "We're going to <1>",
+			"choices": [
+				{
+					"max" : "5",
+					"Table": "G-1"
+				},
+				{
+					"max" : "10",
+					"Table": "G-2"
+				},
+				{
+					"max" : "25",
+					"Table": "G-3"
+				},
+				{
+					"max": "26",
+					"Table": "end"
+				}
+			]
+		},
+		{
+			"type": "table",
+			"Table": "G-4",
+			"pre": "Rolling for Formation Position",
+			"post": "We are in the <1> position"
 		}
 	]
 }
