@@ -184,6 +184,7 @@ sub run_game {
       if ($next_flow->{'type'} eq 'choosemax') {
 	my $choice = $next_flow->{'variable'};
 	my $table = $self->do_max($self->{$choice}, $next_flow->{'choices'});
+        $table eq 'end' and die "25 successful missions, your crew went home!";
         my $roll = $self->table->{$table}->roll;
         $output = $roll->{'Target'} . " it's a " . $roll->{'Type'};
         $self->add_save('Mission', $self->mission);
