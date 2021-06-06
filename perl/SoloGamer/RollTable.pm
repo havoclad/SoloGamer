@@ -42,6 +42,14 @@ sub __roll_type {
   return $roll_type;
 }
 
+sub __determines {
+  my $self = shift;
+
+  my $determines = $self->data->{'determines'};
+  delete $self->data->{'determines'};
+  return $determines;
+}
+
 has 'roll_type' => (
   is       => 'rw',
   isa      => 'Str',
@@ -54,6 +62,13 @@ has 'roll' => (
   isa      => 'HashRef',
   lazy     => 1,
   builder  => '__roll',
+);
+
+has 'determines' => (
+  is       => 'ro',
+  isa      => 'Str',
+  lazy     => 1,
+  builder  => '__determines',
 );
 
 sub __rolls {

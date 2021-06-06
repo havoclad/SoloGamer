@@ -163,6 +163,14 @@ sub do_max {
   }
 }
 
+sub add_save {
+  my $self     = shift;
+  my $property = shift;
+  my $value    = shift;
+
+  $self->save->{'mission'}->[$self->mission-1]->{$property} = $value;
+}
+
 sub run_game {
   my $self = shift;
 
@@ -178,13 +186,15 @@ sub run_game {
 	my $table = $self->do_max($self->{$choice}, $next_flow->{'choices'});
         my $roll = $self->table->{$table}->roll;
         $output = $roll->{'Target'} . " it's a " . $roll->{'Type'};
-        $self->save->{'mission'}->[$self->mission-1]->{'Mission'} = $self->mission;
-        $self->save->{'mission'}->[$self->mission-1]->{'Target'} = $roll->{'Target'};
-        $self->save->{'mission'}->[$self->mission-1]->{'Type'} = $roll->{'Type'};
+        $self->add_save('Mission', $self->mission);
+        $self->add_save('Target', $roll->{'Target'});
+        $self->add_save('Type', $roll->{'Type'});
       } elsif ($next_flow->{'type'} eq 'table') {
         my $table = $next_flow->{'Table'};
         my $roll = $self->table->{$table}->roll;
-        $output = $roll->{'Position'};
+        my $determines = $self->table->{$table}->determines;
+        $output = $roll->{$determines};
+        $self->add_save($determines, $output);
       }
       $post =~ s/<1>/$output/;
       say $post;
