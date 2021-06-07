@@ -59,7 +59,7 @@ has 'source' => (
   builder  => '_build_source',
 );
 
-has 'table' => (
+has 'tables' => (
   is       => 'ro',
   isa      => 'HashRef',
   lazy     => 1,
@@ -160,7 +160,7 @@ sub run_game {
 
   $self->load_save;
 
-  while (my $next_flow = $self->table->{'start'}->get_next) {
+  while (my $next_flow = $self->tables->{'start'}->get_next) {
     say $next_flow->{'pre'};
     if (exists $next_flow->{'type'}) {
       my $post = $next_flow->{'post'};
@@ -169,15 +169,15 @@ sub run_game {
 	my $choice = $next_flow->{'variable'};
 	my $table = $self->do_max($self->{$choice}, $next_flow->{'choices'});
         $table eq 'end' and die "25 successful missions, your crew went home!";
-        my $roll = $self->table->{$table}->roll;
+        my $roll = $self->tables->{$table}->roll;
         $output = $roll->{'Target'} . " it's a " . $roll->{'Type'};
         $self->add_save('Mission', $self->mission);
         $self->add_save('Target', $roll->{'Target'});
         $self->add_save('Type', $roll->{'Type'});
       } elsif ($next_flow->{'type'} eq 'table') {
         my $table = $next_flow->{'Table'};
-        my $roll = $self->table->{$table}->roll;
-        my $determines = $self->table->{$table}->determines;
+        my $roll = $self->tables->{$table}->roll;
+        my $determines = $self->tables->{$table}->determines;
         $output = $roll->{$determines};
         $self->add_save($determines, $output);
       }

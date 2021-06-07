@@ -27,7 +27,7 @@ my $game = SoloGamer::Game->new(name      => $game_name,
 				save_file => $save_file,
 			        );
 
-my $data = $game->table;
+my $data = $game->tables;
 
 $game->run_game;
 
