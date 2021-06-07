@@ -18,14 +18,6 @@ use Data::Dumper;
 
 extends 'SoloGamer::Base';
 
-has 'verbose' => (
-  is       => 'ro',
-  isa      => 'Int',
-  init_arg => 'verbose',
-  lazy     => 1,
-  default  => 0,
-);
-
 has 'save_file' => (
   is            => 'ro',
   isa           => 'Str',
@@ -78,14 +70,6 @@ has 'table' => (
 sub _build_source {
   my $self = shift;
   return '/games/' . $self->name . '/';
-}
-
-sub devel {
-  my $self = shift;
-
-  $self->verbose or return;
-
-  say @_;
 }
 
 sub _build_source_data {
