@@ -75,16 +75,16 @@ sub _load_data_tables {
   my $dir = $self->source_data;
   $self->devel("looking for $dir");
   foreach my $table (<$dir/*>) {
-	  $self->devel("loading $table");
+    $self->devel("loading $table");
     my ($filename, $dirs, $suffix) = fileparse($table, qr/\.[^.]*/);
     if ($filename eq 'start') {
       $h->{$filename} = new SoloGamer::FlowTable( file => $table,
                                                   verbose => $self->verbose
-						);
+                                                );
     } else {
       $h->{$filename} = new SoloGamer::RollTable( file => $table,
                                                   verbose => $self->verbose
-						);
+                                                );
     }
   }
   return $h;
