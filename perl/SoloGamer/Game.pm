@@ -102,11 +102,11 @@ sub _load_data_tables {
 sub load_save {
   my $self = shift;
 
-  my $save_to_load = $self->save_file or return;
+  my $save_to_load = $self->save_file;
 
   if (-e $save_to_load) {
     $self->devel("Trying to load $save_to_load");
-    open(my $fh, "<", $self->save_file) or die("Can't open: ", $self->save_file);
+    open(my $fh, "<", $save_to_load) or die("Can't open: ", $save_to_load);
     my $json = read_file($fh);
     close $fh;
     $self->save(decode_json($json)) or die $!;
@@ -114,7 +114,11 @@ sub load_save {
     $self->devel("Last mission was: $last_mission");
     $self->mission($last_mission+1);
   } else {
-    $self->devel("No save file found at $save_to_load");
+    if ($save_to_load eq '') {
+      $self->devel("No save file, use --save_file on command line to set");
+    } else {
+      $self->devel("No save file found at $save_to_load");
+    }
     $self->mission(1);
     my $temp = { mission => [{}] };
     $self->save($temp);
@@ -158,6 +162,7 @@ sub add_save {
 sub run_game {
   my $self = shift;
 
+  $self->devel("In run_game");
   $self->load_save;
 
   while (my $next_flow = $self->tables->{'start'}->get_next) {
@@ -166,8 +171,8 @@ sub run_game {
       my $post = $next_flow->{'post'};
       my $output = "";
       if ($next_flow->{'type'} eq 'choosemax') {
-	my $choice = $next_flow->{'variable'};
-	my $table = $self->do_max($self->{$choice}, $next_flow->{'choices'});
+        my $choice = $next_flow->{'variable'};
+        my $table = $self->do_max($self->{$choice}, $next_flow->{'choices'});
         $table eq 'end' and die "25 successful missions, your crew went home!";
         my $roll = $self->tables->{$table}->roll;
         $output = $roll->{'Target'} . " it's a " . $roll->{'Type'};
