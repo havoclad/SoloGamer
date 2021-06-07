@@ -90,6 +90,7 @@ sub _load_data_tables {
   return $h;
 }
 
+# Intent is to return the first item in an array that is less than the input
 sub do_max {
   my $self = shift;
   my $variable = shift;
@@ -98,6 +99,7 @@ sub do_max {
   foreach my $item (@$choices) {
     return $item->{'Table'} if $variable <= $item->{'max'};
   }
+  die "Didn't find a max that matched $variable";
 }
 
 sub run_game {

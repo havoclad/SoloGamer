@@ -32,7 +32,7 @@
 			"type": "table",
 			"Table": "G-4",
 			"pre": "Rolling for Formation Position",
-			"post": "We are in the <1> position"
+			"post": "We are in the <1> formation position"
 		}
 	]
 }

@@ -1,16 +1,16 @@
 {
    "Title": "B-17 Formation Position",
    "rolltype": "2d6",
-   "determines": "position",
+   "determines": "formation_position",
    "rolls": {
      "2": {
-        "position": "Lead Bomber"
+        "formation_position": "Lead Bomber"
      },
      "3-11": {
-        "position": "Middle"
+        "formation_position": "Middle"
      },
      "12": {
-        "position": "Tail Bomber"
+        "formation_position": "Tail Bomber"
      }
    }
 }
