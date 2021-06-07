@@ -109,6 +109,8 @@ sub run_game {
   my $save = new SoloGamer::SaveGame( save_file => $self->save_file);
   my $mission = $save->load_save;
   $self->mission($mission);
+  my $max_missions = $self->tables->{'start'}->{'data'}->{'missions'};
+  $self->mission == $max_missions and die "25 successful missions, your crew went home!";
 
   while (my $next_flow = $self->tables->{'start'}->get_next) {
     say $next_flow->{'pre'};
@@ -118,7 +120,6 @@ sub run_game {
       if ($next_flow->{'type'} eq 'choosemax') {
         my $choice = $next_flow->{'variable'};
         my $table = $self->do_max($self->{$choice}, $next_flow->{'choices'});
-        $table eq 'end' and die "25 successful missions, your crew went home!";
         my $roll = $self->tables->{$table}->roll;
         $output = $roll->{'Target'} . " it's a " . $roll->{'Type'};
         $save->add_save('Mission', $self->mission);

@@ -1,5 +1,6 @@
 {
 	"Title": "B-17 Queen of the Skies",
+	"missions": "25",
 	"flow": [
 		{
 			"pre": "Welcome to B-17 Queen of the Skies"
