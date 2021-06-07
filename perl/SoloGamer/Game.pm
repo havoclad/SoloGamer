@@ -4,15 +4,13 @@ use strict;
 use v5.20;
 
 use File::Basename;
-use File::Copy;
-use File::Slurp;
 
 use Moose;
-use Mojo::JSON qw ( encode_json decode_json );
 use namespace::autoclean;
 
 use SoloGamer::FlowTable;
 use SoloGamer::RollTable;
+use SoloGamer::SaveGame;
 
 use Data::Dumper;
 
@@ -22,13 +20,6 @@ has 'save_file' => (
   is            => 'ro',
   isa           => 'Str',
   init_arg      => 'save_file',
-);
-
-has 'save'    => (
-  is          => 'rw',
-  isa         => 'HashRef',
-  lazy        => 1,
-  default     => sub { {} },
 );
 
 has 'mission' => (
@@ -99,48 +90,6 @@ sub _load_data_tables {
   return $h;
 }
 
-sub load_save {
-  my $self = shift;
-
-  my $save_to_load = $self->save_file;
-
-  if (-e $save_to_load) {
-    $self->devel("Trying to load $save_to_load");
-    open(my $fh, "<", $save_to_load) or die("Can't open: ", $save_to_load);
-    my $json = read_file($fh);
-    close $fh;
-    $self->save(decode_json($json)) or die $!;
-    my $last_mission = $self->save->{mission}->$#* + 1;
-    $self->devel("Last mission was: $last_mission");
-    $self->mission($last_mission+1);
-  } else {
-    if ($save_to_load eq '') {
-      $self->devel("No save file, use --save_file on command line to set");
-    } else {
-      $self->devel("No save file found at $save_to_load");
-    }
-    $self->mission(1);
-    my $temp = { mission => [{}] };
-    $self->save($temp);
-  }
-
-}
-
-sub save_game {
-  my $self = shift;
-
-  if ($self->save_file) {
-    $self->devel("Writing save file to ", $self->save_file);
-    my $tmp_file = $self->save_file . '.tmp';
-    open(my $fh, ">", $tmp_file) or die "Can't open $tmp_file $!";
-    print $fh encode_json($self->save) or die("Can't write file at: ", $tmp_file, " $!");
-    close $fh;
-    move($tmp_file, $self->save_file) or die("Can't move $tmp_file to ", $self->save_file);
-  } else {
-    $self->devel("No save file to write");
-  }
-}
-
 sub do_max {
   my $self = shift;
   my $variable = shift;
@@ -151,19 +100,13 @@ sub do_max {
   }
 }
 
-sub add_save {
-  my $self     = shift;
-  my $property = shift;
-  my $value    = shift;
-
-  $self->save->{'mission'}->[$self->mission-1]->{$property} = $value;
-}
-
 sub run_game {
   my $self = shift;
 
   $self->devel("In run_game");
-  $self->load_save;
+  my $save = new SoloGamer::SaveGame( save_file => $self->save_file);
+  my $mission = $save->load_save;
+  $self->mission($mission);
 
   while (my $next_flow = $self->tables->{'start'}->get_next) {
     say $next_flow->{'pre'};
@@ -176,21 +119,21 @@ sub run_game {
         $table eq 'end' and die "25 successful missions, your crew went home!";
         my $roll = $self->tables->{$table}->roll;
         $output = $roll->{'Target'} . " it's a " . $roll->{'Type'};
-        $self->add_save('Mission', $self->mission);
-        $self->add_save('Target', $roll->{'Target'});
-        $self->add_save('Type', $roll->{'Type'});
+        $save->add_save('Mission', $self->mission);
+        $save->add_save('Target', $roll->{'Target'});
+        $save->add_save('Type', $roll->{'Type'});
       } elsif ($next_flow->{'type'} eq 'table') {
         my $table = $next_flow->{'Table'};
         my $roll = $self->tables->{$table}->roll;
         my $determines = $self->tables->{$table}->determines;
         $output = $roll->{$determines};
-        $self->add_save($determines, $output);
+        $save->add_save($determines, $output);
       }
       $post =~ s/<1>/$output/;
       say $post;
     }
   }
 
-  $self->save_game;
+  $save->save_game;
 }
 __PACKAGE__->meta->make_immutable;
