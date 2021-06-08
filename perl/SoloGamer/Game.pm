@@ -132,7 +132,6 @@ sub run_game {
         $save->add_save($determines, $output);
       } elsif ($next_flow->{'type'} eq 'onlyif') {
         my $variable = $self->{$next_flow->{'variable'}};
-        say "Variable: $variable";
         my $check = $next_flow->{'check'};
         if ( eval "$variable $check" ) {
           my $table = $next_flow->{'Table'};
@@ -143,6 +142,17 @@ sub run_game {
         } else {
           $self->devel("Skipping as check didn't pass");
           next;
+        }
+      } elsif ($next_flow->{'type'} eq 'loop') {
+        my $loop_table = $next_flow->{'loop_table'};
+        my $loop_variable = $next_flow->{'loop_variable'};
+        my $target_city = $save->get_from_current_mission('Target');
+        say "Loop_table: $loop_table";
+        say "Loop_variable: $loop_variable";
+        say "Target City: $target_city";
+        print Dumper $self->tables->{$loop_table}->{'data'}->{'target city'}->{$target_city};
+        foreach my $i (sort {$a <=> $b } keys $self->tables->{$loop_table}->{'data'}->{'target city'}->{$target_city}->{$loop_variable}->%*) {
+          say "Moving to $loop_variable $i";
         }
       } else {
         die "Unknown flow type: ", $next_flow->{'type'};

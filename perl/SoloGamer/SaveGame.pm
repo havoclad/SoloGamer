@@ -83,4 +83,11 @@ sub add_save {
 
   $self->save->{'mission'}->[$self->mission-1]->{$property} = $value;
 }
+
+sub get_from_current_mission {
+  my $self = shift;
+  my $property = shift;
+
+  return $self->save->{'mission'}->[$self->mission-1]->{$property};
+}
 __PACKAGE__->meta->make_immutable;

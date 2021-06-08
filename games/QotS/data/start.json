@@ -42,6 +42,14 @@
 			"post": "We are in the <1> squadron position",
 			"variable": "mission",
 			"check": ">5"
+		},
+		{
+			"type": "loop",
+			"pre": "We took off",
+			"post": "The mission is over",
+			"loop_table": "G-11",
+			"loop_variable": "zone",
+			"do": "zone_process"
 		}
 	]
 }
