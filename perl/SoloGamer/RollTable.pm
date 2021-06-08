@@ -76,15 +76,20 @@ sub __rolls {
 
   my $hr = {};
   foreach my $key (keys $self->data->{rolls}->%*) {
-    if ($key =~ /^(\d+)-(\d+)$/) {
+    my $value = $self->data->{'rolls'}->{$key};
+    if ($key =~ /^(\d+)-(\d+)$/) {    # example 3-11
       my $min = $1;
       my $max = $2;
       $max > $min or die "Malformed range key $key";
       foreach my $n ($min .. $max) {
-        $hr->{$n} = $self->data->{rolls}->{$key};
+        $hr->{$n} = $value;
+      }
+    } elsif ( $key =~/^(\d,)+\d$/ ) {  # example 2,3
+      foreach my $n (split ',', $key) {
+        $hr->{$n} = $value;
       }
     } else {
-      $hr->{$key} = $self->data->{rolls}->{$key};
+      $hr->{$key} = $value;
     }
   }
   delete $self->data->{rolls};

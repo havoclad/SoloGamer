@@ -113,7 +113,6 @@ sub run_game {
   $self->mission == $max_missions and die "25 successful missions, your crew went home!";
 
   while (my $next_flow = $self->tables->{'start'}->get_next) {
-    say $next_flow->{'pre'};
     if (exists $next_flow->{'type'}) {
       my $post = $next_flow->{'post'};
       my $output = "";
@@ -131,7 +130,24 @@ sub run_game {
         my $determines = $self->tables->{$table}->determines;
         $output = $roll->{$determines};
         $save->add_save($determines, $output);
+      } elsif ($next_flow->{'type'} eq 'onlyif') {
+        my $variable = $self->{$next_flow->{'variable'}};
+        say "Variable: $variable";
+        my $check = $next_flow->{'check'};
+        if ( eval "$variable $check" ) {
+          my $table = $next_flow->{'Table'};
+          my $roll = $self->tables->{$table}->roll;
+          my $determines = $self->tables->{$table}->determines;
+          $output = $roll->{$determines};
+          $save->add_save($determines, $output);
+        } else {
+          $self->devel("Skipping as check didn't pass");
+          next;
+        }
+      } else {
+        die "Unknown flow type: ", $next_flow->{'type'};
       }
+      say $next_flow->{'pre'};
       $post =~ s/<1>/$output/;
       say $post;
     }

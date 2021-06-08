@@ -34,6 +34,14 @@
 			"Table": "G-4",
 			"pre": "Rolling for Formation Position",
 			"post": "We are in the <1> formation position"
+		},
+		{
+			"type": "onlyif",
+			"Table": "G-4a",
+			"pre": "Rolling for Squadron Position",
+			"post": "We are in the <1> squadron position",
+			"variable": "mission",
+			"check": ">5"
 		}
 	]
 }
