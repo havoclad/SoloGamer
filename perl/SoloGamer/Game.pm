@@ -22,11 +22,6 @@ has 'save_file' => (
   init_arg      => 'save_file',
 );
 
-has 'mission' => (
-  is       => 'rw',
-  isa      => 'Int',
-);
-
 has 'name' => (
   is       => 'ro',
   isa      => 'Str',
@@ -106,22 +101,23 @@ sub run_game {
   my $self = shift;
 
   $self->devel("In run_game");
-  my $save = new SoloGamer::SaveGame( save_file => $self->save_file);
+  my $save = new SoloGamer::SaveGame( save_file => $self->save_file,
+                                      verbose   => $self->{'verbose'} || 0,
+                                    );
   my $mission = $save->load_save;
-  $self->mission($mission);
   my $max_missions = $self->tables->{'start'}->{'data'}->{'missions'};
-  $self->mission == $max_missions and die "25 successful missions, your crew went home!";
+  $mission == $max_missions and die "25 successful missions, your crew went home!";
 
   while (my $next_flow = $self->tables->{'start'}->get_next) {
     if (exists $next_flow->{'type'}) {
       my $post = $next_flow->{'post'};
       my $output = "";
       if ($next_flow->{'type'} eq 'choosemax') {
+        $save->add_save('Mission', $mission);
         my $choice = $next_flow->{'variable'};
-        my $table = $self->do_max($self->{$choice}, $next_flow->{'choices'});
+        my $table = $self->do_max($save->get_from_current_mission($choice), $next_flow->{'choices'});
         my $roll = $self->tables->{$table}->roll;
         $output = $roll->{'Target'} . " it's a " . $roll->{'Type'};
-        $save->add_save('Mission', $self->mission);
         $save->add_save('Target', $roll->{'Target'});
         $save->add_save('Type', $roll->{'Type'});
       } elsif ($next_flow->{'type'} eq 'table') {
@@ -131,8 +127,9 @@ sub run_game {
         $output = $roll->{$determines};
         $save->add_save($determines, $output);
       } elsif ($next_flow->{'type'} eq 'onlyif') {
-        my $variable = $self->{$next_flow->{'variable'}};
+        my $variable = $save->get_from_current_mission($next_flow->{'variable'});
         my $check = $next_flow->{'check'};
+        $self->devel("Checking $variable to see if it matches $check");
         if ( eval "$variable $check" ) {
           my $table = $next_flow->{'Table'};
           my $roll = $self->tables->{$table}->roll;
@@ -161,6 +158,7 @@ sub run_game {
       $post =~ s/<1>/$output/;
       say $post;
     }
+    $self->devel("\nEnd flow step\n");
   }
 
   $save->save_game;

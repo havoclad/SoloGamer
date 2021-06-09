@@ -7,7 +7,7 @@
 		},
 		{
 			"type": "choosemax",
-			"variable": "mission",
+			"variable": "Mission",
 			"pre": "Rolling for Mission",
 			"post": "We're going to <1>",
 			"choices": [
@@ -40,7 +40,7 @@
 			"Table": "G-4a",
 			"pre": "Rolling for Squadron Position",
 			"post": "We are in the <1> squadron position",
-			"variable": "mission",
+			"variable": "Mission",
 			"check": ">5"
 		},
 		{
