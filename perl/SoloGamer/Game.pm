@@ -22,6 +22,13 @@ has 'save_file' => (
   init_arg      => 'save_file',
 );
 
+has 'save'      => (
+  is            => 'ro',
+  #isa           => 'HashRef',
+  builder       => '__save',
+  lazy          => 1,
+);
+
 has 'name' => (
   is       => 'ro',
   isa      => 'Str',
@@ -52,6 +59,16 @@ has 'tables' => (
   required => 1,
   builder  => '_load_data_tables',
 );
+
+sub __save {
+  my $self = shift;
+  
+  my $save = new SoloGamer::SaveGame( save_file => $self->save_file,
+                                      verbose   => $self->{'verbose'} || 0,
+                                    );
+  $save->load_save;
+  return $save;
+}
 
 sub _build_source {
   my $self = shift;
@@ -113,37 +130,31 @@ sub do_loop {
   return;
 }
 
-sub run_game {
+sub do_flow {
   my $self = shift;
+  my $table_name = shift;
 
-  $self->devel("In run_game");
-  my $save = new SoloGamer::SaveGame( save_file => $self->save_file,
-                                      verbose   => $self->{'verbose'} || 0,
-                                    );
-  my $mission = $save->load_save;
-  my $max_missions = $self->tables->{'start'}->{'data'}->{'missions'};
-  $mission == $max_missions and die "25 successful missions, your crew went home!";
-
-  while (my $next_flow = $self->tables->{'start'}->get_next) {
+  my $table = $self->tables->{$table_name};
+  while (my $next_flow = $table->get_next) {
     if (exists $next_flow->{'type'}) {
       my $post = $next_flow->{'post'};
       my $output = "";
       if ($next_flow->{'type'} eq 'choosemax') {
-        $save->add_save('Mission', $mission);
+        $self->save->add_save('Mission', $self->save->mission);
         my $choice = $next_flow->{'variable'};
-        my $table = $self->do_max($save->get_from_current_mission($choice), $next_flow->{'choices'});
+        my $table = $self->do_max($self->save->get_from_current_mission($choice), $next_flow->{'choices'});
         my $roll = $self->tables->{$table}->roll;
         $output = $roll->{'Target'} . " it's a " . $roll->{'Type'};
-        $save->add_save('Target', $roll->{'Target'});
-        $save->add_save('Type', $roll->{'Type'});
+        $self->save->add_save('Target', $roll->{'Target'});
+        $self->save->add_save('Type', $roll->{'Type'});
       } elsif ($next_flow->{'type'} eq 'table') {
         my $table = $next_flow->{'Table'};
         my $roll = $self->tables->{$table}->roll;
         my $determines = $self->tables->{$table}->determines;
         $output = $roll->{$determines};
-        $save->add_save($determines, $output);
+        $self->save->add_save($determines, $output);
       } elsif ($next_flow->{'type'} eq 'onlyif') {
-        my $variable = $save->get_from_current_mission($next_flow->{'variable'});
+        my $variable = $self->save->get_from_current_mission($next_flow->{'variable'});
         my $check = $next_flow->{'check'};
         $self->devel("Checking $variable to see if it matches $check");
         if ( eval "$variable $check" ) {
@@ -151,7 +162,7 @@ sub run_game {
           my $roll = $self->tables->{$table}->roll;
           my $determines = $self->tables->{$table}->determines;
           $output = $roll->{$determines};
-          $save->add_save($determines, $output);
+          $self->save->add_save($determines, $output);
         } else {
           $self->devel("Skipping as check didn't pass");
           next;
@@ -160,7 +171,7 @@ sub run_game {
         my $loop_table = $next_flow->{'loop_table'};
         my $loop_variable = $next_flow->{'loop_variable'};
         my $reverse = exists $next_flow->{'reverse'} ? 1 : 0;
-        my $target_city = $save->get_from_current_mission('Target');
+        my $target_city = $self->save->get_from_current_mission('Target');
         $self->do_loop( $self->tables->{$loop_table}->{'data'}->{'target city'}->{$target_city}->{$loop_variable},
                         "Moving to zone: ",
                         $reverse,
@@ -174,7 +185,18 @@ sub run_game {
     }
     $self->devel("\nEnd flow step\n");
   }
+}
 
-  $save->save_game;
+sub run_game {
+  my $self = shift;
+
+  $self->devel("In run_game");
+  my $mission = $self->save->mission;
+  my $max_missions = $self->tables->{'start'}->{'data'}->{'missions'};
+  $mission == $max_missions and die "25 successful missions, your crew went home!";
+
+  $self->do_flow('start');
+
+  $self->save->save_game;
 }
 __PACKAGE__->meta->make_immutable;
