@@ -97,6 +97,24 @@ sub do_max {
   die "Didn't find a max that matched $variable";
 }
 
+sub do_loop {
+  my $self       = shift;
+  my $hr         = shift;  # Whatever hash we're looping on
+  my $action     = shift;
+  my $reverse    = shift || ""; # normal is low to high numerically
+
+  print Dumper $hr;
+  my @keys = $reverse
+           ? sort { $b <=> $a } keys $hr->%*
+           : sort { $a <=> $b } keys $hr->%*;
+
+  print Dumper join " ", @keys;
+  foreach my $i (@keys) {
+    say $action, $i;
+  }
+  return;
+}
+
 sub run_game {
   my $self = shift;
 
@@ -144,13 +162,9 @@ sub run_game {
         my $loop_table = $next_flow->{'loop_table'};
         my $loop_variable = $next_flow->{'loop_variable'};
         my $target_city = $save->get_from_current_mission('Target');
-        say "Loop_table: $loop_table";
-        say "Loop_variable: $loop_variable";
-        say "Target City: $target_city";
-        print Dumper $self->tables->{$loop_table}->{'data'}->{'target city'}->{$target_city};
-        foreach my $i (sort {$a <=> $b } keys $self->tables->{$loop_table}->{'data'}->{'target city'}->{$target_city}->{$loop_variable}->%*) {
-          say "Moving to $loop_variable $i";
-        }
+        $self->do_loop( $self->tables->{$loop_table}->{'data'}->{'target city'}->{$target_city}->{$loop_variable},
+                        "Moving to zone: ",
+                      );
       } else {
         die "Unknown flow type: ", $next_flow->{'type'};
       }
