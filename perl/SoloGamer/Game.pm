@@ -101,14 +101,12 @@ sub do_loop {
   my $self       = shift;
   my $hr         = shift;  # Whatever hash we're looping on
   my $action     = shift;
-  my $reverse    = shift || ""; # normal is low to high numerically
+  my $reverse    = shift; # normal is low to high numerically
 
-  print Dumper $hr;
   my @keys = $reverse
            ? sort { $b <=> $a } keys $hr->%*
            : sort { $a <=> $b } keys $hr->%*;
 
-  print Dumper join " ", @keys;
   foreach my $i (@keys) {
     say $action, $i;
   }
@@ -161,9 +159,11 @@ sub run_game {
       } elsif ($next_flow->{'type'} eq 'loop') {
         my $loop_table = $next_flow->{'loop_table'};
         my $loop_variable = $next_flow->{'loop_variable'};
+        my $reverse = exists $next_flow->{'reverse'} ? 1 : 0;
         my $target_city = $save->get_from_current_mission('Target');
         $self->do_loop( $self->tables->{$loop_table}->{'data'}->{'target city'}->{$target_city}->{$loop_variable},
                         "Moving to zone: ",
+                        $reverse,
                       );
       } else {
         die "Unknown flow type: ", $next_flow->{'type'};

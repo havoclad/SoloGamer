@@ -46,6 +46,15 @@
 		{
 			"type": "loop",
 			"pre": "We took off",
+			"post": "Bombing run!",
+			"loop_table": "G-11",
+			"loop_variable": "zone",
+			"do": "zone_process"
+		},
+		{
+			"type": "loop",
+			"reverse": "1",
+			"pre": "Heading back to base",
 			"post": "The mission is over",
 			"loop_table": "G-11",
 			"loop_variable": "zone",
