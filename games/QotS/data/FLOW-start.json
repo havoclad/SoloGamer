@@ -59,6 +59,11 @@
 			"loop_table": "G-11",
 			"loop_variable": "zone",
 			"do": "zone_process"
+		},
+		{
+			"type": "flow",
+			"flow_table": "FLOW-landing",
+			"pre": "Starting landing procedure"
 		}
 	]
 }

@@ -89,7 +89,7 @@ sub _load_data_tables {
   foreach my $table (<$dir/*>) {
     $self->devel("loading $table");
     my ($filename, $dirs, $suffix) = fileparse($table, qr/\.[^.]*/);
-    if ($filename eq 'start') {
+    if ($filename =~ /^FLOW-/) {
       $h->{$filename} = new SoloGamer::FlowTable( file => $table,
                                                   verbose => $self->verbose
                                                 );
@@ -130,29 +130,50 @@ sub do_loop {
   return;
 }
 
+sub handle_output{
+  my $self = shift;
+  my $output = shift;
+  my $key = shift;
+  my $value = shift;
+  my $text = shift || "";
+
+  $self->devel("In handle output with key: $key, value: $value, and text: $text --");
+  $self->save->add_save($key, $value);
+  if ($text) {
+    $text =~ s/<1>/$value/;
+    push $output->@*, $text;
+  } else {
+    push $output->@*, "$key: $value";
+  }
+}
+
 sub do_flow {
   my $self = shift;
   my $table_name = shift;
 
   my $table = $self->tables->{$table_name};
   while (my $next_flow = $table->get_next) {
+    my $post = "";
+    if (exists $next_flow->{'post'}) {
+      $post = $next_flow->{'post'};
+    }
     if (exists $next_flow->{'type'}) {
-      my $post = $next_flow->{'post'};
-      my $output = "";
+      my $output = ();
+      if (exists $next_flow->{'pre'}) {
+        push $output->@*, $next_flow->{'pre'};
+      }
       if ($next_flow->{'type'} eq 'choosemax') {
         $self->save->add_save('Mission', $self->save->mission);
         my $choice = $next_flow->{'variable'};
         my $table = $self->do_max($self->save->get_from_current_mission($choice), $next_flow->{'choices'});
         my $roll = $self->tables->{$table}->roll;
-        $output = $roll->{'Target'} . " it's a " . $roll->{'Type'};
-        $self->save->add_save('Target', $roll->{'Target'});
-        $self->save->add_save('Type', $roll->{'Type'});
+        $self->handle_output($output, 'Target', $roll->{'Target'});
+        $self->handle_output($output, 'Type', $roll->{'Type'});
       } elsif ($next_flow->{'type'} eq 'table') {
         my $table = $next_flow->{'Table'};
         my $roll = $self->tables->{$table}->roll;
         my $determines = $self->tables->{$table}->determines;
-        $output = $roll->{$determines};
-        $self->save->add_save($determines, $output);
+        $self->handle_output($output, $determines, $roll->{$determines}, $post);
       } elsif ($next_flow->{'type'} eq 'onlyif') {
         my $variable = $self->save->get_from_current_mission($next_flow->{'variable'});
         my $check = $next_flow->{'check'};
@@ -161,8 +182,7 @@ sub do_flow {
           my $table = $next_flow->{'Table'};
           my $roll = $self->tables->{$table}->roll;
           my $determines = $self->tables->{$table}->determines;
-          $output = $roll->{$determines};
-          $self->save->add_save($determines, $output);
+          $self->handle_output($output, $determines, $roll->{$determines}, $post);
         } else {
           $self->devel("Skipping as check didn't pass");
           next;
@@ -176,12 +196,15 @@ sub do_flow {
                         "Moving to zone: ",
                         $reverse,
                       );
+      } elsif ($next_flow->{'type'} eq 'flow') {
+        my $flow_table = $next_flow->{'flow_table'};
+        $self->do_flow($flow_table);
       } else {
         die "Unknown flow type: ", $next_flow->{'type'};
       }
-      say $next_flow->{'pre'};
-      $post =~ s/<1>/$output/;
-      say $post;
+      foreach my $line($output->@*) {
+        say $line;
+      }
     }
     $self->devel("\nEnd flow step\n");
   }
@@ -192,10 +215,10 @@ sub run_game {
 
   $self->devel("In run_game");
   my $mission = $self->save->mission;
-  my $max_missions = $self->tables->{'start'}->{'data'}->{'missions'};
+  my $max_missions = $self->tables->{'FLOW-start'}->{'data'}->{'missions'};
   $mission == $max_missions and die "25 successful missions, your crew went home!";
 
-  $self->do_flow('start');
+  $self->do_flow('FLOW-start');
 
   $self->save->save_game;
 }
