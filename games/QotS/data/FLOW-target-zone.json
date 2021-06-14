@@ -1,0 +1,15 @@
+{
+	"Title": "Target Zone",
+	"flow": [
+		{
+			"pre": "Getting ready to drop bombs"
+		},
+		{
+			"type": "table",
+			"Table": "O-1",
+			"pre": "Rolling for weather",
+			"post": "Weather over the target zone is <1>"
+		}
+	]
+}
+

@@ -52,6 +52,11 @@
 			"do": "zone_process"
 		},
 		{
+			"type": "flow",
+			"flow_table": "FLOW-target-zone",
+			"pre": "Reached target zone"
+		},
+		{
 			"type": "loop",
 			"reverse": "1",
 			"pre": "Heading back to base",
