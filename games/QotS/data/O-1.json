@@ -1,0 +1,22 @@
+{
+   "Title": "Weather",
+   "rolltype": "2d6",
+   "determines": "weather",
+   "rolls": {
+     "2": {
+        "weather": "Bad"
+     },
+     "3": {
+        "weather": "Poor"
+     },
+     "4-10": {
+        "weather": "Good"
+     },
+     "11": {
+        "weather": "Poor"
+     },
+     "12": {
+        "weather": "Bad"
+     }
+   }
+}
