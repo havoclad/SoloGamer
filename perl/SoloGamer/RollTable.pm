@@ -29,6 +29,14 @@ sub __roll {
       $result .= int(rand($die)+1);
     }
   }
+  foreach my $note ($self->{'modifiers'}->@*) {
+    my $modifier      = $note->{'modifier'};
+    my $from_table    = $note->{'table'};
+    my $why           = $note->{'why'};
+
+    $self->devel("Applying $modifier from table $from_table because $why; was $result");
+    $result += $modifier;
+  }
 
   $self->devel("Rolled a $result on table " . $self->name . " " .  $self->title);
   return { $d->{$result}->%* };
@@ -62,6 +70,13 @@ has 'roll' => (
   isa      => 'HashRef',
   lazy     => 1,
   builder  => '__roll',
+);
+
+has 'modifiers' => (
+  is       =>'ro',
+  isa      =>'ArrayRef',
+  lazy     => 1,
+  default  => sub { [] },
 );
 
 has 'determines' => (
@@ -101,5 +116,18 @@ has 'rolls' => (
   isa      => 'HashRef',
   builder  => '__rolls',
 );
+
+sub add_modifier {
+  my $self       = shift;
+  my $modifier   = shift;
+  my $why        = shift;
+  my $from_table = shift;
+
+  push $self->{'modifiers'}->@*, {
+                                   why        => $why,
+                                   modifier   => $modifier,
+                                   from_table => $from_table,
+                                 };
+}
 __PACKAGE__->meta->make_immutable;
 1;

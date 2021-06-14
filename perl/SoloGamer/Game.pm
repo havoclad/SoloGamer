@@ -147,6 +147,23 @@ sub handle_output{
   }
 }
 
+sub do_roll {
+  my $self  = shift;
+  my $table = shift;
+
+  my $roll = $self->tables->{$table}->roll;
+  if (exists $roll->{'notes'}) {
+    foreach my $note ($roll->{'notes'}->@*) {
+      my $modifier  = $note->{'modifier'};
+      my $mod_table = $note->{'table'};
+      my $why       = $note->{'why'};
+      $self->devel("$why results in a $modifier to table $table");
+      $self->tables->{$mod_table}->add_modifier($modifier, $why, $table);
+    }
+  }
+  return $roll;
+}
+
 sub do_flow {
   my $self = shift;
   my $table_name = shift;
@@ -166,12 +183,12 @@ sub do_flow {
         $self->save->add_save('Mission', $self->save->mission);
         my $choice = $next_flow->{'variable'};
         my $table = $self->do_max($self->save->get_from_current_mission($choice), $next_flow->{'choices'});
-        my $roll = $self->tables->{$table}->roll;
+        my $roll = $self->do_roll($table);
         $self->handle_output($output, 'Target', $roll->{'Target'});
         $self->handle_output($output, 'Type', $roll->{'Type'});
       } elsif ($next_flow->{'type'} eq 'table') {
         my $table = $next_flow->{'Table'};
-        my $roll = $self->tables->{$table}->roll;
+        my $roll = $self->do_roll($table);
         my $determines = $self->tables->{$table}->determines;
         $self->handle_output($output, $determines, $roll->{$determines}, $post);
       } elsif ($next_flow->{'type'} eq 'onlyif') {
@@ -180,7 +197,7 @@ sub do_flow {
         $self->devel("Checking $variable to see if it matches $check");
         if ( eval "$variable $check" ) {
           my $table = $next_flow->{'Table'};
-          my $roll = $self->tables->{$table}->roll;
+          my $roll = $self->do_roll($table);
           my $determines = $self->tables->{$table}->determines;
           $self->handle_output($output, $determines, $roll->{$determines}, $post);
         } else {
