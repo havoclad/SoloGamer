@@ -84,7 +84,7 @@ sub __rolls {
       foreach my $n ($min .. $max) {
         $hr->{$n} = $value;
       }
-    } elsif ( $key =~/^(\d,)+\d$/ ) {  # example 2,3
+    } elsif ( $key =~/^(\d+,)+\d+$/ ) {  # example 2,3
       foreach my $n (split ',', $key) {
         $hr->{$n} = $value;
       }

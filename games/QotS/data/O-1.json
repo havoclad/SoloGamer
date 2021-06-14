@@ -3,20 +3,28 @@
    "rolltype": "2d6",
    "determines": "weather",
    "rolls": {
-     "2": {
-        "weather": "Bad"
+     "2,12": {
+        "weather": "Bad",
+        "notes": [
+           {
+              "table": "G-9",
+              "why": "Bad weather",
+              "modifier": "-2"
+           }
+        ]
      },
-     "3": {
-        "weather": "Poor"
+     "3,11": {
+        "weather": "Poor",
+        "notes": [
+           {
+              "table": "G-9",
+              "why": "Poor weather",
+              "modifier": "-1"
+           }
+        ]
      },
      "4-10": {
         "weather": "Good"
-     },
-     "11": {
-        "weather": "Poor"
-     },
-     "12": {
-        "weather": "Bad"
      }
    }
 }
