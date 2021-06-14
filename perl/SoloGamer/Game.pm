@@ -203,9 +203,7 @@ sub do_flow {
         die "Unknown flow type: ", $next_flow->{'type'};
       }
     }
-    foreach my $line($output->@*) {
-      say $line;
-    }
+    say foreach $output->@*;
     $self->devel("\nEnd flow step\n");
   }
 }
