@@ -157,11 +157,11 @@ sub do_flow {
     if (exists $next_flow->{'post'}) {
       $post = $next_flow->{'post'};
     }
+    my $output = ();
+    if (exists $next_flow->{'pre'}) {
+      push $output->@*, $next_flow->{'pre'};
+    }
     if (exists $next_flow->{'type'}) {
-      my $output = ();
-      if (exists $next_flow->{'pre'}) {
-        push $output->@*, $next_flow->{'pre'};
-      }
       if ($next_flow->{'type'} eq 'choosemax') {
         $self->save->add_save('Mission', $self->save->mission);
         my $choice = $next_flow->{'variable'};
@@ -202,9 +202,9 @@ sub do_flow {
       } else {
         die "Unknown flow type: ", $next_flow->{'type'};
       }
-      foreach my $line($output->@*) {
-        say $line;
-      }
+    }
+    foreach my $line($output->@*) {
+      say $line;
     }
     $self->devel("\nEnd flow step\n");
   }
