@@ -7,7 +7,32 @@
         "weather": "Bad",
         "notes": [
            {
+              "table": "B-2",
+              "why": "Bad weather",
+              "modifier": "-1"
+           },
+           {
+              "table": "M-4",
+              "why": "Bad weather",
+              "modifier": "-1"
+           },
+           {
+              "table": "O-2",
+              "why": "Bad weather",
+              "modifier": "-1"
+           },
+           {
+              "table": "O-6",
+              "why": "Bad weather",
+              "modifier": "-2"
+           },
+           {
               "table": "G-9",
+              "why": "Bad weather",
+              "modifier": "-2"
+           },
+           {
+              "table": "G-10",
               "why": "Bad weather",
               "modifier": "-2"
            }
@@ -17,7 +42,32 @@
         "weather": "Poor",
         "notes": [
            {
+              "table": "B-2",
+              "why": "Bad weather",
+              "modifier": "-1"
+           },
+           {
+              "table": "M-4",
+              "why": "Bad weather",
+              "modifier": "-1"
+           },
+           {
+              "table": "O-2",
+              "why": "Bad weather",
+              "modifier": "-1"
+           },
+           {
+              "table": "O-6",
+              "why": "Poor weather",
+              "modifier": "-1"
+           },
+           {
               "table": "G-9",
+              "why": "Poor weather",
+              "modifier": "-1"
+           },
+           {
+              "table": "G-10",
               "why": "Poor weather",
               "modifier": "-1"
            }

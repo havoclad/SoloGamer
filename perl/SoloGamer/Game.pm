@@ -158,7 +158,8 @@ sub do_roll {
       my $mod_table = $note->{'table'};
       my $why       = $note->{'why'};
       $self->devel("$why results in a $modifier to table $table");
-      $self->tables->{$mod_table}->add_modifier($modifier, $why, $table);
+      exists $self->tables->{$mod_table} 
+        and $self->tables->{$mod_table}->add_modifier($modifier, $why, $table);
     }
   }
   return $roll;
