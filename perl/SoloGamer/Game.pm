@@ -151,13 +151,13 @@ sub do_flow {
   my $self = shift;
   my $table_name = shift;
 
+  my $output = ();
   my $table = $self->tables->{$table_name};
   while (my $next_flow = $table->get_next) {
     my $post = "";
     if (exists $next_flow->{'post'}) {
       $post = $next_flow->{'post'};
     }
-    my $output = ();
     if (exists $next_flow->{'pre'}) {
       push $output->@*, $next_flow->{'pre'};
     }
@@ -198,14 +198,14 @@ sub do_flow {
                       );
       } elsif ($next_flow->{'type'} eq 'flow') {
         my $flow_table = $next_flow->{'flow_table'};
-        $self->do_flow($flow_table);
+        push $output->@*, $self->do_flow($flow_table)->@*;
       } else {
         die "Unknown flow type: ", $next_flow->{'type'};
       }
     }
-    say foreach $output->@*;
     $self->devel("\nEnd flow step\n");
   }
+  return $output;
 }
 
 sub run_game {
@@ -216,7 +216,7 @@ sub run_game {
   my $max_missions = $self->tables->{'FLOW-start'}->{'data'}->{'missions'};
   $mission == $max_missions and die "25 successful missions, your crew went home!";
 
-  $self->do_flow('FLOW-start');
+  say foreach $self->do_flow('FLOW-start')->@*;
 
   $self->save->save_game;
 }

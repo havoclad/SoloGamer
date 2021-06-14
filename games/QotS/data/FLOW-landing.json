@@ -3,6 +3,18 @@
 	"flow": [
 		{
 			"pre": "landing in England"
+		},
+		{
+			"type": "table",
+			"Table": "O-1",
+			"pre": "Rolling for weather",
+			"post": "Weather over the base is <1>"
+		},
+		{
+			"type": "table",
+			"Table": "G-9",
+			"pre": "Rolling for landing",
+			"post": "Landing result is <1>"
 		}
 	]
 }
