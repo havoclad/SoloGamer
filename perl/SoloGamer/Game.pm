@@ -60,11 +60,17 @@ has 'tables' => (
   builder  => '_load_data_tables',
 );
 
+has 'automated' => (
+  is       => 'ro',
+  isa      => 'Int',
+  init_arg => 'automated',
+);
+
 sub __save {
   my $self = shift;
   
   my $save = new SoloGamer::SaveGame( save_file => $self->save_file,
-                                      verbose   => $self->{'verbose'} || 0,
+                                      verbose   => $self->{'verbose'},
                                     );
   $save->load_save;
   return $save;
@@ -94,8 +100,9 @@ sub _load_data_tables {
                                                   verbose => $self->verbose
                                                 );
     } else {
-      $h->{$filename} = new SoloGamer::RollTable( file => $table,
-                                                  verbose => $self->verbose
+      $h->{$filename} = new SoloGamer::RollTable( file      => $table,
+                                                  verbose   => $self->verbose,
+                                                  automated => $self->automated,
                                                 );
     }
   }
@@ -157,7 +164,7 @@ sub do_roll {
       my $modifier  = $note->{'modifier'};
       my $mod_table = $note->{'table'};
       my $why       = $note->{'why'};
-      $self->devel("$why results in a $modifier to table $table");
+      $self->devel("$why results in a $modifier to table $mod_table");
       exists $self->tables->{$mod_table} 
         and $self->tables->{$mod_table}->add_modifier($modifier, $why, $table);
     }

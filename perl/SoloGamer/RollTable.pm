@@ -6,10 +6,23 @@ use namespace::autoclean;
 
 extends 'SoloGamer::Table';
 
-sub __roll {
+sub roll {
   my $self = shift;
 
-  my $d = $self->rolls;
+  $self->devel("Rolling on table: ", $self->name);
+  my $total_modifiers = 0;
+  if ($self->{'modifiers'}->$#*) {
+    foreach my $note ($self->{'modifiers'}->@*) {
+      my $modifier      = $note->{'modifier'};
+      my $from_table    = $note->{'from_table'};
+      my $why           = $note->{'why'};
+
+      $self->devel("Applying $modifier from table $from_table because $why");
+      $total_modifiers += $modifier;
+    }
+  }
+  $self->devel("Total modifiers: $total_modifiers");
+
 
   $self->devel("Roll Type is: ", $self->roll_type);
   my $result = "";
@@ -29,17 +42,8 @@ sub __roll {
       $result .= int(rand($die)+1);
     }
   }
-  foreach my $note ($self->{'modifiers'}->@*) {
-    my $modifier      = $note->{'modifier'};
-    my $from_table    = $note->{'table'};
-    my $why           = $note->{'why'};
-
-    $self->devel("Applying $modifier from table $from_table because $why; was $result");
-    $result += $modifier;
-  }
-
   $self->devel("Rolled a $result on table " . $self->name . " " .  $self->title);
-  return { $d->{$result}->%* };
+  return { $self->rolls->{$result}->%* };
 }
 
 sub __roll_type {
@@ -65,13 +69,6 @@ has 'roll_type' => (
   builder  => '__roll_type',
 );
 
-has 'roll' => (
-  is       => 'rw',
-  isa      => 'HashRef',
-  lazy     => 1,
-  builder  => '__roll',
-);
-
 has 'modifiers' => (
   is       =>'ro',
   isa      =>'ArrayRef',
@@ -84,6 +81,12 @@ has 'determines' => (
   isa      => 'Str',
   lazy     => 1,
   builder  => '__determines',
+);
+
+has 'automated' => (
+  is       => 'ro',
+  isa      => 'Int',
+  init_arg => 'automated',
 );
 
 sub __rolls {
