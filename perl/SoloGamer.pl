@@ -18,17 +18,17 @@ my $save_file = "";
 my $automated = 0;
 
 GetOptions("info"        => \$info,
-	   "debug"       => \$debug,
-	   "game=s"      => \$game_name,
-	   "save_file:s" => \$save_file,
-	   "automated"   => \$automated,
+           "debug"       => \$debug,
+           "game=s"      => \$game_name,
+           "save_file:s" => \$save_file,
+           "automated"   => \$automated,
    );
 
 my $game = SoloGamer::Game->new(name      => $game_name, 
-	                        verbose   => $info,
-				save_file => $save_file,
-				automated => $automated,
-			        );
+                                verbose   => $info,
+                                save_file => $save_file,
+                                automated => $automated,
+                                );
 
 my $data = $game->tables;
 
