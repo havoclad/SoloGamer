@@ -4,22 +4,25 @@ use v5.20;
 use Moose;
 use namespace::autoclean;
 
+use Data::Dumper;
+
 extends 'SoloGamer::Table';
 
 sub roll {
-  my $self = shift;
+  my $self     = shift;
+  my $scope_in = shift;
 
-  $self->devel("Rolling on table: ", $self->name);
+  $self->devel("Rolling on table: ", $self->name, " for scope $scope_in");
   my $total_modifiers = 0;
-  if ($self->{'modifiers'}->$#*) {
-    foreach my $note ($self->{'modifiers'}->@*) {
-      my $modifier      = $note->{'modifier'};
-      my $from_table    = $note->{'from_table'};
-      my $why           = $note->{'why'};
+  foreach my $note ($self->{'modifiers'}->@*) {
+    my $modifier      = $note->{'modifier'};
+    my $from_table    = $note->{'from_table'};
+    my $why           = $note->{'why'};
+    my $scope         = $note->{'scope'};
+    next unless $scope eq 'global' or $scope eq $scope_in;
 
-      $self->devel("Applying $modifier from table $from_table because $why");
-      $total_modifiers += $modifier;
-    }
+    $self->devel("Applying $modifier from table $from_table because $why");
+    $total_modifiers += $modifier;
   }
   $self->devel("Total modifiers: $total_modifiers");
 
@@ -125,11 +128,13 @@ sub add_modifier {
   my $modifier   = shift;
   my $why        = shift;
   my $from_table = shift;
+  my $scope      = shift;
 
   push $self->{'modifiers'}->@*, {
                                    why        => $why,
                                    modifier   => $modifier,
                                    from_table => $from_table,
+                                   scope      => $scope,
                                  };
 }
 __PACKAGE__->meta->make_immutable;

@@ -66,6 +66,12 @@ has 'automated' => (
   init_arg => 'automated',
 );
 
+has 'zone' => (
+  is       => 'rw',
+  isa      => 'Str',
+  init_arg => 1,
+);
+
 sub __save {
   my $self = shift;
   
@@ -127,12 +133,19 @@ sub do_loop {
   my $action     = shift;
   my $reverse    = shift; # normal is low to high numerically
 
-  my @keys = $reverse
-           ? sort { $b <=> $a } keys $hr->%*
-           : sort { $a <=> $b } keys $hr->%*;
+  my $path = "";
+  my @keys;
+  if ($reverse) { # Travelling home
+    @keys = sort { $b <=> $a } keys $hr->%*;
+    $path = "i";
+  } else {        # Outboung
+    @keys = sort { $a <=> $b } keys $hr->%*;
+    $path = "o";
+  }
 
   foreach my $i (@keys) {
     say $action, $i;
+    $self->zone("$i$path");
   }
   return;
 }
@@ -158,15 +171,21 @@ sub do_roll {
   my $self  = shift;
   my $table = shift;
 
-  my $roll = $self->tables->{$table}->roll;
+  my $roll = $self->tables->{$table}->roll($self->zone);
   if (exists $roll->{'notes'}) {
     foreach my $note ($roll->{'notes'}->@*) {
       my $modifier  = $note->{'modifier'};
       my $mod_table = $note->{'table'};
       my $why       = $note->{'why'};
-      $self->devel("$why results in a $modifier to table $mod_table");
+      my $scope     = $note->{'scope'} || 'global';
+
+      if ($scope eq 'zone' ) {
+        $scope = $self->zone;
+      };
+      $self->devel("$why results in a $modifier to table $mod_table for scope: $scope");
+
       exists $self->tables->{$mod_table} 
-        and $self->tables->{$mod_table}->add_modifier($modifier, $why, $table);
+        and $self->tables->{$mod_table}->add_modifier($modifier, $why, $table, $scope);
     }
   }
   return $roll;
