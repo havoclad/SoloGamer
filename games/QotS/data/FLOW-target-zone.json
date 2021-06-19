@@ -9,6 +9,11 @@
 			"Table": "O-1",
 			"pre": "Rolling for weather",
 			"post": "Weather over the target zone is <1>"
+		},
+		{	"type": "table",
+			"Table": "O-2",
+			"pre": "Rolling for flak",
+			"post": "There is <1> over the target"
 		}
 	]
 }

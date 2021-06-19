@@ -1,0 +1,19 @@
+{
+   "Title": "Flak Over Target",
+   "rolltype": "d6",
+   "determines": "Flak",
+   "rolls": {
+     "1": {
+        "Flak": "None"
+     },
+     "2-3": {
+        "Flak": "Light Flak"
+     },
+     "4-5": {
+        "Flak": "Medium Flak"
+     },
+     "6": {
+        "Flak": "Heavy Flak"
+     }
+   }
+}
