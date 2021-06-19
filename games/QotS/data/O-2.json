@@ -4,16 +4,16 @@
    "determines": "Flak",
    "rolls": {
      "1": {
-        "Flak": "None"
+        "Flak": "No flak"
      },
      "2-3": {
-        "Flak": "Light Flak"
+        "Flak": "Light flak"
      },
      "4-5": {
-        "Flak": "Medium Flak"
+        "Flak": "Medium flak"
      },
      "6": {
-        "Flak": "Heavy Flak"
+        "Flak": "Heavy flak"
      }
    }
 }

@@ -10,7 +10,7 @@ extends 'SoloGamer::Table';
 
 sub roll {
   my $self     = shift;
-  my $scope_in = shift;
+  my $scope_in = shift || 'global';
 
   $self->devel("Rolling on table: ", $self->name, " for scope $scope_in");
   my $total_modifiers = 0;
@@ -18,7 +18,7 @@ sub roll {
     my $modifier      = $note->{'modifier'};
     my $from_table    = $note->{'from_table'};
     my $why           = $note->{'why'};
-    my $scope         = $note->{'scope'};
+    my $scope         = $self->scope;
     next unless $scope eq 'global' or $scope eq $scope_in;
 
     $self->devel("Applying $modifier from table $from_table because $why");
@@ -57,6 +57,14 @@ sub __roll_type {
   return $roll_type;
 }
 
+sub __scope {
+  my $self = shift;
+
+  my $scope = $self->data->{'scope'} || 'global';
+  delete $self->data->{'scope'};
+  return $scope;
+}
+
 sub __determines {
   my $self = shift;
 
@@ -64,6 +72,13 @@ sub __determines {
   delete $self->data->{'determines'};
   return $determines;
 }
+
+has 'scope' => (
+  is       => 'rw',
+  isa      => 'Str',
+  lazy     => 1,
+  builder  => '__scope',
+);
 
 has 'roll_type' => (
   is       => 'rw',
