@@ -41,125 +41,61 @@
         "Target": "Rouen",
         "Type": "Rail Yard"
      },
-     "24": {
+     "24,25": {
         "Target": "Paris",
         "Type": "Industry"
      },
-     "25": {
-        "Target": "Paris",
-        "Type": "Industry"
-     },
-     "26": {
+     "26,31": {
         "Target": "Romilly-sur-Seine",
         "Type": "Aircraft"
      },
-     "31": {
-        "Target": "Romilly-sur-Seine",
-        "Type": "Aircraft"
-     },
-     "32": {
+     "32,33": {
         "Target": "Rennes",
         "Type": "Rail Yard"
      },
-     "33": {
-        "Target": "Rennes",
-        "Type": "Rail Yard"
-     },
-     "34": {
+     "34,35": {
         "Target": "Brest",
 	"Note": "1",
         "Type": "U-Boats"
      },
-     "35": {
-        "Target": "Brest",
-	"Note": "1",
-        "Type": "U-Boats"
-     },
-     "36": {
+     "36,41": {
         "Target": "Lorient",
 	"Note": "1",
         "Type": "U-Boats"
      },
-     "41": {
-        "Target": "Lorient",
-	"Note": "1",
-        "Type": "U-Boats"
-     },
-     "42": {
+     "42-44": {
         "Target": "St. Nazaire",
 	"Note": "1",
         "Type": "U-Boats"
      },
-     "43": {
-        "Target": "St. Nazaire",
-	"Note": "1",
-        "Type": "U-Boats"
-     },
-     "44": {
-        "Target": "St. Nazaire",
-	"Note": "1",
-        "Type": "U-Boats"
-     },
-     "45": {
+     "45,46": {
         "Target": "Wilhelmshaven",
 	"Note": "1",
         "Type": "U-Boats"
      },
-     "46": {
-        "Target": "Wilhelmshaven",
-	"Note": "1",
-        "Type": "U-Boats"
-     },
-     "51": {
+     "51,52": {
         "Target": "Emden",
         "Type": "Industry"
      },
-     "52": {
-        "Target": "Emden",
-        "Type": "Industry"
-     },
-     "53": {
+     "53,54": {
         "Target": "Vegesack",
 	"Note": "1",
         "Type": "U-Boats"
      },
-     "54": {
-        "Target": "Vegesack",
-	"Note": "1",
-        "Type": "U-Boats"
-     },
-     "55": {
+     "55,56": {
         "Target": "Bremen",
         "Type": "Aircraft"
      },
-     "56": {
-        "Target": "Bremen",
-        "Type": "Aircraft"
-     },
-     "61": {
+     "61,62": {
         "Target": "Hamm",
         "Type": "Rail Yard"
      },
-     "62": {
-        "Target": "Hamm",
-        "Type": "Rail Yard"
-     },
-     "63": {
+     "63,64": {
         "Target": "La Rochelle",
 	"Note": "1",
         "Type": "U-Boats"
      },
-     "64": {
-        "Target": "La Rochelle",
-	"Note": "1",
-        "Type": "U-Boats"
-     },
-     "65": {
-        "Target": "Kiel",
-	"Note": "1",
-        "Type": "U-Boats"
-     },
-     "66": {
+     "65,66": {
         "Target": "Kiel",
 	"Note": "1",
         "Type": "U-Boats"
