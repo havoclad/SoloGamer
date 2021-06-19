@@ -1,6 +1,7 @@
 {
    "Title": "Missions 11-25",
    "rolltype": "d6d6",
+   "scope": "global",
    "Notes": {
       "1": "Add 1 to die roll for flak occurence over target zone.  Table O-2"
    },
@@ -55,22 +56,46 @@
      },
      "34,35": {
         "Target": "Brest",
-	"Note": "1",
+        "notes": [
+           {
+              "table": "O-2",
+              "why": "Increased flak defenses",
+              "modifier": "1"
+           }
+        ],
         "Type": "U-Boats"
      },
      "36,41": {
         "Target": "Lorient",
-	"Note": "1",
+        "notes": [
+           {
+              "table": "O-2",
+              "why": "Increased flak defenses",
+              "modifier": "1"
+           }
+        ],
         "Type": "U-Boats"
      },
      "42-44": {
         "Target": "St. Nazaire",
-	"Note": "1",
+        "notes": [
+           {
+              "table": "O-2",
+              "why": "Increased flak defenses",
+              "modifier": "1"
+           }
+        ],
         "Type": "U-Boats"
      },
      "45,46": {
         "Target": "Wilhelmshaven",
-	"Note": "1",
+        "notes": [
+           {
+              "table": "O-2",
+              "why": "Increased flak defenses",
+              "modifier": "1"
+           }
+        ],
         "Type": "U-Boats"
      },
      "51,52": {
@@ -79,7 +104,13 @@
      },
      "53,54": {
         "Target": "Vegesack",
-	"Note": "1",
+        "notes": [
+           {
+              "table": "O-2",
+              "why": "Increased flak defenses",
+              "modifier": "1"
+           }
+        ],
         "Type": "U-Boats"
      },
      "55,56": {
@@ -92,12 +123,24 @@
      },
      "63,64": {
         "Target": "La Rochelle",
-	"Note": "1",
+        "notes": [
+           {
+              "table": "O-2",
+              "why": "Increased flak defenses",
+              "modifier": "1"
+           }
+        ],
         "Type": "U-Boats"
      },
      "65,66": {
         "Target": "Kiel",
-	"Note": "1",
+        "notes": [
+           {
+              "table": "O-2",
+              "why": "Increased flak defenses",
+              "modifier": "1"
+           }
+        ],
         "Type": "U-Boats"
      }
    }

@@ -1,6 +1,7 @@
 package SoloGamer::RollTable;
 use v5.20;
 
+use List::Util qw / max min /;
 use Moose;
 use namespace::autoclean;
 
@@ -45,6 +46,9 @@ sub roll {
       $result .= int(rand($die)+1);
     }
   }
+  $result += $total_modifiers;
+  $result = min ($result, $self->max_roll);  # don't fall off the table
+  $result = max ($result, $self->min_roll);
   $self->devel("Rolled a $result on table " . $self->name . " " .  $self->title);
   return { $self->rolls->{$result}->%* };
 }
@@ -107,6 +111,27 @@ has 'automated' => (
   init_arg => 'automated',
 );
 
+has 'max_roll' => (
+  is       => 'rw',
+  isa      => 'Int',
+  lazy     => 1,
+  default  => 0,
+);
+has 'min_roll' => (
+  is       => 'rw',
+  isa      => 'Int',
+  lazy     => 1,
+  default  => 0,
+);
+
+sub check_max_min {
+  my $self  = shift;
+  my $check = shift;
+
+  $self->min_roll($check) if $check < $self->min_roll;
+  $self->max_roll($check) if $check > $self->max_roll;
+};
+
 sub __rolls {
   my $self = shift;
 
@@ -118,13 +143,16 @@ sub __rolls {
       my $max = $2;
       $max > $min or die "Malformed range key $key";
       foreach my $n ($min .. $max) {
+        $self->check_max_min($n);
         $hr->{$n} = $value;
       }
     } elsif ( $key =~/^(\d+,)+\d+$/ ) {  # example 2,3
       foreach my $n (split ',', $key) {
+        $self->check_max_min($n);
         $hr->{$n} = $value;
       }
     } else {
+      $self->check_max_min($key);
       $hr->{$key} = $value;
     }
   }
