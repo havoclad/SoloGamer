@@ -37,7 +37,7 @@
 			"post": "We are in the <1> formation position"
 		},
 		{
-			"type": "onlyif",
+			"type": "table",
 			"Table": "G-4a",
 			"pre": "Rolling for Squadron Position",
 			"post": "We are in the <1> squadron position"

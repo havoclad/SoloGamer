@@ -207,7 +207,7 @@ sub do_flow {
         my $roll = $self->do_roll($table);
         $self->handle_output($output, 'Target', $roll->{'Target'});
         $self->handle_output($output, 'Type', $roll->{'Type'});
-      } elsif ($next_flow->{'type'} eq 'table' or $next_flow->{'type'} eq 'onlyif') {
+      } elsif ($next_flow->{'type'} eq 'table') {
         my $table = $next_flow->{'Table'};
         my $roll = $self->do_roll($table);
         next unless defined $roll;
