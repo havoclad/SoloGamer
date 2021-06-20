@@ -40,9 +40,7 @@
 			"type": "onlyif",
 			"Table": "G-4a",
 			"pre": "Rolling for Squadron Position",
-			"post": "We are in the <1> squadron position",
-			"variable": "Mission",
-			"check": ">5"
+			"post": "We are in the <1> squadron position"
 		},
 		{
 			"type": "loop",

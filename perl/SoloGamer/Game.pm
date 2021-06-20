@@ -165,8 +165,8 @@ sub do_roll {
   my $self  = shift;
   my $table = shift;
 
-  my $roll = $self->tables->{$table}->roll($self->zone);
-  if (exists $roll->{'notes'}) {
+  my $roll = $self->tables->{$table}->roll($self->zone, $self->save->get_from_current_mission('Mission'));
+  if (defined $roll and exists $roll->{'notes'}) {
     foreach my $note ($roll->{'notes'}->@*) {
       my $modifier  = $note->{'modifier'};
       my $mod_table = $note->{'table'};
@@ -207,24 +207,12 @@ sub do_flow {
         my $roll = $self->do_roll($table);
         $self->handle_output($output, 'Target', $roll->{'Target'});
         $self->handle_output($output, 'Type', $roll->{'Type'});
-      } elsif ($next_flow->{'type'} eq 'table') {
+      } elsif ($next_flow->{'type'} eq 'table' or $next_flow->{'type'} eq 'onlyif') {
         my $table = $next_flow->{'Table'};
         my $roll = $self->do_roll($table);
+        next unless defined $roll;
         my $determines = $self->tables->{$table}->determines;
         $self->handle_output($output, $determines, $roll->{$determines}, $post);
-      } elsif ($next_flow->{'type'} eq 'onlyif') {
-        my $variable = $self->save->get_from_current_mission($next_flow->{'variable'});
-        my $check = $next_flow->{'check'};
-        $self->devel("Checking $variable to see if it matches $check");
-        if ( eval "$variable $check" ) {
-          my $table = $next_flow->{'Table'};
-          my $roll = $self->do_roll($table);
-          my $determines = $self->tables->{$table}->determines;
-          $self->handle_output($output, $determines, $roll->{$determines}, $post);
-        } else {
-          $self->devel("Skipping as check didn't pass");
-          next;
-        }
       } elsif ($next_flow->{'type'} eq 'loop') {
         my $loop_table = $next_flow->{'loop_table'};
         my $loop_variable = $next_flow->{'loop_variable'};

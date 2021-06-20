@@ -13,6 +13,7 @@ use namespace::autoclean;
 
 use SoloGamer::FlowTable;
 use SoloGamer::RollTable;
+use SoloGamer::OnlyIfRollTable;
 
 use Data::Dumper;
 
@@ -52,8 +53,9 @@ sub new_table {
                   );
   my $table_type = $json->{'table-type'};
   given ($table_type ) {
-    when (/^Flow/) { $h = new SoloGamer::FlowTable( %arguments ); }
-    when (/^roll/) { $h = new SoloGamer::RollTable( %arguments ); }
+    when (/^Flow/)   { $h = new SoloGamer::FlowTable( %arguments ); }
+    when (/^roll/)   { $h = new SoloGamer::RollTable( %arguments ); }
+    when (/^onlyif/) { $h = new SoloGamer::OnlyIfRollTable ( %arguments ); }
     default        { die "table-type of $table_type found in $filename" }
   }
   return $h;
