@@ -1,5 +1,6 @@
 {
    "Title": "Missions 11-25",
+   "table-type": "roll",
    "rolltype": "d6d6",
    "scope": "global",
    "Notes": {

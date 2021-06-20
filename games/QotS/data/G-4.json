@@ -1,5 +1,6 @@
 {
    "Title": "B-17 Formation Position",
+   "table-type": "roll",
    "rolltype": "2d6",
    "determines": "formation_position",
    "rolls": {

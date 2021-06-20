@@ -1,28 +1,10 @@
 package SoloGamer::Table;
 use v5.10;
 
-use File::Slurp;
-use File::Basename;
-use Mojo::JSON qw(decode_json encode_json);
 use Moose;
 use namespace::autoclean;
 
 extends 'SoloGamer::Base';
-
-sub __load_table {
-  my $self = shift;
-
-  my $f = read_file($self->file);
-  my $p = decode_json($f);
-
-  return $p;
-}
-
-sub __name {
-  my $self = shift;
-
-  return basename($self->file, ".json");
-}
 
 sub __title {
   my $self = shift;
@@ -35,8 +17,7 @@ sub __title {
 has 'data' => (
  is       => 'ro',
  isa      => 'HashRef',
- lazy     => 1,
- builder  => '__load_table',
+ init_arg => 'data',
  required => 1,
 );
 
@@ -50,9 +31,8 @@ has 'file' => (
 has 'name' => (
   is       => 'ro',
   isa      => 'Str',
-  lazy     => 1,
   required => 1,
-  builder  => '__name',
+  init_arg => 'name',
 );
 
 has 'title' => (

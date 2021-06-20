@@ -1,5 +1,6 @@
 {
 	"Title": "Target Zone",
+	"table-type": "Flow",
 	"flow": [
 		{
 			"pre": "Getting ready to drop bombs"

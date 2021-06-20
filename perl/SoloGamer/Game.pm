@@ -8,9 +8,8 @@ use File::Basename;
 use Moose;
 use namespace::autoclean;
 
-use SoloGamer::FlowTable;
-use SoloGamer::RollTable;
 use SoloGamer::SaveGame;
+use SoloGamer::TableFactory;
 
 use Data::Dumper;
 
@@ -98,19 +97,14 @@ sub _load_data_tables {
   my $h = {};
   my $dir = $self->source_data;
   $self->devel("looking for $dir");
+  my $factory = new SoloGamer::TableFactory(
+                                            verbose   => $self->verbose,
+                                            automated => $self->automated,
+                                           );
   foreach my $table (<$dir/*>) {
     $self->devel("loading $table");
     my ($filename, $dirs, $suffix) = fileparse($table, qr/\.[^.]*/);
-    if ($filename =~ /^FLOW-/) {
-      $h->{$filename} = new SoloGamer::FlowTable( file => $table,
-                                                  verbose => $self->verbose
-                                                );
-    } else {
-      $h->{$filename} = new SoloGamer::RollTable( file      => $table,
-                                                  verbose   => $self->verbose,
-                                                  automated => $self->automated,
-                                                );
-    }
+    $h->{$filename} = $factory->new_table( $table);
   }
   return $h;
 }

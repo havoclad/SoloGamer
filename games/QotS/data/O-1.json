@@ -1,5 +1,6 @@
 {
    "Title": "Weather",
+   "table-type": "roll",
    "rolltype": "2d6",
    "determines": "weather",
    "scope": "zone",

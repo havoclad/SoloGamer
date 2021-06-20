@@ -1,5 +1,6 @@
 {
 	"Title": "Landing",
+	"table-type": "Flow",
 	"flow": [
 		{
 			"pre": "landing in England"

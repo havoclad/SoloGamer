@@ -1,5 +1,6 @@
 {
    "Title": "B-17 Squadron Position",
+   "table-type": "roll",
    "rolltype": "d6",
    "determines": "squadron_position",
    "rolls": {
