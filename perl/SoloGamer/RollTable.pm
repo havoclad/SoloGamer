@@ -121,7 +121,7 @@ has 'min_roll' => (
   is       => 'rw',
   isa      => 'Int',
   lazy     => 1,
-  default  => 0,
+  default  => 100,
 );
 
 sub check_max_min {
