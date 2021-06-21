@@ -5,6 +5,8 @@ use List::Util qw / max min /;
 use Moose;
 use namespace::autoclean;
 
+use SoloGamer::SaveGame;
+
 use Data::Dumper;
 
 extends 'SoloGamer::Table';
@@ -43,6 +45,12 @@ has 'determines' => (
   builder  => '__determines',
 );
 
+has 'table_input' => (
+  is              => 'ro',
+  isa             => 'Str',
+  builder         => '_table_input',
+);
+
 has 'automated' => (
   is       => 'ro',
   isa      => 'Int',
@@ -55,12 +63,21 @@ has 'max_roll' => (
   lazy     => 1,
   default  => 0,
 );
+
 has 'min_roll' => (
   is       => 'rw',
   isa      => 'Int',
   lazy     => 1,
   default  => 100,
 );
+
+sub _table_input {
+  my $self = shift;
+
+  my $table_input = $self->data->{'table_input'} || '';
+  delete $self->data->{'table_input'};
+  return $table_input;
+}
 
 sub __roll_type {
   my $self = shift;
@@ -154,8 +171,16 @@ sub roll {
   $result += $total_modifiers;
   $result = min ($result, $self->max_roll);  # don't fall off the table
   $result = max ($result, $self->min_roll);
-  $self->devel("Rolled a $result on table " . $self->name . " " .  $self->title);
-  return { $self->rolls->{$result}->%* };
+    say Dumper $self;
+  if ($self->table_input) {
+    my $save = SoloGamer::SaveGame->instance;
+    my $table_input = $save->get_from_current_mission($self->table_input);
+    $self->devel("Rolled a $result on table " . $self->name . " " .  $self->title , " with table-input: ", $table_input);
+    return { $self->rolls->{$result}->{$table_input}->%* };
+  } else {
+    $self->devel("Rolled a $result on table " . $self->name . " " .  $self->title);
+    return { $self->rolls->{$result}->%* };
+  }
 }
 
 sub check_max_min {

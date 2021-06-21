@@ -15,6 +15,11 @@
 			"Table": "O-2",
 			"pre": "Rolling for flak",
 			"post": "There is <1> over the target"
+		},
+		{	"type": "table",
+			"Table": "O-3",
+			"pre": "Rolling for flak hits",
+			"post": "<1> flak hits to the B-17"
 		}
 	]
 }

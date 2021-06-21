@@ -1,33 +1,33 @@
 {
    "Title": "Flak to Hit B-17",
    "table-type": "roll",
-   "table-input": "Flak",
+   "table_input": "Flak",
    "rolltype": "2d6",
    "determines": "flak-hits",
    "rolls": {
      "2,12": {
-        "Heavy flak": "1",
-        "Medium flak": 1,
-        "Light flak": 1,
-        "No flak": 0
+        "Heavy flak": { "flak-hits":"1" },
+        "Medium flak": { "flak-hits":1 } ,
+        "Light flak": { "flak-hits":1 } ,
+        "No flak": { "flak-hits":0 }
      },
      "3,7": {
-        "Heavy flak": "1",
-        "Medium flak": 1,
-        "Light flak": 0,
-        "No flak": 0
+        "Heavy flak": { "flak-hits": "1" } ,
+        "Medium flak":{ "flak-hits": 1 },
+        "Light flak":{ "flak-hits": 0 },
+        "No flak": { "flak-hits": 0 }
      },
      "5,9,11": {
-        "Heavy flak": "1",
-        "Medium flak": 0,
-        "Light flak": 0,
-        "No flak": 0
+        "Heavy flak": { "flak-hits":"1" },
+        "Medium flak": { "flak-hits":0 },
+        "Light flak": { "flak-hits":0 },
+        "No flak": { "flak-hits":0 }
      },
      "4,6,8,10": {
-        "Heavy flak": "0",
-        "Medium flak": 0,
-        "Light flak": 0,
-        "No flak": 0
+        "Heavy flak": { "flak-hits":"0" },
+        "Medium flak": { "flak-hits":0 },
+        "Light flak": { "flak-hits":0 },
+        "No flak": { "flak-hits":0 }
      }
    }
 }
