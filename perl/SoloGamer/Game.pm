@@ -74,9 +74,9 @@ has 'zone' => (
 sub __save {
   my $self = shift;
   
-  my $save = new SoloGamer::SaveGame( save_file => $self->save_file,
-                                      verbose   => $self->{'verbose'},
-                                    );
+  my $save = SoloGamer::SaveGame->initialize( save_file => $self->save_file,
+                                              verbose   => $self->{'verbose'},
+                                            );
   $save->load_save;
   return $save;
 }

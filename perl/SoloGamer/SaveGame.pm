@@ -6,13 +6,27 @@ use v5.20;
 use File::Copy;
 use File::Slurp;
 
-use Moose;
+use MooseX::Singleton;
 use Mojo::JSON qw ( encode_json decode_json );
 use namespace::autoclean;
 
 use Data::Dumper;
 
-extends 'SoloGamer::Base';
+sub devel {
+  my $self  = shift;
+
+  if ($self->verbose) {
+    say @_;
+  }
+}
+
+has 'verbose' => (
+  is      => 'ro',
+  isa     => 'Int',
+  lazy    => 1,
+  default => 0,
+  init_arg => 'verbose',
+);
 
 has 'save_file' => (
   is            => 'ro',
