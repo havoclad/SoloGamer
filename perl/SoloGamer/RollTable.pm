@@ -9,73 +9,11 @@ use Data::Dumper;
 
 extends 'SoloGamer::Table';
 
-sub roll {
-  my $self     = shift;
-  my $scope_in = shift || 'global';
-
-  $self->devel("Rolling on table: ", $self->name, " for scope $scope_in");
-  my $total_modifiers = 0;
-  foreach my $note ($self->{'modifiers'}->@*) {
-    my $modifier      = $note->{'modifier'};
-    my $from_table    = $note->{'from_table'};
-    my $why           = $note->{'why'};
-    my $scope         = $self->scope;
-    next unless $scope eq 'global' or $scope eq $scope_in;
-
-    $self->devel("Applying $modifier from table $from_table because $why");
-    $total_modifiers += $modifier;
-  }
-  $self->devel("Total modifiers: $total_modifiers");
-
-
-  $self->devel("Roll Type is: ", $self->roll_type);
-  my $result = "";
-  if ($self->roll_type =~ /^(\d+)d(\d+)$/) {
-    my $num_rolls = $1;
-    my $die_size  = $2;
-    my $int_result = 0;
-    foreach my $n (1 .. $num_rolls) {
-      $int_result += int(rand($die_size)+1);
-    }
-    $result = $int_result;
-  } elsif ($self->roll_type =~ /^(d\d+)+$/) {
-    my @dice = split /d/, $self->roll_type;
-    shift @dice;
-    foreach my $die (@dice) {
-      $self->devel("Rolling a die with $die sides");
-      $result .= int(rand($die)+1);
-    }
-  }
-  $result += $total_modifiers;
-  $result = min ($result, $self->max_roll);  # don't fall off the table
-  $result = max ($result, $self->min_roll);
-  $self->devel("Rolled a $result on table " . $self->name . " " .  $self->title);
-  return { $self->rolls->{$result}->%* };
-}
-
-sub __roll_type {
-  my $self = shift;
-
-  my $roll_type = $self->data->{'rolltype'};
-  delete $self->data->{'rolltype'};
-  return $roll_type;
-}
-
-sub __scope {
-  my $self = shift;
-
-  my $scope = $self->data->{'scope'} || 'global';
-  delete $self->data->{'scope'};
-  return $scope;
-}
-
-sub __determines {
-  my $self = shift;
-
-  my $determines = $self->data->{'determines'};
-  delete $self->data->{'determines'};
-  return $determines;
-}
+has 'rolls' => (
+  is       => 'ro',
+  isa      => 'HashRef',
+  builder  => '__rolls',
+);
 
 has 'scope' => (
   is       => 'rw',
@@ -124,13 +62,29 @@ has 'min_roll' => (
   default  => 100,
 );
 
-sub check_max_min {
-  my $self  = shift;
-  my $check = shift;
+sub __roll_type {
+  my $self = shift;
 
-  $self->min_roll($check) if $check < $self->min_roll;
-  $self->max_roll($check) if $check > $self->max_roll;
-};
+  my $roll_type = $self->data->{'rolltype'};
+  delete $self->data->{'rolltype'};
+  return $roll_type;
+}
+
+sub __scope {
+  my $self = shift;
+
+  my $scope = $self->data->{'scope'} || 'global';
+  delete $self->data->{'scope'};
+  return $scope;
+}
+
+sub __determines {
+  my $self = shift;
+
+  my $determines = $self->data->{'determines'};
+  delete $self->data->{'determines'};
+  return $determines;
+}
 
 sub __rolls {
   my $self = shift;
@@ -160,11 +114,57 @@ sub __rolls {
   return $hr;
 }
 
-has 'rolls' => (
-  is       => 'ro',
-  isa      => 'HashRef',
-  builder  => '__rolls',
-);
+sub roll {
+  my $self     = shift;
+  my $scope_in = shift || 'global';
+
+  $self->devel("Rolling on table: ", $self->name, " for scope $scope_in");
+  my $total_modifiers = 0;
+  foreach my $note ($self->{'modifiers'}->@*) {
+    my $modifier      = $note->{'modifier'};
+    my $from_table    = $note->{'from_table'};
+    my $why           = $note->{'why'};
+    my $scope         = $self->scope;
+    next unless $scope eq 'global' or $scope eq $scope_in;
+
+    $self->devel("Applying $modifier from table $from_table because $why");
+    $total_modifiers += $modifier;
+  }
+  $self->devel("Total modifiers: $total_modifiers");
+
+
+  $self->devel("Roll Type is: ", $self->roll_type);
+  my $result = "";
+  if ($self->roll_type =~ /^(\d+)d(\d+)$/) {
+    my $num_rolls = $1;
+    my $die_size  = $2;
+    my $int_result = 0;
+    foreach my $n (1 .. $num_rolls) {
+      $int_result += int(rand($die_size)+1);
+    }
+    $result = $int_result;
+  } elsif ($self->roll_type =~ /^(d\d+)+$/) {
+    my @dice = split /d/, $self->roll_type;
+    shift @dice;
+    foreach my $die (@dice) {
+      $self->devel("Rolling a die with $die sides");
+      $result .= int(rand($die)+1);
+    }
+  }
+  $result += $total_modifiers;
+  $result = min ($result, $self->max_roll);  # don't fall off the table
+  $result = max ($result, $self->min_roll);
+  $self->devel("Rolled a $result on table " . $self->name . " " .  $self->title);
+  return { $self->rolls->{$result}->%* };
+}
+
+sub check_max_min {
+  my $self  = shift;
+  my $check = shift;
+
+  $self->min_roll($check) if $check < $self->min_roll;
+  $self->max_roll($check) if $check > $self->max_roll;
+};
 
 sub add_modifier {
   my $self       = shift;
