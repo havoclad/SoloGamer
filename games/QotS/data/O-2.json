@@ -1,6 +1,6 @@
 {
    "Title": "Flak Over Target",
-   "table-type": "roll",
+   "table_type": "roll",
    "rolltype": "d6",
    "determines": "Flak",
    "rolls": {

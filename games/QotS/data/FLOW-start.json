@@ -1,6 +1,6 @@
 {
 	"Title": "B-17 Queen of the Skies",
-	"table-type": "Flow",
+	"table_type": "Flow",
 	"missions": "25",
 	"flow": [
 		{

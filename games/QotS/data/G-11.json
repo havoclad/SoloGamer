@@ -1,6 +1,6 @@
 {
    "Title": "Flight Log Gazetteer",
-   "table-type": "roll",
+   "table_type": "roll",
    "type": "data",
    "target city": {
      "Abbeville": {

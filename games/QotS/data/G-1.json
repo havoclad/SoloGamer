@@ -1,6 +1,6 @@
 {
    "Title": "Missions 1-5",
-   "table-type": "roll",
+   "table_type": "roll",
    "rolltype": "d6",
    "rolls": {
    "1": {

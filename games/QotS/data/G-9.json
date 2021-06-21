@@ -1,6 +1,6 @@
 {
    "Title": "Landing on Land",
-   "table-type": "roll",
+   "table_type": "roll",
    "rolltype": "2d6",
    "determines": "landing",
    "rolls": {

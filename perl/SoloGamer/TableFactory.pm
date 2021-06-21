@@ -51,12 +51,12 @@ sub new_table {
                     data    => $json,
                     name    => $name,
                   );
-  my $table_type = $json->{'table-type'};
+  my $table_type = $json->{'table_type'};
   given ($table_type ) {
     when (/^Flow/)   { $h = new SoloGamer::FlowTable( %arguments ); }
     when (/^roll/)   { $h = new SoloGamer::RollTable( %arguments ); }
     when (/^onlyif/) { $h = new SoloGamer::OnlyIfRollTable ( %arguments ); }
-    default        { die "table-type of $table_type found in $filename" }
+    default        { die "table_type of $table_type found in $filename" }
   }
   return $h;
 }

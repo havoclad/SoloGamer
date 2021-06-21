@@ -1,6 +1,6 @@
 {
    "Title": "Flak to Hit B-17",
-   "table-type": "roll",
+   "table_type": "roll",
    "table_input": "Flak",
    "rolltype": "2d6",
    "determines": "flak-hits",
