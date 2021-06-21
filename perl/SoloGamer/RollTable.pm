@@ -45,6 +45,12 @@ has 'determines' => (
   builder  => '__determines',
 );
 
+has 'table_skip' => (
+  is              => 'ro',
+  isa             => 'Str',
+  builder         => '_table_skip',
+);
+
 has 'table_input' => (
   is              => 'ro',
   isa             => 'Str',
@@ -70,6 +76,14 @@ has 'min_roll' => (
   lazy     => 1,
   default  => 100,
 );
+
+sub _table_skip {
+  my $self = shift;
+
+  my $table_skip = $self->data->{'table_skip'} || '';
+  delete $self->data->{'table_skip'};
+  return $table_skip;
+}
 
 sub _table_input {
   my $self = shift;
@@ -135,6 +149,16 @@ sub roll {
   my $self     = shift;
   my $scope_in = shift || 'global';
 
+  # first see if we have to skip this
+  my $table_input = undef;
+  if (length $self->table_input) {
+    my $save = SoloGamer::SaveGame->instance;
+    $table_input = $save->get_from_current_mission($self->table_input);
+    if ( $table_input eq $self->table_skip ) {
+      $self->devel("returning early to do a table_skip match of $table_input");
+      return undef if $table_input eq $self->table_skip;
+    }
+  }
   $self->devel("Rolling on table: ", $self->name, " for scope $scope_in");
   my $total_modifiers = 0;
   foreach my $note ($self->{'modifiers'}->@*) {
@@ -171,10 +195,7 @@ sub roll {
   $result += $total_modifiers;
   $result = min ($result, $self->max_roll);  # don't fall off the table
   $result = max ($result, $self->min_roll);
-    say Dumper $self;
-  if ($self->table_input) {
-    my $save = SoloGamer::SaveGame->instance;
-    my $table_input = $save->get_from_current_mission($self->table_input);
+  if ($table_input) {
     $self->devel("Rolled a $result on table " . $self->name . " " .  $self->title , " with table-input: ", $table_input);
     return { $self->rolls->{$result}->{$table_input}->%* };
   } else {
