@@ -165,7 +165,7 @@ sub do_roll {
   my $self  = shift;
   my $table = shift;
 
-  my $roll = $self->tables->{$table}->roll($self->zone, $self->save->get_from_current_mission('Mission'));
+  my $roll = $self->tables->{$table}->roll($self->zone);
   if (defined $roll and exists $roll->{'notes'}) {
     foreach my $note ($roll->{'notes'}->@*) {
       my $modifier  = $note->{'modifier'};

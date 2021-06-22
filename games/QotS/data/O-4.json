@@ -1,0 +1,25 @@
+{
+   "Title": "Effect of Flak Hits",
+   "table_type": "onlyif",
+   "rolltype": "2d6",
+   "determines": "shell_hits",
+   "variable": "flak_hits",
+   "test": ">0",
+   "rolls": {
+     "3,7,11": {
+        "shell_hits": "1"
+     },
+     "6,8": {
+        "shell_hits": "2"
+     },
+     "5,9": {
+        "shell_hits": "3"
+     },
+     "4,10,12": {
+        "shell_hits": "4"
+     },
+     "2": {
+        "shell_hits": "6"
+     }
+   }
+}

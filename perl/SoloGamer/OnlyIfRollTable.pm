@@ -5,6 +5,8 @@ use List::Util qw / max min /;
 use Moose;
 use namespace::autoclean;
 
+use SoloGamer::SaveGame;
+
 use Data::Dumper;
 
 extends 'SoloGamer::RollTable';
@@ -42,12 +44,12 @@ sub __test {
 override 'roll' => sub  {
   my $self     = shift;
   my $scope_in = shift;
-  my $mission  = shift;
 
-  $self->variable eq 'mission' or die "OnlyIf can only handle mission variables";
+  my $save = SoloGamer::SaveGame->instance;
+  my $to_test = $save->get_from_current_mission($self->variable) || 0;
   my $test = $self->test;
-  $self->devel("In OnlyIf with mission: $mission and test $test");
-  if (eval "$mission $test") {
+  $self->devel("In OnlyIf with testing $to_test and test $test");
+  if (eval "$to_test $test") {
     $self->devel("OnlyIf test passed");
     super();
   } else {
