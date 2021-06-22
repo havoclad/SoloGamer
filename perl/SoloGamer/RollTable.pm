@@ -53,7 +53,8 @@ has 'table_skip' => (
 
 has 'table_count' => (
   is              => 'ro',
-  isa             => 'Int',
+  isa             => 'Str',
+  lazy            => 1,
   builder         => '_table_count',
 );
 
@@ -94,8 +95,17 @@ sub _table_skip {
 sub _table_count {
   my $self = shift;
 
+  my $table_count = 1;
+  if ( exists $self->data->{'table_count'} ) {
+    if ( $self->data->{'table_count'} =~ /^(\d+)$/ ) {
+      $table_count = $1;
+    } else { # Not a number? Must be a current mission variable
+      my $save = SoloGamer::SaveGame->instance;
+      $table_count = $save->get_from_current_mission($self->data->{'table_count'});
+    }
+    delete $self->data->{'table_count'};
+  }
   my $table_count = $self->data->{'table_count'} || 1;
-  delete $self->data->{'table_count'};
   return $table_count;
 }
 
@@ -233,7 +243,11 @@ sub roll {
       }
     } else {
       $self->devel("Rolled a $result on table " . $self->name . " " .  $self->title);
-      return { $self->rolls->{$result}->%* };
+      if ($self->table_count>1) {
+        $accumulator += $self->rolls->{$result}->{$self->determines};
+      } else {
+        return { $self->rolls->{$result}->%* };
+      }
     }
   }
   return { $self->determines => $accumulator };

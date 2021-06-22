@@ -3,6 +3,7 @@
    "table_type": "onlyif",
    "rolltype": "2d6",
    "determines": "shell_hits",
+   "table_count": "flak_hits",
    "variable": "flak_hits",
    "test": ">0",
    "rolls": {
