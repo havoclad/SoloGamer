@@ -220,15 +220,23 @@ sub roll {
   my $total_modifiers = $self->get_total_modifiers($scope_in);
   my $result = $self->get_raw_result;
   $result += $total_modifiers;
-  $result = min ($result, $self->max_roll);  # don't fall off the table
-  $result = max ($result, $self->min_roll);
-  if ($table_input) {
-    $self->devel("Rolled a $result on table " . $self->name . " " .  $self->title , " with table-input: ", $table_input);
-    return { $self->rolls->{$result}->{$table_input}->%* };
-  } else {
-    $self->devel("Rolled a $result on table " . $self->name . " " .  $self->title);
-    return { $self->rolls->{$result}->%* };
+  my $accumulator = 0;
+  for (1 .. $self->table_count) {
+    $result = min ($result, $self->max_roll);  # don't fall off the table
+    $result = max ($result, $self->min_roll);
+    if ($table_input) {
+      $self->devel("Rolled a $result on table " . $self->name . " " .  $self->title , " with table-input: ", $table_input);
+      if ($self->table_count>1) {
+        $accumulator += $self->rolls->{$result}->{$table_input}->{$self->determines};
+      } else {
+        return { $self->rolls->{$result}->{$table_input}->%* };
+      }
+    } else {
+      $self->devel("Rolled a $result on table " . $self->name . " " .  $self->title);
+      return { $self->rolls->{$result}->%* };
+    }
   }
+  return { $self->determines => $accumulator };
 }
 
 sub check_max_min {
