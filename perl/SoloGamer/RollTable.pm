@@ -159,37 +159,11 @@ sub __rolls {
   return $hr;
 }
 
-sub roll {
-  my $self     = shift;
-  my $scope_in = shift || 'global';
+sub get_raw_result {
+  my $self = shift;
 
-  # first see if we have to skip this
-  my $table_input = undef;
-  if (length $self->table_input) {
-    my $save = SoloGamer::SaveGame->instance;
-    $table_input = $save->get_from_current_mission($self->table_input);
-    if ( $table_input eq $self->table_skip ) {
-      $self->devel("returning early to do a table_skip match of $table_input");
-      return undef if $table_input eq $self->table_skip;
-    }
-  }
-  $self->devel("Rolling on table: ", $self->name, " for scope $scope_in");
-  my $total_modifiers = 0;
-  foreach my $note ($self->{'modifiers'}->@*) {
-    my $modifier      = $note->{'modifier'};
-    my $from_table    = $note->{'from_table'};
-    my $why           = $note->{'why'};
-    my $scope         = $self->scope;
-    next unless $scope eq 'global' or $scope eq $scope_in;
-
-    $self->devel("Applying $modifier from table $from_table because $why");
-    $total_modifiers += $modifier;
-  }
-  $self->devel("Total modifiers: $total_modifiers");
-
-
+  my $result = '';
   $self->devel("Roll Type is: ", $self->roll_type);
-  my $result = "";
   if ($self->roll_type =~ /^(\d+)d(\d+)$/) {
     my $num_rolls = $1;
     my $die_size  = $2;
@@ -206,6 +180,45 @@ sub roll {
       $result .= int(rand($die)+1);
     }
   }
+  return $result;
+}
+
+sub get_total_modifiers {
+  my $self     = shift;
+  my $scope_in = shift;
+
+  my $total_modifiers = 0;
+  foreach my $note ($self->{'modifiers'}->@*) {
+    my $modifier      = $note->{'modifier'};
+    my $from_table    = $note->{'from_table'};
+    my $why           = $note->{'why'};
+    my $scope         = $self->scope;
+    next unless $scope eq 'global' or $scope eq $scope_in;
+
+    $self->devel("Applying $modifier from table $from_table because $why");
+    $total_modifiers += $modifier;
+  }
+  $self->devel("Total modifiers: $total_modifiers");
+  return $total_modifiers;
+}
+
+sub roll {
+  my $self     = shift;
+  my $scope_in = shift || 'global';
+
+  # first see if we have to skip this
+  my $table_input = undef;
+  if (length $self->table_input) {
+    my $save = SoloGamer::SaveGame->instance;
+    $table_input = $save->get_from_current_mission($self->table_input);
+    if ( $table_input eq $self->table_skip ) {
+      $self->devel("returning early to do a table_skip match of $table_input");
+      return undef if $table_input eq $self->table_skip;
+    }
+  }
+  $self->devel("Rolling on table: ", $self->name, " for scope $scope_in");
+  my $total_modifiers = $self->get_total_modifiers($scope_in);
+  my $result = $self->get_raw_result;
   $result += $total_modifiers;
   $result = min ($result, $self->max_roll);  # don't fall off the table
   $result = max ($result, $self->min_roll);
