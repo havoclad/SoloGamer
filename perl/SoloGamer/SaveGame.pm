@@ -13,11 +13,13 @@ use namespace::autoclean;
 use Data::Dumper;
 
 sub devel {
-  my $self  = shift;
+  my $self    = shift;
+  my $message = shift;
 
   if ($self->verbose) {
-    say @_;
+    say $message;
   }
+  return;
 }
 
 has 'verbose' => (
@@ -88,6 +90,7 @@ sub save_game {
   } else {
     $self->devel("No save file to write");
   }
+  return;
 }
 
 sub add_save {
@@ -96,6 +99,7 @@ sub add_save {
   my $value    = shift;
 
   $self->save->{'mission'}->[$self->mission-1]->{$property} = $value;
+  return;
 }
 
 sub get_from_current_mission {
@@ -106,3 +110,4 @@ sub get_from_current_mission {
   return $self->save->{'mission'}->[$self->mission-1]->{$property};
 }
 __PACKAGE__->meta->make_immutable;
+1;

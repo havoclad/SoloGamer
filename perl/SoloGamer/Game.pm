@@ -97,7 +97,7 @@ sub _load_data_tables {
   my $h = {};
   my $dir = $self->source_data;
   $self->devel("looking for $dir");
-  my $factory = new SoloGamer::TableFactory(
+  my $factory = SoloGamer::TableFactory-> new (
                                             verbose   => $self->verbose,
                                             automated => $self->automated,
                                            );
@@ -161,6 +161,7 @@ sub handle_output{
   } else {
     push $output->@*, "$key: $value";
   }
+  return;
 }
 
 sub do_roll {
@@ -248,5 +249,7 @@ sub run_game {
   say foreach $self->do_flow('FLOW-start')->@*;
 
   $self->save->save_game;
+  return;
 }
 __PACKAGE__->meta->make_immutable;
+1;

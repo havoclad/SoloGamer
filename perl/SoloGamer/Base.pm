@@ -8,8 +8,9 @@ sub devel {
   my $self  = shift;
 
   if ($self->verbose) {
-    say @_;
+    say while (shift);
   }
+  return;
 }
 
 has 'verbose' => (

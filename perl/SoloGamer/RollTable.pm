@@ -263,6 +263,7 @@ sub set_max_min {
   $self->min_roll($min);
   my $max = max(@keys);
   $self->max_roll($max);
+  return;
 }
 
 sub add_modifier {
@@ -290,6 +291,7 @@ sub add_modifier {
                                    from_table => $from_table,
                                    scope      => $scope,
                                  };
+  return;
 }
 __PACKAGE__->meta->make_immutable;
 1;

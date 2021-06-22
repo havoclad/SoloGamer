@@ -53,12 +53,13 @@ sub new_table {
                   );
   my $table_type = $json->{'table_type'};
   given ($table_type ) {
-    when (/^Flow/)   { $h = new SoloGamer::FlowTable( %arguments ); }
-    when (/^roll/)   { $h = new SoloGamer::RollTable( %arguments ); }
-    when (/^onlyif/) { $h = new SoloGamer::OnlyIfRollTable ( %arguments ); }
+    when (/^Flow/)   { $h = SoloGamer::FlowTable->new( %arguments ); }
+    when (/^roll/)   { $h = SoloGamer::RollTable->new( %arguments ); }
+    when (/^onlyif/) { $h = SoloGamer::OnlyIfRollTable->new( %arguments ); }
     default        { die "table_type of $table_type found in $filename" }
   }
   return $h;
 }
 
 __PACKAGE__->meta->make_immutable;
+1;
