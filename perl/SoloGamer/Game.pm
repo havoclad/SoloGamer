@@ -153,7 +153,7 @@ sub handle_output{
 
   $self->devel("In handle output with key: $key, value: $value, and text: $text --");
   $self->save->add_save($key, $value);
-  if ($text) {
+  if ($text =~ /\(s\)/) {
     my $sss = $value == 1 ? '' : 's';
     $text =~ s/\(s\)/$sss/;
     $text =~ s/<1>/$value/;

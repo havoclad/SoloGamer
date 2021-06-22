@@ -4,8 +4,10 @@
    "rolltype": "2d6",
    "determines": "shell_hits",
    "table_count": "flak_hits",
-   "variable": "flak_hits",
-   "test": ">0",
+   "variable_to_test": "flak_hits",
+   "test_criteria": ">",
+   "test_against": "0",
+   "fail_message": "No flak hits means no shell hits either",
    "rolls": {
      "3,7,11": {
         "shell_hits": "1"

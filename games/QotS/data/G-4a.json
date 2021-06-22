@@ -2,9 +2,11 @@
    "Title": "B-17 Squadron Position",
    "table_type": "onlyif",
    "rolltype": "d6",
-   "variable": "mission",
-   "test": ">5",
+   "variable_to_test": "mission",
+   "test_criteria": ">",
+   "test_against": "5",
    "determines": "squadron_position",
+   "fail_message": "Only roll for squadron position on missions 6-25",
    "rolls": {
      "1,2": {
         "squadron_position": "High"
