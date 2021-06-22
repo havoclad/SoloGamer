@@ -30,6 +30,11 @@
 			"Table": "O-6",
 			"pre": "Rolling for bomb run",
 			"post": "Bomb run was <1> target"
+		},
+		{	"type": "table",
+			"Table": "O-7",
+			"pre": "Rolling for bombing accuracy",
+			"post": "Percent of bombs hitting within 1000 feet of the target was <1>%"
 		}
 	]
 }
