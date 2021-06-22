@@ -151,20 +151,18 @@ sub __rolls {
       my $max = $2;
       $max > $min or die "Malformed range key $key";
       foreach my $n ($min .. $max) {
-        $self->check_max_min($n);
         $hr->{$n} = $value;
       }
     } elsif ( $key =~/^(\d+,)+\d+$/ ) {  # example 2,3
       foreach my $n (split ',', $key) {
-        $self->check_max_min($n);
         $hr->{$n} = $value;
       }
     } else {
-      $self->check_max_min($key);
       $hr->{$key} = $value;
     }
   }
   delete $self->data->{rolls};
+  $self->set_max_min($hr);
   return $hr;
 }
 
@@ -252,13 +250,20 @@ sub roll {
   return { $self->determines => $accumulator };
 }
 
-sub check_max_min {
-  my $self  = shift;
-  my $check = shift;
+sub set_max_min {
+  my $self = shift;
+  my $hr   = shift;
 
-  $self->min_roll($check) if $check < $self->min_roll;
-  $self->max_roll($check) if $check > $self->max_roll;
-};
+  return unless keys $hr->%* > 1;
+  my @keys = keys $hr->%*;
+  foreach my $key (@keys) {
+    return unless $key =~ /^-?\d+$/;
+  }
+  my $min = min(@keys);
+  $self->min_roll($min);
+  my $max = max(@keys);
+  $self->max_roll($max);
+}
 
 sub add_modifier {
   my $self       = shift;
