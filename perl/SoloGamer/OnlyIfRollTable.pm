@@ -54,7 +54,7 @@ override 'roll' => sub  {
     super();
   } else {
     $self->devel("Nothing to do in OnlyIf");
-    return undef;
+    return;
   }
 };
 

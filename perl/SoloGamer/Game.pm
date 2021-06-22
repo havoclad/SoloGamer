@@ -101,7 +101,7 @@ sub _load_data_tables {
                                             verbose   => $self->verbose,
                                             automated => $self->automated,
                                            );
-  foreach my $table (<$dir/*>) {
+  foreach my $table (glob("$dir/*")) {
     $self->devel("loading $table");
     my ($filename, $dirs, $suffix) = fileparse($table, qr/\.[^.]*/);
     $h->{$filename} = $factory->new_table( $table);

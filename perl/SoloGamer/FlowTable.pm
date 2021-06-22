@@ -40,7 +40,7 @@ sub get_next {
 
   if ($current > $self->flow->$#*) {
     $self->devel("Done with flow");
-    return undef;
+    return;
   }
   return $self->flow->[$current];
 }

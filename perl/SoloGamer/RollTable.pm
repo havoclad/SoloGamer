@@ -220,7 +220,7 @@ sub roll {
     $table_input = $save->get_from_current_mission($self->table_input);
     if ( $table_input eq $self->table_skip ) {
       $self->devel("returning early to do a table_skip match of $table_input");
-      return undef if $table_input eq $self->table_skip;
+      return if $table_input eq $self->table_skip;
     }
   }
   $self->devel("Rolling ", $self->table_count, " times on table: ", $self->name, " for scope $scope_in");
