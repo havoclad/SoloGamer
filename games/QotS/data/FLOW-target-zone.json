@@ -25,6 +25,11 @@
 			"Table": "O-4",
 			"pre": "Rolling for shell hits",
 			"post": "<1> shell hits to the B-17"
+		},
+		{	"type": "table",
+			"Table": "O-6",
+			"pre": "Rolling for bomb run",
+			"post": "Bomb run was <1> target"
 		}
 	]
 }
