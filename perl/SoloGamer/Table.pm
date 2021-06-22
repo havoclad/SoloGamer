@@ -6,7 +6,7 @@ use namespace::autoclean;
 
 extends 'SoloGamer::Base';
 
-sub __title {
+sub _build_title {
   my $self = shift;
 
   my $title = $self->{data}->{'Title'};
@@ -40,7 +40,7 @@ has 'title' => (
   isa      => 'Str',
   required => 1,
   lazy     => 1,
-  builder  => '__title',
+  builder  => '_build_title',
 );
 
 __PACKAGE__->meta->make_immutable;

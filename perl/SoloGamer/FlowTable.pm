@@ -8,7 +8,7 @@ use Data::Dumper;
 
 extends 'SoloGamer::Table';
 
-sub __flow {
+sub _build_flow {
   my $self = shift;
 
   my $temp = [];
@@ -23,7 +23,7 @@ sub __flow {
 has 'flow' => (
   is       => 'ro',
   isa      => 'ArrayRef',
-  builder  => '__flow',
+  builder  => '_build_flow',
 );
 
 has 'current' => (

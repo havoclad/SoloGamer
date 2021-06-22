@@ -1,0 +1,6 @@
+severity  = 3
+[Subroutines::ProhibitUnusedPrivateSubroutines]
+allow_name_regex = _build_\w+
+
+[ValuesAndExpressions::ProhibitVersionStrings]
+severity   = 1

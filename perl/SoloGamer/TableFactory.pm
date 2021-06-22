@@ -6,6 +6,7 @@ use feature "switch";
 
 use File::Slurp;
 use File::Basename;
+use Carp;
 
 use Mojo::JSON qw(decode_json encode_json);
 use Moose;
@@ -56,7 +57,7 @@ sub new_table {
     when (/^Flow/)   { $h = SoloGamer::FlowTable->new( %arguments ); }
     when (/^roll/)   { $h = SoloGamer::RollTable->new( %arguments ); }
     when (/^onlyif/) { $h = SoloGamer::OnlyIfRollTable->new( %arguments ); }
-    default        { die "table_type of $table_type found in $filename" }
+    default        { croak "table_type of $table_type found in $filename" }
   }
   return $h;
 }

@@ -15,31 +15,31 @@ has 'variable_to_test' => (
   is           => 'ro',
   isa          => 'Str',
   required     => 1,
-  builder      => '__variable_to_test',
+  builder      => '_build_variable_to_test',
 );
 
 has 'test_criteria' => (
   is           => 'ro',
   isa          => 'Str',
   required     => 1,
-  builder      => '__test_criteria',
+  builder      => '_build_test_criteria',
 );
 
 has 'fail_message' => (
   is           => 'ro',
   isa          => 'Str',
   required     => 1,
-  builder      => '__fail_message',
+  builder      => '_build_fail_message',
 );
 
 has 'test_against' => (
   is           => 'ro',
   isa          => 'Str',
   required     => 1,
-  builder      => '__test_against',
+  builder      => '_build_test_against',
 );
 
-sub __fail_message {
+sub _build_fail_message {
   my $self = shift;
 
   my $fail_message = $self->{'data'}->{'fail_message'};
@@ -47,7 +47,7 @@ sub __fail_message {
   return $fail_message;
 }
 
-sub __variable {
+sub _build_variable {
   my $self = shift;
 
   my $variable = $self->{'data'}->{'variable'};
@@ -55,7 +55,7 @@ sub __variable {
   return $variable;
 }
 
-sub __test_criteria {
+sub _build_test_criteria {
   my $self = shift;
   
   my $test_criteria = $self->{'data'}->{'test_criteria'};
@@ -63,7 +63,7 @@ sub __test_criteria {
   return $test_criteria;
 }
 
-sub __variable_to_test {
+sub _build_variable_to_test {
   my $self = shift;
   
   my $variable_to_test = $self->{'data'}->{'variable_to_test'};
@@ -71,7 +71,7 @@ sub __variable_to_test {
   return $variable_to_test;
 }
 
-sub __test_against {
+sub _build_test_against {
   my $self = shift;
   
   my $test_against = $self->{'data'}->{'test_against'};

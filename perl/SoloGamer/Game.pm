@@ -4,6 +4,7 @@ use strict;
 use v5.20;
 
 use File::Basename;
+use Carp;
 
 use Moose;
 use namespace::autoclean;
@@ -24,7 +25,7 @@ has 'save_file' => (
 has 'save'      => (
   is            => 'ro',
   #isa           => 'HashRef',
-  builder       => '__save',
+  builder       => '_build_save',
   lazy          => 1,
 );
 
@@ -56,7 +57,7 @@ has 'tables' => (
   isa      => 'HashRef',
   lazy     => 1,
   required => 1,
-  builder  => '_load_data_tables',
+  builder  => '_build_load_data_tables',
 );
 
 has 'automated' => (
@@ -71,7 +72,7 @@ has 'zone' => (
   init_arg => 1,
 );
 
-sub __save {
+sub _build_save {
   my $self = shift;
   
   my $save = SoloGamer::SaveGame->initialize( save_file => $self->save_file,
@@ -91,7 +92,7 @@ sub _build_source_data {
   return $self->source . 'data';
 }
 
-sub _load_data_tables {
+sub _build_load_data_tables {
   my $self = shift;
 
   my $h = {};
@@ -103,7 +104,7 @@ sub _load_data_tables {
                                            );
   foreach my $table (glob("$dir/*")) {
     $self->devel("loading $table");
-    my ($filename, $dirs, $suffix) = fileparse($table, qr/\.[^.]*/);
+    my ($filename, $dirs, $suffix) = fileparse($table, '.json');
     $h->{$filename} = $factory->new_table( $table);
   }
   return $h;
@@ -118,7 +119,7 @@ sub do_max {
   foreach my $item (@$choices) {
     return $item->{'Table'} if $variable <= $item->{'max'};
   }
-  die "Didn't find a max that matched $variable";
+  croak "Didn't find a max that matched $variable";
 }
 
 sub do_loop {
@@ -149,16 +150,16 @@ sub handle_output{
   my $output = shift;
   my $key = shift;
   my $value = shift;
-  my $text = shift || "";
+  my $text = shift;
 
-  $self->devel("In handle output with key: $key, value: $value, and text: $text --");
   $self->save->add_save($key, $value);
-  if ($text =~ /\(s\)/) {
-    my $sss = $value == 1 ? '' : 's';
-    $text =~ s/\(s\)/$sss/;
-    $text =~ s/<1>/$value/;
+  if ( defined $text and length $text ) {
+    $self->devel("In handle output with key: $key, value: $value, and text: $text --");
+    $text =~ s{ <1>   }{ $value }xmse;
+    $text =~ s{ \(s\) }{ $value == 1? '' : 's'}xmse;
     push $output->@*, $text;
   } else {
+    $self->devel("In handle output with key: $key, value: $value");
     push $output->@*, "$key: $value";
   }
   return;
@@ -183,7 +184,12 @@ sub do_roll {
       $self->devel("$why results in a $modifier to table $mod_table for scope: $scope");
 
       exists $self->tables->{$mod_table} 
-        and $self->tables->{$mod_table}->add_modifier($modifier, $why, $table, $scope, $stack);
+        and $self->tables->{$mod_table}->add_modifier( { modifier => $modifier,
+                                                         why      => $why, 
+                                                         from_table    => $table,
+                                                         scope    => $scope,
+                                                         stack    => $stack
+                                                       } );
     }
   }
   return $roll;
@@ -194,8 +200,7 @@ sub do_flow {
   my $table_name = shift;
 
   my $output = ();
-  my $table = $self->tables->{$table_name};
-  while (my $next_flow = $table->get_next) {
+  while (my $next_flow = $self->tables->{$table_name}->get_next) {
     my $post = "";
     if (exists $next_flow->{'post'}) {
       $post = $next_flow->{'post'};
@@ -230,7 +235,7 @@ sub do_flow {
         my $flow_table = $next_flow->{'flow_table'};
         push $output->@*, $self->do_flow($flow_table)->@*;
       } else {
-        die "Unknown flow type: ", $next_flow->{'type'};
+        croak "Unknown flow type: ", $next_flow->{'type'};
       }
     }
     $self->devel("\nEnd flow step\n");
@@ -244,7 +249,7 @@ sub run_game {
   $self->devel("In run_game");
   my $mission = $self->save->mission;
   my $max_missions = $self->tables->{'FLOW-start'}->{'data'}->{'missions'};
-  $mission == $max_missions and die "25 successful missions, your crew went home!";
+  $mission == $max_missions and croak "25 successful missions, your crew went home!";
 
   say foreach $self->do_flow('FLOW-start')->@*;
 

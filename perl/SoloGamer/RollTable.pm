@@ -2,6 +2,8 @@ package SoloGamer::RollTable;
 use v5.20;
 
 use List::Util qw / max min /;
+use Carp;
+
 use Moose;
 use namespace::autoclean;
 
@@ -14,21 +16,21 @@ extends 'SoloGamer::Table';
 has 'rolls' => (
   is       => 'ro',
   isa      => 'HashRef',
-  builder  => '__rolls',
+  builder  => '_build_rolls',
 );
 
 has 'scope' => (
   is       => 'rw',
   isa      => 'Str',
   lazy     => 1,
-  builder  => '__scope',
+  builder  => '_build_scope',
 );
 
 has 'roll_type' => (
   is       => 'rw',
   isa      => 'Str',
   lazy     => 1,
-  builder  => '__roll_type',
+  builder  => '_build_roll_type',
 );
 
 has 'modifiers' => (
@@ -42,26 +44,26 @@ has 'determines' => (
   is       => 'ro',
   isa      => 'Str',
   lazy     => 1,
-  builder  => '__determines',
+  builder  => '_build_determines',
 );
 
 has 'table_skip' => (
   is              => 'ro',
   isa             => 'Str',
-  builder         => '_table_skip',
+  builder         => '_build_table_skip',
 );
 
 has 'table_count' => (
   is              => 'ro',
   isa             => 'Str',
   lazy            => 1,
-  builder         => '_table_count',
+  builder         => '_build_table_count',
 );
 
 has 'table_input' => (
   is              => 'ro',
   isa             => 'Str',
-  builder         => '_table_input',
+  builder         => '_build_table_input',
 );
 
 has 'automated' => (
@@ -84,7 +86,7 @@ has 'min_roll' => (
   default  => 100,
 );
 
-sub _table_skip {
+sub _build_table_skip {
   my $self = shift;
 
   my $table_skip = $self->data->{'table_skip'} || '';
@@ -92,7 +94,7 @@ sub _table_skip {
   return $table_skip;
 }
 
-sub _table_count {
+sub _build_table_count {
   my $self = shift;
 
   my $table_count = 1;
@@ -108,7 +110,7 @@ sub _table_count {
   return $table_count;
 }
 
-sub _table_input {
+sub _build_table_input {
   my $self = shift;
 
   my $table_input = $self->data->{'table_input'} || '';
@@ -116,7 +118,7 @@ sub _table_input {
   return $table_input;
 }
 
-sub __roll_type {
+sub _build_roll_type {
   my $self = shift;
 
   my $roll_type = $self->data->{'rolltype'};
@@ -124,7 +126,7 @@ sub __roll_type {
   return $roll_type;
 }
 
-sub __scope {
+sub _build_scope {
   my $self = shift;
 
   my $scope = $self->data->{'scope'} || 'global';
@@ -132,7 +134,7 @@ sub __scope {
   return $scope;
 }
 
-sub __determines {
+sub _build_determines {
   my $self = shift;
 
   my $determines = $self->data->{'determines'};
@@ -140,7 +142,7 @@ sub __determines {
   return $determines;
 }
 
-sub __rolls {
+sub _build_rolls {
   my $self = shift;
 
   my $hr = {};
@@ -149,7 +151,7 @@ sub __rolls {
     if ($key =~ /^(\d+)-(\d+)$/) {    # example 3-11
       my $min = $1;
       my $max = $2;
-      $max > $min or die "Malformed range key $key";
+      $max > $min or croak "Malformed range key $key";
       foreach my $n ($min .. $max) {
         $hr->{$n} = $value;
       }
@@ -268,28 +270,24 @@ sub set_max_min {
 
 sub add_modifier {
   my $self       = shift;
-  my $modifier   = shift;
-  my $why        = shift;
-  my $from_table = shift;
-  my $scope      = shift;
-  my $stack      = shift;
+  my $arg_ref    = shift;
 
-  if ($stack == 0) {
+  if ($arg_ref->{stack} == 0) {
     foreach my $note ( $self->{'modifiers'}->@* ) {
-      if (        $modifier eq $note->{'modifier'} 
-            and ( $why eq $note->{'why'} )
-            and ( $from_table eq $note->{'from_table'} )
-            and ( $scope eq $note->{'scope'} ) ) {
+      if (        $arg_ref->{modifier} eq $note->{'modifier'} 
+            and ( $arg_ref->{why} eq $note->{'why'} )
+            and ( $arg_ref->{from_table} eq $note->{'from_table'} )
+            and ( $arg_ref->{scope} eq $note->{'scope'} ) ) {
         $self->devel("Not stacking modifier on table ", $self->name);
         return;
       }
     }
   }
   push $self->{'modifiers'}->@*, {
-                                   why        => $why,
-                                   modifier   => $modifier,
-                                   from_table => $from_table,
-                                   scope      => $scope,
+                                   why        => $arg_ref->{why},
+                                   modifier   => $arg_ref->{modifier},
+                                   from_table => $arg_ref->{from_table},
+                                   scope      => $arg_ref->{scope},
                                  };
   return;
 }

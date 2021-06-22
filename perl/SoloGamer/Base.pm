@@ -5,10 +5,10 @@ use Moose;
 use namespace::autoclean;
 
 sub devel {
-  my $self  = shift;
+  my ($self, @lines)  = @_;
 
   if ($self->verbose) {
-    say while (shift);
+    say @lines;
   }
   return;
 }
