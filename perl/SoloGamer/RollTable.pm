@@ -51,6 +51,12 @@ has 'table_skip' => (
   builder         => '_table_skip',
 );
 
+has 'table_count' => (
+  is              => 'ro',
+  isa             => 'Int',
+  builder         => '_table_count',
+);
+
 has 'table_input' => (
   is              => 'ro',
   isa             => 'Str',
@@ -83,6 +89,14 @@ sub _table_skip {
   my $table_skip = $self->data->{'table_skip'} || '';
   delete $self->data->{'table_skip'};
   return $table_skip;
+}
+
+sub _table_count {
+  my $self = shift;
+
+  my $table_count = $self->data->{'table_count'} || 1;
+  delete $self->data->{'table_count'};
+  return $table_count;
 }
 
 sub _table_input {

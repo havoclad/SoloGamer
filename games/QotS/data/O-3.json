@@ -3,6 +3,7 @@
    "table_type": "roll",
    "table_input": "Flak",
    "table_skip": "No flak",
+   "table_count": "3",
    "rolltype": "2d6",
    "determines": "flak-hits",
    "rolls": {
