@@ -172,6 +172,7 @@ sub do_roll {
       my $mod_table = $note->{'table'};
       my $why       = $note->{'why'};
       my $scope     = $note->{'scope'} || 'global';
+      my $stack     = $note->{'stack'} || 1;
 
       if ($scope eq 'zone' ) {
         $scope = $self->zone;
@@ -179,7 +180,7 @@ sub do_roll {
       $self->devel("$why results in a $modifier to table $mod_table for scope: $scope");
 
       exists $self->tables->{$mod_table} 
-        and $self->tables->{$mod_table}->add_modifier($modifier, $why, $table, $scope);
+        and $self->tables->{$mod_table}->add_modifier($modifier, $why, $table, $scope, $stack);
     }
   }
   return $roll;

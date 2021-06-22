@@ -105,7 +105,6 @@ sub _table_count {
     }
     delete $self->data->{'table_count'};
   }
-  my $table_count = $self->data->{'table_count'} || 1;
   return $table_count;
 }
 
@@ -226,12 +225,12 @@ sub roll {
       return undef if $table_input eq $self->table_skip;
     }
   }
-  $self->devel("Rolling on table: ", $self->name, " for scope $scope_in");
+  $self->devel("Rolling ", $self->table_count, " times on table: ", $self->name, " for scope $scope_in");
   my $total_modifiers = $self->get_total_modifiers($scope_in);
-  my $result = $self->get_raw_result;
-  $result += $total_modifiers;
   my $accumulator = 0;
   for (1 .. $self->table_count) {
+    my $result = $self->get_raw_result;
+    $result += $total_modifiers;
     $result = min ($result, $self->max_roll);  # don't fall off the table
     $result = max ($result, $self->min_roll);
     if ($table_input) {
@@ -267,7 +266,19 @@ sub add_modifier {
   my $why        = shift;
   my $from_table = shift;
   my $scope      = shift;
+  my $stack      = shift;
 
+  if ($stack == 0) {
+    foreach my $note ( $self->{'modifiers'}->@* ) {
+      if (        $modifier eq $note->{'modifier'} 
+            and ( $why eq $note->{'why'} )
+            and ( $from_table eq $note->{'from_table'} )
+            and ( $scope eq $note->{'scope'} ) ) {
+        $self->devel("Not stacking modifier on table ", $self->name);
+        return;
+      }
+    }
+  }
   push $self->{'modifiers'}->@*, {
                                    why        => $why,
                                    modifier   => $modifier,
