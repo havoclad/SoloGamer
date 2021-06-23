@@ -54,9 +54,9 @@ sub new_table {
                   );
   my $table_type = $json->{'table_type'};
   given ($table_type ) {
-    when (/^Flow/)   { $h = SoloGamer::FlowTable->new( %arguments ); }
-    when (/^roll/)   { $h = SoloGamer::RollTable->new( %arguments ); }
-    when (/^onlyif/) { $h = SoloGamer::OnlyIfRollTable->new( %arguments ); }
+    when (/^Flow/xms)   { $h = SoloGamer::FlowTable->new( %arguments ); }
+    when (/^roll/xms)   { $h = SoloGamer::RollTable->new( %arguments ); }
+    when (/^onlyif/xms) { $h = SoloGamer::OnlyIfRollTable->new( %arguments ); }
     default        { croak "table_type of $table_type found in $filename" }
   }
   return $h;
