@@ -62,13 +62,13 @@ has 'tables' => (
 
 has 'automated' => (
   is       => 'ro',
-  isa      => 'Int',
+  isa      => 'Bool',
   init_arg => 'automated',
 );
 
 has 'zone' => (
   is       => 'rw',
-  isa      => 'Str',
+  isa      => 'Str',,
   init_arg => 1,
 );
 

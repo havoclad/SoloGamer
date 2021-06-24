@@ -4,6 +4,8 @@ use v5.20;
 use Moose;
 use namespace::autoclean;
 
+use SoloGamer::TypeLibrary qw / NonNegativeInt /;
+
 use Data::Dumper;
 
 extends 'SoloGamer::Table';
@@ -28,8 +30,8 @@ has 'flow' => (
 
 has 'current' => (
   is       => 'rw',
-  isa      => 'Int',
-  default  => '-1',
+  isa      => NonNegativeInt,
+  default  => '0',
 );
 
 sub get_next {

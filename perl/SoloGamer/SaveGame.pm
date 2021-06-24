@@ -11,6 +11,8 @@ use MooseX::Singleton;
 use Mojo::JSON qw ( encode_json decode_json );
 use namespace::autoclean;
 
+use SoloGamer::TypeLibrary qw / PositiveInt /;
+
 use Data::Dumper;
 
 sub devel {
@@ -25,7 +27,7 @@ sub devel {
 
 has 'verbose' => (
   is      => 'ro',
-  isa     => 'Int',
+  isa     => 'Bool',
   lazy    => 1,
   default => 0,
   init_arg => 'verbose',
@@ -46,7 +48,7 @@ has 'save'    => (
 
 has 'mission' => (
   is       => 'rw',
-  isa      => 'Int',
+  isa      => PositiveInt,
 );
 
 sub load_save {
