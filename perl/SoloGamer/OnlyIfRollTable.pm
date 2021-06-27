@@ -7,8 +7,6 @@ use namespace::autoclean;
 
 use SoloGamer::SaveGame;
 
-use Data::Dumper;
-
 extends 'SoloGamer::RollTable';
 
 has 'variable_to_test' => (

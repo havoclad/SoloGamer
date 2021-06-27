@@ -23,7 +23,6 @@
 		},
 		{	"type": "table",
 			"Table": "O-4",
-			"pre": "Rolling for shell hits",
 			"post": "<1> shell hit(s) to the B-17"
 		},
 		{	"type": "table",

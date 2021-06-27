@@ -9,8 +9,6 @@ use namespace::autoclean;
 
 use SoloGamer::SaveGame;
 
-use Data::Dumper;
-
 extends 'SoloGamer::Table';
 
 has 'rolls' => (

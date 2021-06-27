@@ -13,8 +13,6 @@ use namespace::autoclean;
 
 use SoloGamer::TypeLibrary qw / PositiveInt /;
 
-use Data::Dumper;
-
 sub devel {
   my $self    = shift;
   my $message = shift;

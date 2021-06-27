@@ -12,9 +12,9 @@ use namespace::autoclean;
 use SoloGamer::SaveGame;
 use SoloGamer::TableFactory;
 
-use Data::Dumper;
-
 extends 'SoloGamer::Base';
+
+with 'BufferedOutput';
 
 has 'save_file' => (
   is            => 'ro',
@@ -139,7 +139,7 @@ sub do_loop {
   }
 
   foreach my $i (@keys) {
-    say $action, $i;
+    $self->buffer( "$action $i");
     $self->zone("$i$path");
   }
   return;
@@ -147,7 +147,6 @@ sub do_loop {
 
 sub handle_output{
   my $self = shift;
-  my $output = shift;
   my $key = shift;
   my $value = shift;
   my $text = shift;
@@ -157,10 +156,10 @@ sub handle_output{
     $self->devel("In handle output with key: $key, value: $value, and text: $text --");
     $text =~ s{ <1>   }{ $value }xmse;
     $text =~ s{ \(s\) }{ $value == 1? '' : 's'}xmse;
-    push $output->@*, $text;
+    $self->buffer($text);
   } else {
     $self->devel("In handle output with key: $key, value: $value");
-    push $output->@*, "$key: $value";
+    $self->buffer("$key: $value");
   }
   return;
 }
@@ -199,14 +198,14 @@ sub do_flow {
   my $self = shift;
   my $table_name = shift;
 
-  my $output = ();
   while (my $next_flow = $self->tables->{$table_name}->get_next) {
+    my $buffer_save = $self->get_buffer_size;
     my $post = "";
     if (exists $next_flow->{'post'}) {
       $post = $next_flow->{'post'};
     }
     if (exists $next_flow->{'pre'}) {
-      push $output->@*, $next_flow->{'pre'};
+      $self->buffer($next_flow->{'pre'});
     }
     if (exists $next_flow->{'type'}) {
       if ($next_flow->{'type'} eq 'choosemax') {
@@ -214,14 +213,17 @@ sub do_flow {
         my $choice = $next_flow->{'variable'};
         my $table = $self->do_max($self->save->get_from_current_mission($choice), $next_flow->{'choices'});
         my $roll = $self->do_roll($table);
-        $self->handle_output($output, 'Target', $roll->{'Target'});
-        $self->handle_output($output, 'Type', $roll->{'Type'});
+        $self->handle_output('Target', $roll->{'Target'});
+        $self->handle_output('Type', $roll->{'Type'});
       } elsif ($next_flow->{'type'} eq 'table') {
         my $table = $next_flow->{'Table'};
         my $roll = $self->do_roll($table);
-        next unless defined $roll;
+        if (not defined $roll) {
+          $self->flush_to($buffer_save);
+          next;
+        }
         my $determines = $self->tables->{$table}->determines;
-        $self->handle_output($output, $determines, $roll->{$determines}, $post);
+        $self->handle_output($determines, $roll->{$determines}, $post);
       } elsif ($next_flow->{'type'} eq 'loop') {
         my $loop_table = $next_flow->{'loop_table'};
         my $loop_variable = $next_flow->{'loop_variable'};
@@ -233,14 +235,15 @@ sub do_flow {
                       );
       } elsif ($next_flow->{'type'} eq 'flow') {
         my $flow_table = $next_flow->{'flow_table'};
-        push $output->@*, $self->do_flow($flow_table)->@*;
+        $self->do_flow($flow_table);
       } else {
         croak "Unknown flow type: ", $next_flow->{'type'};
       }
     }
     $self->devel("\nEnd flow step\n");
   }
-  return $output;
+  $self->print_output;
+  return;
 }
 
 sub run_game {
@@ -251,7 +254,7 @@ sub run_game {
   my $max_missions = $self->tables->{'FLOW-start'}->{'data'}->{'missions'};
   $mission == $max_missions and croak "25 successful missions, your crew went home!";
 
-  say foreach $self->do_flow('FLOW-start')->@*;
+  $self->do_flow('FLOW-start');
 
   $self->save->save_game;
   return;

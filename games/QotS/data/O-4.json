@@ -9,6 +9,7 @@
    "test_criteria": ">",
    "test_against": "0",
    "fail_message": "No flak hits means no shell hits either",
+   "pre": "Rolling for shell hits",
    "rolls": {
      "3,7,11": {
         "shell_hits": "1"

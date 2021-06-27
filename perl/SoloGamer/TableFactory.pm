@@ -2,7 +2,6 @@ package SoloGamer::TableFactory;
 
 use strict;
 use v5.20;
-use feature "switch";
 
 use File::Slurp;
 use File::Basename;
@@ -15,8 +14,6 @@ use namespace::autoclean;
 use SoloGamer::FlowTable;
 use SoloGamer::RollTable;
 use SoloGamer::OnlyIfRollTable;
-
-use Data::Dumper;
 
 extends 'SoloGamer::Base';
 
@@ -53,11 +50,13 @@ sub new_table {
                     name    => $name,
                   );
   my $table_type = $json->{'table_type'};
-  given ($table_type ) {
-    when (/^Flow/xms)   { $h = SoloGamer::FlowTable->new( %arguments ); }
-    when (/^roll/xms)   { $h = SoloGamer::RollTable->new( %arguments ); }
-    when (/^onlyif/xms) { $h = SoloGamer::OnlyIfRollTable->new( %arguments ); }
-    default        { croak "table_type of $table_type found in $filename" }
+  SWITCH: {
+    for ($table_type ) {
+      if (/^Flow/xms)   { $h = SoloGamer::FlowTable->new( %arguments ); last SWITCH; }
+      if (/^roll/xms)   { $h = SoloGamer::RollTable->new( %arguments ); last SWITCH; }
+      if (/^onlyif/xms) { $h = SoloGamer::OnlyIfRollTable->new( %arguments ); last SWITCH; }
+      { croak "table_type of $table_type found in $filename" }
+    }
   }
   return $h;
 }

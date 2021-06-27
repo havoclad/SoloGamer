@@ -6,8 +6,6 @@ use v5.10;
 
 use Getopt::Long;
 
-use Data::Dumper;
-
 use lib '/perl';
 
 use SoloGamer::Game;
@@ -35,4 +33,4 @@ my $data = $game->tables;
 
 $game->run_game;
 
-$debug and say Dumper $game;
+$debug and say $game->dump;

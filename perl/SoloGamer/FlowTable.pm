@@ -6,8 +6,6 @@ use namespace::autoclean;
 
 use SoloGamer::TypeLibrary qw / NonNegativeInt /;
 
-use Data::Dumper;
-
 extends 'SoloGamer::Table';
 
 sub _build_flow {

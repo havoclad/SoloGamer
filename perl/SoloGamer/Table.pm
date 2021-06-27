@@ -6,6 +6,14 @@ use namespace::autoclean;
 
 extends 'SoloGamer::Base';
 
+sub _build_pre {
+  my $self = shift;
+
+  my $pre = $self->{data}->{'pre'} || '';
+  delete $self->{data}->{'pre'};
+  return $pre;
+}
+
 sub _build_title {
   my $self = shift;
 
@@ -26,6 +34,12 @@ has 'file' => (
   isa      => 'Str',
   required => 1,
   init_arg => 'file',
+);
+
+has 'pre' => (
+  is       => 'ro',
+  isa      => 'Str',
+  builder  => '_build_pre',
 );
 
 has 'name' => (
