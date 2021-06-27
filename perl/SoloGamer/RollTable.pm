@@ -1,7 +1,7 @@
 package SoloGamer::RollTable;
 use v5.20;
 
-use List::Util qw / max min /;
+use List::Util qw / max min sum /;
 use Carp;
 
 use Moose;
@@ -45,6 +45,12 @@ has 'determines' => (
   isa      => 'Str',
   lazy     => 1,
   builder  => '_build_determines',
+);
+
+has 'group_by' => (
+  is              => 'ro',
+  isa             => 'Str',
+  builder         => '_build_group_by',
 );
 
 has 'table_skip' => (
@@ -116,6 +122,14 @@ sub _build_table_input {
   my $table_input = $self->data->{'table_input'} || '';
   delete $self->data->{'table_input'};
   return $table_input;
+}
+
+sub _build_group_by {
+  my $self = shift;
+
+  my $group_by = $self->data->{'group_by'} || '';
+  delete $self->data->{'group_by'};
+  return $group_by;
 }
 
 sub _build_roll_type {
@@ -227,7 +241,7 @@ sub roll {
   }
   $self->devel("Rolling ", $self->table_count, " times on table: ", $self->name, " for scope $scope_in");
   my $total_modifiers = $self->get_total_modifiers($scope_in);
-  my $accumulator = 0;
+  my $accumulator_array = [];
   for (1 .. $self->table_count) {
     my $result = $self->get_raw_result;
     $result += $total_modifiers;
@@ -236,18 +250,24 @@ sub roll {
     if ($table_input) {
       $self->devel("Rolled a $result on table " . $self->name . " " .  $self->title , " with table-input: ", $table_input);
       if ($self->table_count>1) {
-        $accumulator += $self->rolls->{$result}->{$table_input}->{$self->determines};
+        push $accumulator_array->@*, $self->rolls->{$result}->{$table_input}->{$self->determines};
       } else {
         return { $self->rolls->{$result}->{$table_input}->%* };
       }
     } else {
       $self->devel("Rolled a $result on table " . $self->name . " " .  $self->title);
       if ($self->table_count>1) {
-        $accumulator += $self->rolls->{$result}->{$self->determines};
+        push $accumulator_array->@*, $self->rolls->{$result}->{$self->determines};
       } else {
         return { $self->rolls->{$result}->%* };
       }
     }
+  }
+  my $accumulator;
+  if ( $self->group_by eq 'sum' ) {
+    $accumulator = sum $accumulator_array->@*;
+  } else {
+    $accumulator = join ', ', $accumulator_array->@*;
   }
   return { $self->determines => $accumulator };
 }

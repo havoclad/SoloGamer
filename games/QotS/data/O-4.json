@@ -4,6 +4,7 @@
    "rolltype": "2d6",
    "determines": "shell_hits",
    "table_count": "flak_hits",
+   "group_by": "sum",
    "variable_to_test": "flak_hits",
    "test_criteria": ">",
    "test_against": "0",

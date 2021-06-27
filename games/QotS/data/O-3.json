@@ -4,6 +4,7 @@
    "table_input": "Flak",
    "table_skip": "No flak",
    "table_count": "3",
+   "group_by": "sum",
    "rolltype": "2d6",
    "determines": "flak_hits",
    "rolls": {

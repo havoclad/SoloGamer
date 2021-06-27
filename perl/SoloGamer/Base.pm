@@ -15,7 +15,7 @@ sub devel {
 
 has 'verbose' => (
   is      => 'ro',
-  isa     => 'Int',
+  isa     => 'Bool',
   lazy    => 1,
   default => 0,
   init_arg => 'verbose',

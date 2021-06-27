@@ -27,6 +27,11 @@
 			"post": "<1> shell hit(s) to the B-17"
 		},
 		{	"type": "table",
+			"Table": "O-5",
+			"pre": "Rolling for affected areas",
+			"post": "<1> affected"
+		},
+		{	"type": "table",
 			"Table": "O-6",
 			"pre": "Rolling for bomb run",
 			"post": "Bomb run was <1> target"
