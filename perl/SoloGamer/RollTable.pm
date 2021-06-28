@@ -24,11 +24,10 @@ has 'scope' => (
   builder  => '_build_scope',
 );
 
-has 'roll_type' => (
+has 'rolltype' => (
   is       => 'rw',
   isa      => 'Str',
-  lazy     => 1,
-  builder  => '_build_roll_type',
+  init_arg => 'rolltype',
 );
 
 has 'modifiers' => (
@@ -41,14 +40,13 @@ has 'modifiers' => (
 has 'determines' => (
   is       => 'ro',
   isa      => 'Str',
-  lazy     => 1,
-  builder  => '_build_determines',
+  init_arg => 'determines',
 );
 
 has 'group_by' => (
   is              => 'ro',
   isa             => 'Str',
-  builder         => '_build_group_by',
+  init_arg        => 'group_by',
 );
 
 has 'table_skip' => (
@@ -122,36 +120,12 @@ sub _build_table_input {
   return $table_input;
 }
 
-sub _build_group_by {
-  my $self = shift;
-
-  my $group_by = $self->data->{'group_by'} || '';
-  delete $self->data->{'group_by'};
-  return $group_by;
-}
-
-sub _build_roll_type {
-  my $self = shift;
-
-  my $roll_type = $self->data->{'rolltype'};
-  delete $self->data->{'rolltype'};
-  return $roll_type;
-}
-
 sub _build_scope {
   my $self = shift;
 
   my $scope = $self->data->{'scope'} || 'global';
   delete $self->data->{'scope'};
   return $scope;
-}
-
-sub _build_determines {
-  my $self = shift;
-
-  my $determines = $self->data->{'determines'};
-  delete $self->data->{'determines'};
-  return $determines;
 }
 
 sub _build_rolls {
@@ -184,8 +158,8 @@ sub get_raw_result {
   my $self = shift;
 
   my $result = '';
-  $self->devel("Roll Type is: ", $self->roll_type);
-  if ($self->roll_type =~ /^(\d+)d(\d+)$/) {
+  $self->devel("Roll Type is: ", $self->rolltype);
+  if ($self->rolltype =~ /^(\d+)d(\d+)$/) {
     my $num_rolls = $1;
     my $die_size  = $2;
     my $int_result = 0;
@@ -193,8 +167,8 @@ sub get_raw_result {
       $int_result += int(rand($die_size)+1);
     }
     $result = $int_result;
-  } elsif ($self->roll_type =~ /^(d\d+)+$/) {
-    my @dice = split /d/, $self->roll_type;
+  } elsif ($self->rolltype =~ /^(d\d+)+$/) {
+    my @dice = split /d/, $self->rolltype;
     shift @dice;
     foreach my $die (@dice) {
       $self->devel("Rolling a die with $die sides");

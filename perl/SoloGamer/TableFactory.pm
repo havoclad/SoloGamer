@@ -46,9 +46,16 @@ sub new_table {
   my %arguments = ( file => $filename, 
                     verbose => $self->verbose,
                     automated => $self->automated,
-                    data    => $json,
                     name    => $name,
                   );
+  foreach my $term ( qw / group_by rolltype determines variable_to_test
+                          test_criteria test_against fail_message / ) {
+    if (exists $json->{$term}) {
+      $arguments{$term} = $json->{$term};
+      delete $json->{$term};
+    }
+  }
+  $arguments{data} = $json;
   my $table_type = $json->{'table_type'};
   SWITCH: {
     for ($table_type ) {
