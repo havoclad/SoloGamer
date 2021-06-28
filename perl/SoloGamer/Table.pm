@@ -14,14 +14,6 @@ sub _build_pre {
   return $pre;
 }
 
-sub _build_title {
-  my $self = shift;
-
-  my $title = $self->{data}->{'Title'};
-  delete $self->{data}->{'Title'};
-  return $title;
-}
-
 has 'data' => (
  is       => 'ro',
  isa      => 'HashRef',
@@ -53,8 +45,7 @@ has 'title' => (
   is       =>'ro',
   isa      => 'Str',
   required => 1,
-  lazy     => 1,
-  builder  => '_build_title',
+  init_arg => 'Title',
 );
 
 __PACKAGE__->meta->make_immutable;

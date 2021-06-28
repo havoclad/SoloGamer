@@ -49,14 +49,15 @@ sub new_table {
                     name    => $name,
                   );
   foreach my $term ( qw / group_by rolltype determines variable_to_test
-                          test_criteria test_against fail_message / ) {
+                          Title test_criteria test_against fail_message / ) {
     if (exists $json->{$term}) {
       $arguments{$term} = $json->{$term};
       delete $json->{$term};
     }
   }
+  my $table_type = $json->{table_type};
+  delete $json->{table_type};
   $arguments{data} = $json;
-  my $table_type = $json->{'table_type'};
   SWITCH: {
     for ($table_type ) {
       if (/^Flow/xms)   { $h = SoloGamer::FlowTable->new( %arguments ); last SWITCH; }

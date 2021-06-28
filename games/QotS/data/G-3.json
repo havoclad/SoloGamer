@@ -3,9 +3,6 @@
    "table_type": "roll",
    "rolltype": "d6d6",
    "scope": "global",
-   "Notes": {
-      "1": "Add 1 to die roll for flak occurence over target zone.  Table O-2"
-   },
    "rolls": {
      "11": {
         "Target": "St. Omer",
