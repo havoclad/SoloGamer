@@ -13,23 +13,7 @@ use namespace::autoclean;
 
 use SoloGamer::TypeLibrary qw / PositiveInt /;
 
-sub devel {
-  my $self    = shift;
-  my $message = shift;
-
-  if ($self->verbose) {
-    say $message;
-  }
-  return;
-}
-
-has 'verbose' => (
-  is      => 'ro',
-  isa     => 'Bool',
-  lazy    => 1,
-  default => 0,
-  init_arg => 'verbose',
-);
+with 'Logger';
 
 has 'save_file' => (
   is            => 'ro',
