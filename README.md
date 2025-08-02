@@ -22,13 +22,13 @@ If you prefer to run Docker manually or need more control:
 
 ```bash
 # Build the image
-docker build -t havoclad/sologame -f docker/Dockerfile docker/
+docker build -t havoclad/sologamer -f docker/Dockerfile docker/
 
 # Run interactively with shell access
-docker run -it --rm -v "$(pwd)/saves:/app/saves" -v "$(pwd)/perl:/app/perl" --entrypoint /bin/sh havoclad/sologame
+docker run -it --rm -v "$(pwd)/saves:/app/saves" -v "$(pwd)/perl:/app/perl" --entrypoint /bin/sh havoclad/sologamer
 
 # Run the game directly
-docker run -it --rm -v "$(pwd)/saves:/app/saves" -v "$(pwd)/perl:/app/perl" havoclad/sologame [options]
+docker run -it --rm -v "$(pwd)/saves:/app/saves" -v "$(pwd)/perl:/app/perl" havoclad/sologamer [options]
 ```
 
 ## Command Line Options

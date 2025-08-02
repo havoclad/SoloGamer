@@ -13,4 +13,4 @@ done
 mkdir -p ./saves
 
 # Run the docker container
-docker run -v "$(pwd)/saves:/save" --rm $INTERACTIVE_FLAGS havoclad/sologamer --game=QotS "$@"
+docker run -v "$(pwd)/saves:/app/saves" --rm $INTERACTIVE_FLAGS havoclad/sologamer --game=QotS "$@"
