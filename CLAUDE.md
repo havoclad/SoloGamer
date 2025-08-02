@@ -24,8 +24,8 @@ SoloGamer is a Perl-based automation engine for solo board games, primarily "B-1
 
 ### Common Development Tasks
 ```bash
-# Test a specific game table
-./run.bash --game=QotS --debug --flow_table=FLOW-start
+# Test game with debug output
+./run.bash --game=QotS --debug
 
 # Run with verbose logging
 ./run.bash --info --debug
