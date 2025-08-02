@@ -47,6 +47,7 @@ has 'group_by' => (
   is              => 'ro',
   isa             => 'Str',
   init_arg        => 'group_by',
+  default         => 'join',
 );
 
 has 'table_skip' => (
