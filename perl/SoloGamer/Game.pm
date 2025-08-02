@@ -68,7 +68,7 @@ has 'automated' => (
 
 has 'zone' => (
   is       => 'rw',
-  isa      => 'Str',,
+  isa      => 'Str',
   init_arg => 1,
 );
 
