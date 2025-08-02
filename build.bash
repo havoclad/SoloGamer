@@ -1,4 +1,4 @@
-#!/usr/local/bin/bash
+#!/usr/bin/env bash
 
 rm -rf "docker/in/*"
 tar -czf "docker/in/perl.tar.gz" perl

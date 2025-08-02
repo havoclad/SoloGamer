@@ -1,3 +1,3 @@
-#!/usr/local/bin/bash
+#!/usr/bin/env bash
 
-docker run --rm -it --entrypoint perlcritic havoclad/sologamer -profile /perl/.perlcriticrc /perl
+docker run --rm --entrypoint perlcritic havoclad/sologamer -profile /perl/.perlcriticrc /perl
