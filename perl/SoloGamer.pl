@@ -28,8 +28,7 @@ sub validate_save_file {
   
   # Security: validate filename contains no path separators or dangerous characters
   if ($opt_value =~ m{[/\\]} || $opt_value =~ m{\.\.} || $opt_value =~ m{^[.-]}) {
-    print STDERR "Invalid save file name '$opt_value': must be a simple filename without paths, '..' sequences, or leading dots/dashes\n";
-    exit(1);
+    die "Invalid save file name '$opt_value': must be a simple filename without paths, '..' sequences, or leading dots/dashes";
   }
   
   # Construct safe path within saves directory and store in global variable
@@ -43,7 +42,7 @@ GetOptions("info"        => \$info,
            "save_file:s" => \&validate_save_file,
            "automated"   => \$automated,
            "color!"      => \$use_color,
-   );
+   ) || die "Invalid options";
 
 my $game = SoloGamer::Game->new(name      => $game_name, 
                                 verbose   => $info,
