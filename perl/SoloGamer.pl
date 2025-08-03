@@ -10,20 +10,22 @@ use lib '/perl';
 
 use SoloGamer::Game;
 
-my $info = 0;
-my $debug = 0;
-my $game_name = "";
-my $save_file = "";
-my $automated = 0;
-my $use_color = 1;
-my $help = 0;
+my %options = (
+  info      => 0,
+  debug     => 0,
+  game      => "",
+  save_file => "",
+  automated => 0,
+  color     => 1,
+  help      => 0,
+);
 
 sub validate_save_file {
   my ($opt_name, $opt_value) = @_;
   
   # Handle optional parameter case (no value provided)
   if (!defined $opt_value || $opt_value eq '') {
-    $save_file = '';
+    $options{save_file} = '';
     return;
   }
   
@@ -33,20 +35,20 @@ sub validate_save_file {
   }
   
   # Construct safe path within saves directory and store in global variable
-  $save_file = '/app/saves/' . $opt_value;
+  $options{save_file} = '/app/saves/' . $opt_value;
   return;
 }
 
-GetOptions("info"        => \$info,
-           "debug"       => \$debug,
-           "game=s"      => \$game_name,
+GetOptions("info"        => \$options{info},
+           "debug"       => \$options{debug},
+           "game=s"      => \$options{game},
            "save_file:s" => \&validate_save_file,
-           "automated"   => \$automated,
-           "color!"      => \$use_color,
-           "help|h"      => \$help,
+           "automated"   => \$options{automated},
+           "color!"      => \$options{color},
+           "help|h"      => \$options{help},
    ) || die "Invalid options";
 
-if ($help) {
+if ($options{help}) {
   print <<'EOF';
 Usage: SoloGamer.pl [options]
 
@@ -68,15 +70,15 @@ EOF
   exit 0;
 }
 
-my $game = SoloGamer::Game->new(name      => $game_name, 
-                                verbose   => $info,
-                                save_file => $save_file,
-                                automated => $automated,
-                                use_color => $use_color,
+my $game = SoloGamer::Game->new(name      => $options{game}, 
+                                verbose   => $options{info},
+                                save_file => $options{save_file},
+                                automated => $options{automated},
+                                use_color => $options{color},
                                 );
 
 my $data = $game->tables;
 
 $game->run_game;
 
-$debug and say $game->dump;
+$options{debug} and say $game->dump;
