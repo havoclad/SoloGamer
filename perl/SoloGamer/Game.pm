@@ -113,10 +113,6 @@ sub smart_buffer {
     $self->buffer_header($text, 40);
   } elsif ($text =~ /safe|successful|On target/i) {
     $self->buffer_success($text);
-    # Add mission outcome after landing result
-    if ($text =~ /Landing result is/i) {
-      $self->add_mission_outcome_display($text);
-    }
   } elsif ($text =~ /damage|hit|fail|crash/i) {
     $self->buffer_danger($text);
   } elsif ($text =~ /Moving to zone|zone:/i) {
@@ -311,37 +307,6 @@ sub do_flow {
   return;
 }
 
-sub add_mission_outcome_display {
-  my ($self, $landing_text) = @_;
-  
-  my $mission = $self->save->mission;
-  
-  # Determine mission outcome based on landing result text
-  my $outcome = "UNKNOWN";
-  my $game_over = 0;
-  
-  if ($landing_text =~ /wrecked|KIA/i) {
-    $outcome = "MISSION FAILED - B-17 WRECKED";
-    $game_over = 1;
-  } elsif ($landing_text =~ /irrepairably damaged/i) {
-    $outcome = "MISSION FAILED - B-17 IRREPARABLY DAMAGED";
-    $game_over = 1;
-  } elsif ($landing_text =~ /repairable/i) {
-    $outcome = "MISSION SUCCESS - B-17 DAMAGED BUT REPAIRABLE";
-  } elsif ($landing_text =~ /safe/i) {
-    $outcome = "MISSION SUCCESS - CREW AND B-17 SAFE";
-  }
-  
-  # Display outcome
-  $self->buffer_header("MISSION $mission OUTCOME", 40);
-  $self->buffer_success($outcome);
-  
-  if ($game_over) {
-    $self->buffer_header("PLAYTHROUGH OVER", 40);
-  }
-  
-  return;
-}
 
 sub report_mission_outcome {
   my $self = shift;
@@ -369,7 +334,7 @@ sub report_mission_outcome {
   
   # Display outcome
   $self->buffer_header("MISSION $mission OUTCOME", 40);
-  $self->smart_buffer($outcome);
+  $self->buffer_success($outcome);
   
   if ($game_over) {
     $self->buffer_header("PLAYTHROUGH OVER", 40);
