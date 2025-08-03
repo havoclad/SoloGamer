@@ -89,6 +89,20 @@ has 'min_roll' => (
   default  => 100,
 );
 
+has 'roll_modifier' => (
+  is       => 'ro',
+  isa      => 'HashRef',
+  builder  => '_build_roll_modifier',
+);
+
+sub _build_roll_modifier {
+  my $self = shift;
+
+  my $roll_modifier = $self->data->{'roll_modifier'} || {};
+  delete $self->data->{'roll_modifier'};
+  return $roll_modifier;
+}
+
 sub _build_table_skip {
   my $self = shift;
 
@@ -179,11 +193,47 @@ sub get_raw_result {
   return $result;
 }
 
+sub evaluate_roll_modifier {
+  my $self = shift;
+
+  return 0 unless keys %{$self->roll_modifier};
+  
+  my $condition = $self->roll_modifier->{condition};
+  my $value = $self->roll_modifier->{value} || 0;
+  
+  return 0 unless $condition && $value;
+  
+  # Simple condition evaluation for "$target in [list]" format
+  if ($condition =~ /^\$(\w+)\s+in\s+\[(.+)\]$/) {
+    my $var_name = $1;
+    my $list_str = $2;
+    
+    my $save = SoloGamer::SaveGame->instance;
+    my $var_value = $save->get_from_current_mission($var_name);
+    
+    return 0 unless defined $var_value;
+    
+    # Parse the list and check if variable matches any value
+    my @values = map { s/^['"]//; s/['"]$//; $_ } split /,\s*/, $list_str;
+    
+    if (grep { $_ eq $var_value } @values) {
+      $self->devel("Roll modifier condition '$condition' met, applying +$value");
+      return $value;
+    }
+  }
+  
+  return 0;
+}
+
 sub get_total_modifiers {
   my $self     = shift;
   my $scope_in = shift;
 
   my $total_modifiers = 0;
+  
+  # Add conditional roll modifier
+  $total_modifiers += $self->evaluate_roll_modifier();
+  
   foreach my $note ($self->{'modifiers'}->@*) {
     my $modifier      = $note->{'modifier'};
     my $from_table    = $note->{'from_table'};

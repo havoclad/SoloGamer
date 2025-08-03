@@ -154,6 +154,66 @@ sub test_roll_table_with_complex_options : Test(3) {
     is($first_option->{text}, 'Critical failure', 'option text preserved');
 }
 
+sub test_roll_modifier_attribute : Test(3) {
+    my $test = shift;
+    
+    require SoloGamer::RollTable;
+    
+    # Test table without roll_modifier
+    my $roll_data = {
+        'dice' => '1d6',
+        'options' => []
+    };
+    
+    my $table = $test->create_test_roll_table($roll_data);
+    
+    can_ok($table, 'roll_modifier', 'table has roll_modifier method');
+    isa_ok($table->roll_modifier, 'HASH', 'roll_modifier is a hash reference');
+    is(scalar keys %{$table->roll_modifier}, 0, 'roll_modifier defaults to empty hash');
+}
+
+sub test_roll_modifier_evaluation : Test(6) {
+    my $test = shift;
+    
+    require SoloGamer::RollTable;
+    require SoloGamer::SaveGame;
+    
+    # Create table with roll_modifier
+    my $roll_data = {
+        'dice' => '1d6',
+        'options' => [],
+        'roll_modifier' => {
+            'condition' => '$target in [\'Brest\', \'Lorient\', \'Kiel\']',
+            'value' => 1
+        }
+    };
+    
+    my $table = $test->create_test_roll_table($roll_data);
+    
+    # Test roll_modifier attribute is set
+    isa_ok($table->roll_modifier, 'HASH', 'roll_modifier is hash');
+    is($table->roll_modifier->{condition}, '$target in [\'Brest\', \'Lorient\', \'Kiel\']', 'condition stored correctly');
+    is($table->roll_modifier->{value}, 1, 'value stored correctly');
+    
+    # Setup save game for testing
+    my $save = SoloGamer::SaveGame->instance;
+    $save->mission(1);
+    $save->save->{'mission'} = [{}];
+    
+    # Test matching condition
+    $save->add_save('target', 'Brest');
+    is($table->evaluate_roll_modifier(), 1, 'modifier applied for matching target');
+    
+    # Test non-matching condition
+    $save->add_save('target', 'Berlin');
+    is($table->evaluate_roll_modifier(), 0, 'modifier not applied for non-matching target');
+    
+    # Test missing variable
+    $save->add_save('target', undef);
+    is($table->evaluate_roll_modifier(), 0, 'modifier not applied for undefined target');
+}
+
+
 sub test_roll_table_inheritance : Test(3) {
     my $test = shift;
     

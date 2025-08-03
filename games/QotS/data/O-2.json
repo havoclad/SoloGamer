@@ -3,6 +3,10 @@
    "table_type": "roll",
    "rolltype": "d6",
    "determines": "Flak",
+   "roll_modifier": {
+      "condition": "$target in ['Brest', 'Lorient', 'St. Nazaire', 'Wilhelmshaven', 'Vegesack', 'La Rochelle', 'Kiel']",
+      "value": 1
+   },
    "rolls": {
      "1": {
         "Flak": "No flak"
