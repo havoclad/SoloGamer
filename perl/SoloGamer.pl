@@ -16,6 +16,7 @@ my $game_name = "";
 my $save_file = "";
 my $automated = 0;
 my $use_color = 1;
+my $help = 0;
 
 sub validate_save_file {
   my ($opt_name, $opt_value) = @_;
@@ -42,7 +43,30 @@ GetOptions("info"        => \$info,
            "save_file:s" => \&validate_save_file,
            "automated"   => \$automated,
            "color!"      => \$use_color,
+           "help|h"      => \$help,
    ) || die "Invalid options";
+
+if ($help) {
+  print <<'EOF';
+Usage: SoloGamer.pl [options]
+
+Options:
+  --game=NAME        Set game name (default: QotS)
+  --save_file[=NAME] Save/load game to specified file
+  --automated        Run in automated mode (no user input)
+  --info             Enable verbose logging
+  --debug            Enable debug output at end of game
+  --color, --no-color Enable/disable colored output (default: enabled)
+  --help, -h         Show this help message
+
+Examples:
+  SoloGamer.pl                      # Run QotS interactively
+  SoloGamer.pl --automated          # Run QotS automated
+  SoloGamer.pl --save_file=mysave   # Load specific save file
+  SoloGamer.pl --info --debug       # Run with verbose output and debug
+EOF
+  exit 0;
+}
 
 my $game = SoloGamer::Game->new(name      => $game_name, 
                                 verbose   => $info,
