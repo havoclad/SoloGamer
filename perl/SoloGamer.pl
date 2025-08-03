@@ -17,10 +17,30 @@ my $save_file = "";
 my $automated = 0;
 my $use_color = 1;
 
+sub validate_save_file {
+  my ($opt_name, $opt_value) = @_;
+  
+  # Handle optional parameter case (no value provided)
+  if (!defined $opt_value || $opt_value eq '') {
+    $save_file = '';
+    return;
+  }
+  
+  # Security: validate filename contains no path separators or dangerous characters
+  if ($opt_value =~ m{[/\\]} || $opt_value =~ m{\.\.} || $opt_value =~ m{^[.-]}) {
+    print STDERR "Invalid save file name '$opt_value': must be a simple filename without paths, '..' sequences, or leading dots/dashes\n";
+    exit(1);
+  }
+  
+  # Construct safe path within saves directory and store in global variable
+  $save_file = '/app/saves/' . $opt_value;
+  return;
+}
+
 GetOptions("info"        => \$info,
            "debug"       => \$debug,
            "game=s"      => \$game_name,
-           "save_file:s" => \$save_file,
+           "save_file:s" => \&validate_save_file,
            "automated"   => \$automated,
            "color!"      => \$use_color,
    );
