@@ -66,11 +66,57 @@ has 'automated' => (
   init_arg => 'automated',
 );
 
+has 'use_color' => (
+  is       => 'ro',
+  isa      => 'Bool',
+  init_arg => 'use_color',
+  default  => 1,
+);
+
 has 'zone' => (
   is       => 'rw',
   isa      => 'Str',
   init_arg => 1,
 );
+
+sub BUILD {
+  my $self = shift;
+  
+  $self->formatter->use_color($self->use_color);
+  
+  return;
+}
+
+sub smart_buffer {
+  my ($self, $text) = @_;
+  
+  return unless defined $text && length $text;
+  
+  # Add weather icons
+  if ($text =~ /Weather.*is\s+(\w+)/i) {
+    my $weather = $1;
+    my $icon = $self->formatter->weather_icon($weather);
+    $text .= " $icon" if $icon;
+  }
+  
+  if ($text =~ /^Rolling for/i) {
+    $self->buffer_roll($text);
+  } elsif ($text =~ /^Welcome to/i) {
+    $self->buffer_header($text, 40);
+  } elsif ($text =~ /safe|successful|On target/i) {
+    $self->buffer_success($text);
+  } elsif ($text =~ /damage|hit|fail|crash/i) {
+    $self->buffer_danger($text);
+  } elsif ($text =~ /Moving to zone|zone:/i) {
+    $self->buffer_location($text);
+  } elsif ($text =~ /Target:|Type:|Formation|Percent/i) {
+    $self->buffer_important($text);
+  } else {
+    $self->buffer($text);
+  }
+  
+  return;
+}
 
 sub _build_save {
   my $self = shift;
@@ -138,8 +184,15 @@ sub do_loop {
     $path = "o";
   }
 
+  my $total_zones = scalar @keys;
+  my $current = 0;
+  
   foreach my $i (@keys) {
-    $self->buffer( "$action $i");
+    $current++;
+    $self->smart_buffer( "$action $i");
+    if ($action =~ /Moving to zone/i && $total_zones > 1) {
+      $self->buffer_progress($current, $total_zones, "", 10);
+    }
     $self->zone("$i$path");
   }
   return;
@@ -156,10 +209,10 @@ sub handle_output{
     $self->devel("In handle output with key: $key, value: $value, and text: $text --");
     $text =~ s{ <1>   }{ $value }xmse;
     $text =~ s{ \(s\) }{ $value == 1? '' : 's'}xmse;
-    $self->buffer($text);
+    $self->smart_buffer($text);
   } else {
     $self->devel("In handle output with key: $key, value: $value");
-    $self->buffer("$key: $value");
+    $self->smart_buffer("$key: $value");
   }
   return;
 }
@@ -205,7 +258,7 @@ sub do_flow {
       $post = $next_flow->{'post'};
     }
     if (exists $next_flow->{'pre'}) {
-      $self->buffer($next_flow->{'pre'});
+      $self->smart_buffer($next_flow->{'pre'});
     }
     if (exists $next_flow->{'type'}) {
       if ($next_flow->{'type'} eq 'choosemax') {
