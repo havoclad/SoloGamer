@@ -17,9 +17,23 @@ SoloGamer is a Perl-based automation engine for solo board games, primarily "B-1
 ./run.bash                           # Interactive mode
 ./run.bash --automated               # Automated play
 ./run.bash --save_file=mysave        # Load specific save
+```
+
+### Testing and Code Quality
+```bash
+# Run the comprehensive test suite (Test::Class::Moose + Test2)
+./test.bash                          # Run all tests (basic usage)
+./test.bash --verbose                # Run with verbose output
+./test.bash --parallel               # Run tests in parallel
+./test.bash --coverage               # Run with code coverage report
+./test.bash --tcm                    # Use Test::Class::Moose runner directly
+./test.bash --help                   # Show all available options
 
 # Check code quality with Perl::Critic
 ./critic.bash
+
+# IMPORTANT: Always run tests before committing
+./test.bash && git add . && git commit -m "Your commit message"
 ```
 
 ### Common Development Tasks
@@ -85,8 +99,31 @@ Example table structure:
 - Build script copies all perl/ content to docker/in/ for building
 - Run script handles volume mounting and cleanup
 
-### Code Quality
-- Run `./critic.bash` before commits
+### Testing Infrastructure
+The project includes a comprehensive Test::Class::Moose testing harness:
+
+- **Unit Tests**: Object-oriented tests mirroring production code structure
+- **Role Tests**: Independent testing of Moose roles (`Logger`, `BufferedOutput`)
+- **Integration Tests**: Full game flow scenarios with realistic test data
+- **Factory Tests**: Comprehensive coverage of the `TableFactory` pattern
+- **Singleton Tests**: Proper testing of `SaveGame` singleton behavior
+
+Test Structure:
+```
+t/
+├── 00-load.t                    # Module loading verification
+├── integration/                 # End-to-end integration tests
+└── lib/Test/                   # Test::Class::Moose test classes
+    ├── SoloGamer/              # Unit tests for each class
+    └── Role/                   # Moose role tests
+```
+
+**Note**: Minor warnings about Test::Builder/Test2 loading order are cosmetic and don't affect test functionality.
+
+### Code Quality Standards
+- **ALWAYS** run `./test.bash` before commits to ensure all tests pass
+- Run `./critic.bash` for Perl::Critic code quality checks
 - Follow existing Moose patterns for new modules
 - Use roles for shared functionality
 - Keep table logic in JSON, not Perl code
+- New features must include corresponding test coverage

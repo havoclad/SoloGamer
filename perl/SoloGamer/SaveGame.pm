@@ -19,6 +19,7 @@ has 'save_file' => (
   is            => 'ro',
   isa           => 'Str',
   init_arg      => 'save_file',
+  default       => '',
 );
 
 has 'save'    => (
@@ -39,15 +40,20 @@ sub load_save {
   my $save_to_load = $self->save_file;
 
   my $mission = 1;
-  if (-e $save_to_load) {
+  if ($save_to_load && -e $save_to_load) {
     $self->devel("Trying to load $save_to_load");
-    open(my $fh, "<", $save_to_load) or croak("Can't open: ", $save_to_load);
-    my $json = read_file($fh);
-    close $fh;
-    $self->save(decode_json($json)) or croak $!;
-    my $last_mission = $self->save->{mission}->$#* + 1;
-    $self->devel("Last mission was: $last_mission");
-    $mission = $last_mission + 1;
+    my $json = read_file($save_to_load);
+    my $decoded = decode_json($json);
+    $self->save($decoded) or croak $!;
+    
+    # Check if mission exists and is an array
+    if (exists $self->save->{mission} && ref($self->save->{mission}) eq 'ARRAY') {
+      my $last_mission = $self->save->{mission}->$#* + 1;
+      $self->devel("Last mission was: $last_mission");
+      $mission = $last_mission + 1;
+    } else {
+      $self->devel("No mission array found in save data");
+    }
   } else {
     if ($save_to_load eq '') {
       $self->devel("No save file, use --save_file on command line to set");
