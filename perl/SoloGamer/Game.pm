@@ -266,7 +266,41 @@ sub do_flow {
       $post = $next_flow->{'post'};
     }
     if (exists $next_flow->{'pre'}) {
-      $self->smart_buffer($next_flow->{'pre'});
+      # Check if this is a table type flow to enhance the pre message
+      if (exists $next_flow->{'type'} && $next_flow->{'pre'} =~ /^Rolling for/i) {
+        my $enhanced = 0;
+        
+        # Handle direct table references
+        if ($next_flow->{'type'} eq 'table' && exists $next_flow->{'Table'}) {
+          my $table_name = $next_flow->{'Table'};
+          my $table_obj = $self->tables->{$table_name};
+          if ($table_obj && ref($table_obj)) {
+            # Try to get rolltype if it's a RollTable
+            my $rolltype = '';
+            if ($table_obj->isa('SoloGamer::RollTable') && $table_obj->can('rolltype')) {
+              $rolltype = $table_obj->rolltype || '';
+              $rolltype = " $rolltype" if $rolltype;
+            }
+            my $enhanced_pre = $next_flow->{'pre'} . $rolltype . " on table $table_name";
+            $self->smart_buffer($enhanced_pre);
+            $enhanced = 1;
+          }
+        }
+        # Handle choosemax which eventually calls a table
+        elsif ($next_flow->{'type'} eq 'choosemax' && exists $next_flow->{'choices'}) {
+          # For choosemax, we can't know which table will be chosen until runtime
+          # So we'll just indicate it's a variable selection
+          my $enhanced_pre = $next_flow->{'pre'} . " (table varies by " . ($next_flow->{'variable'} || 'selection') . ")";
+          $self->smart_buffer($enhanced_pre);
+          $enhanced = 1;
+        }
+        
+        if (!$enhanced) {
+          $self->smart_buffer($next_flow->{'pre'});
+        }
+      } else {
+        $self->smart_buffer($next_flow->{'pre'});
+      }
     }
     if (exists $next_flow->{'type'}) {
       if ($next_flow->{'type'} eq 'choosemax') {
