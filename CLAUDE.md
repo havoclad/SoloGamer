@@ -38,12 +38,20 @@ SoloGamer is a Perl-based automation engine for solo board games, primarily "B-1
 
 ### Common Development Tasks
 ```bash
+# IMPORTANT: After any code changes, rebuild the Docker container!
+./build.bash
+
 # Test game with debug output
 ./run.bash --game=QotS --debug
 
 # Run with verbose logging
 ./run.bash --info --debug
 ```
+
+### Development Workflow Reminders
+1. **After ANY code changes in perl/ directory**: Always run `./build.bash` before testing
+2. **The Docker container caches the code**: Changes won't be visible until rebuild
+3. **Workflow**: Edit code → `./build.bash` → `./test.bash` → `./run.bash`
 
 ## Architecture Overview
 
