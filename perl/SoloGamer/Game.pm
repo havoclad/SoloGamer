@@ -383,7 +383,7 @@ sub run_game {
   $self->devel("In run_game");
   my $mission = $self->save->mission;
   my $max_missions = $self->tables->{'FLOW-start'}->{'data'}->{'missions'};
-  $mission == $max_missions and croak "25 successful missions, your crew went home!";
+  $mission > $max_missions and croak "25 successful missions, your crew went home!";
 
   $self->do_flow('FLOW-start');
 
