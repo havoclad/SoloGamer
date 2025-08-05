@@ -135,3 +135,7 @@ t/
 - Use roles for shared functionality
 - Keep table logic in JSON, not Perl code
 - New features must include corresponding test coverage
+
+## Development Principles
+
+- **Always fix warnings before marking a task complete**

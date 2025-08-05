@@ -29,7 +29,19 @@ sub buffer {
 sub print_output {
   my $self = shift;
 
-  say for $self->buffered_output->@*;
+  foreach my $line ($self->buffered_output->@*) {
+    # Check if line contains wide characters (Unicode > 255)
+    if ($line =~ /[^\x00-\xFF]/) {
+      # Temporarily set UTF-8 for this line only
+      my $old_layers = join('', PerlIO::get_layers(STDOUT));
+      binmode(STDOUT, ':utf8') unless $old_layers =~ /utf8/;
+      say $line;
+      # Reset to original layers if we added utf8
+      binmode(STDOUT, ':raw') if $old_layers !~ /utf8/;
+    } else {
+      say $line;
+    }
+  }
   $self->flush;
   return;
 }
