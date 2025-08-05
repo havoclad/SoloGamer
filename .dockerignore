@@ -1,0 +1,40 @@
+# Git and version control
+.git/
+.gitignore
+
+# Documentation
+*.md
+README*
+
+# Docker files (prevent recursion)
+Dockerfile*
+.dockerignore
+docker-compose*
+
+# Development files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.bak
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+*.log
+
+# Test coverage reports
+cover_db/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
