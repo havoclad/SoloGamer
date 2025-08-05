@@ -116,6 +116,7 @@ sub weather_icon {
   my %icons = (
     'Good'    => '☀',
     'Poor'    => '☁',
+    'Bad'     => '⛈',
     'Storm'   => '⛈',
     'Unknown' => '?',
   );
