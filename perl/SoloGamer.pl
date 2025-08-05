@@ -10,6 +10,9 @@ use lib '/perl';
 
 use SoloGamer::Game;
 
+# Set UTF-8 encoding for STDOUT to handle Unicode characters (e.g., weather icons)
+binmode(STDOUT, ':encoding(UTF-8)');
+
 my %options = (
   info      => 0,
   debug     => 0,

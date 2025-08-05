@@ -110,19 +110,5 @@ sub format_table {
   return join("\n", @lines);
 }
 
-sub weather_icon {
-  my ($self, $weather) = @_;
-  
-  my %icons = (
-    'Good'    => '☀',
-    'Poor'    => '☁',
-    'Bad'     => '⛈',
-    'Storm'   => '⛈',
-    'Unknown' => '?',
-  );
-  
-  return $icons{$weather} // $icons{'Unknown'};
-}
-
 __PACKAGE__->meta->make_immutable;
 1;

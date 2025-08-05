@@ -92,13 +92,6 @@ sub smart_buffer {
   
   return unless defined $text && length $text;
   
-  # Add weather icons
-  if ($text =~ /Weather.*is\s+(\w+)/i) {
-    my $weather = $1;
-    my $icon = $self->formatter->weather_icon($weather);
-    $text .= " $icon" if $icon;
-  }
-  
   if ($text =~ /^Rolling for/i) {
     # Add mission number before Rolling for Mission
     if ($text =~ /Rolling for Mission/i) {
@@ -318,7 +311,12 @@ sub do_flow {
           next;
         }
         my $determines = $self->tables->{$table}->determines;
-        $self->handle_output($determines, $roll->{$determines}, $post);
+        # Pass icon along with weather value if available
+        my $icon = '';
+        if ($determines eq 'weather' && exists $roll->{'icon'}) {
+          $icon = ' ' . $roll->{'icon'};
+        }
+        $self->handle_output($determines, $roll->{$determines} . $icon, $post);
       } elsif ($next_flow->{'type'} eq 'loop') {
         my $loop_table = $next_flow->{'loop_table'};
         my $loop_variable = $next_flow->{'loop_variable'};
