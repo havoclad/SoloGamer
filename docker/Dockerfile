@@ -1,7 +1,8 @@
-FROM perl
+FROM perl:slim
 
-# Install available packages via apt
+# Install available packages via apt plus build tools for slim image
 RUN apt-get update && apt-get install -y \
+    build-essential \
     libmoose-perl \
     libnamespace-autoclean-perl \
     libtest-exception-perl \
