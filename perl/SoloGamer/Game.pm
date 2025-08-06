@@ -117,9 +117,7 @@ sub smart_buffer {
     }
     $self->buffer_roll($text);
   } elsif ($text =~ /^Welcome to/i) {
-    # Add mission number before Welcome message
-    my $mission = $self->save->mission;
-    $self->buffer_header("MISSION $mission", 40);
+    # Display Welcome message
     $self->buffer_header($text, 40);
   } elsif ($text =~ /safe|successful|On target/i) {
     $self->buffer_success($text);
