@@ -87,10 +87,27 @@ sub BUILD {
   return;
 }
 
+sub substitute_variables {
+  my ($self, $text) = @_;
+  
+  return $text unless defined $text && length $text;
+  
+  # Substitute plane name variable
+  if ($text =~ /\$plane_name/) {
+    my $plane_name = $self->save->get_plane_name();
+    $text =~ s/\$plane_name/$plane_name/g;
+  }
+  
+  return $text;
+}
+
 sub smart_buffer {
   my ($self, $text) = @_;
   
   return unless defined $text && length $text;
+  
+  # Apply variable substitution first
+  $text = $self->substitute_variables($text);
   
   if ($text =~ /^Rolling for/i) {
     # Add mission number before Rolling for Mission
@@ -124,6 +141,7 @@ sub _build_save {
   
   my $save = SoloGamer::SaveGame->initialize( save_file => $self->save_file,
                                               verbose   => $self->{'verbose'},
+                                              automated => $self->automated,
                                             );
   $save->load_save;
   return $save;
@@ -210,6 +228,7 @@ sub handle_output{
     $self->devel("In handle output with key: $key, value: $value, and text: $text --");
     $text =~ s{ <1>   }{ $value }xmse;
     $text =~ s{ \(s\) }{ $value == 1? '' : 's'}xmse;
+    $text = $self->substitute_variables($text);
     $self->smart_buffer($text);
   } else {
     $self->devel("In handle output with key: $key, value: $value");

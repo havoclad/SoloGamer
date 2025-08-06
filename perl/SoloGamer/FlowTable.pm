@@ -35,14 +35,17 @@ has 'current' => (
 sub get_next {
   my $self = shift;
 
-  my $current = $self->current($self->current + 1);
+  my $current = $self->current;
   $self->devel("In get_next with current: ", $current, " and last array index of: ", $self->flow->$#*);
 
   if ($current > $self->flow->$#*) {
     $self->devel("Done with flow");
     return;
   }
-  return $self->flow->[$current];
+  
+  my $result = $self->flow->[$current];
+  $self->current($current + 1);
+  return $result;
 }
 
 __PACKAGE__->meta->make_immutable;

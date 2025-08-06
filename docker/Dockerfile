@@ -33,10 +33,11 @@ COPY --from=builder /usr/local/lib/perl5 /usr/local/lib/perl5
 COPY --from=builder /usr/local/bin /usr/local/bin
 
 ADD in/perl.tar.gz /
+ADD in/games.tar.gz /
 ADD in/data.tar.gz /
 
 # Set proper ownership for non-root user
-RUN chown -R sologamer:sologamer /perl /games
+RUN chown -R sologamer:sologamer /perl /games /data
 
 # Switch to non-root user
 USER sologamer

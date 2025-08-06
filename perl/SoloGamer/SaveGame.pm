@@ -12,6 +12,7 @@ use Mojo::JSON qw ( encode_json decode_json );
 use namespace::autoclean;
 
 use SoloGamer::TypeLibrary qw / PositiveInt /;
+use SoloGamer::PlaneNamer;
 
 with 'Logger';
 
@@ -32,6 +33,13 @@ has 'save'    => (
 has 'mission' => (
   is       => 'rw',
   isa      => PositiveInt,
+);
+
+has 'automated' => (
+  is       => 'ro',
+  isa      => 'Bool',
+  init_arg => 'automated',
+  default  => 0,
 );
 
 sub load_save {
@@ -60,7 +68,15 @@ sub load_save {
     } else {
       $self->devel("No save file found at $save_to_load");
     }
-    my $temp = { mission => [{}] };
+    
+    # Create new save with plane name selection
+    my $plane_namer = SoloGamer::PlaneNamer->new(automated => $self->automated);
+    my $plane_name = $plane_namer->prompt_for_plane_name();
+    
+    my $temp = { 
+      mission => [{}],
+      plane_name => $plane_name 
+    };
     $self->save($temp);
   }
   $self->mission($mission);
@@ -99,6 +115,12 @@ sub get_from_current_mission {
 
   $self->devel("Looking for $property in mission: ", $self->mission);
   return $self->save->{'mission'}->[$self->mission-1]->{$property};
+}
+
+sub get_plane_name {
+  my $self = shift;
+  
+  return $self->save->{'plane_name'} || 'Unnamed B-17';
 }
 __PACKAGE__->meta->make_immutable;
 1;

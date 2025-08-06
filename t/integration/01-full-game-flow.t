@@ -146,7 +146,7 @@ subtest 'Table Inheritance Chain' => sub {
 
 # Test 5: FlowTable specific functionality
 subtest 'FlowTable Integration' => sub {
-    plan tests => 6;
+    plan tests => 7;
     
     require SoloGamer::TableFactory;
     
@@ -160,7 +160,8 @@ subtest 'FlowTable Integration' => sub {
     
     my $first_step = $flow_table->get_next();
     ok(defined $first_step, 'first step retrieved');
-    is($flow_table->current, 1, 'current incremented');
+    is($flow_table->current, 1, 'current incremented after first get_next');
+    ok(exists $first_step->{pre} && $first_step->{pre} eq 'Takeoff and formation', 'first step has correct content');
     
     my $second_step = $flow_table->get_next();
     ok(defined $second_step, 'second step retrieved');
@@ -206,7 +207,7 @@ subtest 'Error Handling' => sub {
     require SoloGamer::SaveGame;
     SoloGamer::SaveGame->_clear_instance() if SoloGamer::SaveGame->can('_clear_instance');
     
-    my $save_game = SoloGamer::SaveGame->initialize(save_file => "/nonexistent/save.json");
+    my $save_game = SoloGamer::SaveGame->initialize(save_file => "/nonexistent/save.json", automated => 1);
     
     ok(lives { $save_game->load_save() }, 'SaveGame handles nonexistent save file');
     is($save_game->mission, 1, 'mission defaults to 1 for new save');

@@ -44,7 +44,7 @@
 		},
 		{
 			"type": "loop",
-			"pre": "We took off",
+			"pre": "The $plane_name took off",
 			"post": "Bombing run!",
 			"loop_table": "G-11",
 			"loop_variable": "zone",
