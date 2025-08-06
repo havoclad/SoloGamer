@@ -67,6 +67,20 @@ sub buffer_roll {
   return;
 }
 
+sub buffer_modifier_preview {
+  my ($self, $modifiers) = @_;
+  my $text = $self->formatter->format_modifier_preview($modifiers);
+  $self->buffer($text) if $text;
+  return;
+}
+
+sub buffer_modifier_applied {
+  my ($self, $modifiers) = @_;
+  my $text = $self->formatter->format_modifier_applied($modifiers);
+  $self->buffer($text) if $text;
+  return;
+}
+
 sub buffer_success {
   my ($self, $text) = @_;
   $self->buffer($self->formatter->format_success($text));

@@ -81,6 +81,45 @@ sub progress_bar {
   return $self->format($bar, 'cyan') . " " . $percent;
 }
 
+sub format_modifier_preview {
+  my ($self, $modifiers) = @_;
+  
+  return '' unless @$modifiers;
+  
+  my @lines;
+  push @lines, $self->format("Future rolls will be modified:", 'bright_black');
+  
+  foreach my $mod (@$modifiers) {
+    my $table = $mod->{table};
+    my $modifier = $mod->{modifier};
+    my $why = $mod->{why};
+    
+    my $sign = $modifier >= 0 ? '+' : '';
+    push @lines, $self->format("  - $why ($table): $sign$modifier penalty", 'bright_black');
+  }
+  
+  return join("\n", @lines);
+}
+
+sub format_modifier_applied {
+  my ($self, $modifiers) = @_;
+  
+  return '' unless @$modifiers;
+  
+  my @lines;
+  push @lines, $self->format("Applied modifiers:", 'bright_black');
+  
+  foreach my $mod (@$modifiers) {
+    my $modifier = $mod->{modifier};
+    my $why = $mod->{why};
+    
+    my $sign = $modifier >= 0 ? '+' : '';
+    push @lines, $self->format("  - $why: $sign$modifier penalty", 'bright_black');
+  }
+  
+  return join("\n", @lines);
+}
+
 sub format_table {
   my ($self, $title, $data) = @_;
   

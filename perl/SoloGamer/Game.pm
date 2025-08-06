@@ -218,12 +218,60 @@ sub handle_output{
   return;
 }
 
+sub display_applied_modifiers {
+  my $self = shift;
+  my $table_name = shift;
+  
+  return unless exists $self->tables->{$table_name};
+  
+  my $table_obj = $self->tables->{$table_name};
+  my $scope_in = $self->zone;
+  
+  # Get total modifiers to see if we need to display anything
+  my $total_modifiers = $table_obj->get_total_modifiers($scope_in);
+  return if $total_modifiers == 0;
+  
+  my @applied_modifiers;
+  my $scope = $table_obj->scope;
+  
+  # Add conditional roll modifier if any
+  my $conditional_modifier = $table_obj->evaluate_roll_modifier();
+  if ($conditional_modifier != 0) {
+    push @applied_modifiers, {
+      modifier => $conditional_modifier,
+      why      => 'conditional roll modifier'
+    };
+  }
+  
+  # Add explicit modifiers
+  foreach my $note (@{$table_obj->modifiers}) {
+    my $modifier_scope = $note->{'scope'};
+    next unless $modifier_scope eq 'global' or $modifier_scope eq $scope_in;
+    
+    push @applied_modifiers, {
+      modifier => $note->{'modifier'},
+      why      => $note->{'why'}
+    };
+  }
+  
+  if (@applied_modifiers) {
+    $self->buffer_modifier_applied(\@applied_modifiers);
+  }
+  
+  return;
+}
+
 sub do_roll {
   my $self  = shift;
   my $table = shift;
 
+  # Display applied modifiers before rolling if any exist
+  $self->display_applied_modifiers($table);
+
   my $roll = $self->tables->{$table}->roll($self->zone);
   if (defined $roll and exists $roll->{'notes'}) {
+    my @preview_modifiers;
+    
     foreach my $note ($roll->{'notes'}->@*) {
       my $modifier  = $note->{'modifier'};
       my $mod_table = $note->{'table'};
@@ -243,6 +291,22 @@ sub do_roll {
                                                          scope    => $scope,
                                                          stack    => $stack
                                                        } );
+      
+      # Collect modifier info for preview display
+      if (exists $self->tables->{$mod_table}) {
+        my $table_title = $self->tables->{$mod_table}->title || $mod_table;
+        push @preview_modifiers, {
+          table    => $mod_table,
+          title    => $table_title,
+          modifier => $modifier,
+          why      => $why
+        };
+      }
+    }
+    
+    # Display modifier preview if any modifiers were added
+    if (@preview_modifiers) {
+      $self->buffer_modifier_preview(\@preview_modifiers);
     }
   }
   return $roll;

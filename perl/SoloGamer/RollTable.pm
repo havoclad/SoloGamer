@@ -264,6 +264,7 @@ sub roll {
   }
   $self->devel("Rolling ", $self->table_count, " times on table: ", $self->name, " for scope $scope_in");
   my $total_modifiers = $self->get_total_modifiers($scope_in);
+  
   my $accumulator_array = [];
   for (1 .. $self->table_count) {
     my $result = $self->get_raw_result;
