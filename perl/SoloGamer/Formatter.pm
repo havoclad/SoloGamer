@@ -50,7 +50,7 @@ sub format_header {
 }
 
 sub box_header {
-  my ($self, $text, $width) = @_;
+  my ($self, $text, $width, $color_scheme) = @_;
   
   $width //= length($text) + 4;
   my $padding = $width - length($text) - 2;
@@ -61,11 +61,70 @@ sub box_header {
   my $middle = "║" . (" " x $left_pad) . $text . (" " x $right_pad) . "║";
   my $bottom = "╚" . ("═" x ($width - 2)) . "╝";
   
+  # Determine color based on text content or explicit scheme
+  my $color = $self->_get_banner_color($text, $color_scheme);
+  
   return join("\n", 
-    $self->format_header($top),
-    $self->format_header($middle),
-    $self->format_header($bottom)
+    $self->format($top, $color),
+    $self->format($middle, $color),
+    $self->format($bottom, $color)
   );
+}
+
+sub _get_banner_color {
+  my ($self, $text, $scheme) = @_;
+  
+  # Option 1: Military Green & Gold Theme
+  # - Welcome banners: bright green (military green)
+  # - Mission headers: yellow/gold (command briefing)
+  # - Outcome headers: bright yellow/gold
+  
+  # Option 2: Classic Aviation Theme  
+  # - Welcome banners: bright blue (sky blue)
+  # - Mission headers: white (clean cockpit)
+  # - Outcome headers: bright cyan
+  
+  # Option 3: Vintage WWII Theme
+  # - Welcome banners: bright_yellow (brass/medal)
+  # - Mission headers: bright_red (alert/mission)
+  # - Outcome headers: bright_green
+  
+  # Option 4: Terminal Classic
+  # - Welcome banners: bright_magenta
+  # - Mission headers: bright_cyan
+  # - Outcome headers: bright_white
+  
+  # Default to scheme 4 (Terminal Classic)
+  $scheme //= $ENV{BANNER_COLOR_SCHEME} // 4;
+  
+  # Check for OUTCOME first (more specific pattern)
+  if ($text =~ /OUTCOME/i) {
+    return 'bright_yellow' if $scheme == 1;
+    return 'bright_cyan' if $scheme == 2;
+    return 'bright_green' if $scheme == 3;
+    return 'bright_white' if $scheme == 4;
+  }
+  elsif ($text =~ /Welcome to/i) {
+    return 'bright_green' if $scheme == 1;
+    return 'bright_blue' if $scheme == 2;
+    return 'bright_yellow' if $scheme == 3;
+    return 'bright_magenta' if $scheme == 4;
+  }
+  elsif ($text =~ /MISSION \d+/i || $text =~ /MISSION/i) {
+    return 'yellow' if $scheme == 1;
+    return 'white' if $scheme == 2;
+    return 'bright_red' if $scheme == 3;
+    return 'bright_cyan' if $scheme == 4;
+  }
+  elsif ($text =~ /PLAYTHROUGH OVER/i) {
+    return 'bright_magenta' if $scheme == 1;
+    return 'bright_yellow' if $scheme == 2;
+    return 'bright_white' if $scheme == 3;
+    return 'bright_red' if $scheme == 4;
+  }
+  
+  # Default fallback
+  return 'bold cyan';
 }
 
 sub progress_bar {

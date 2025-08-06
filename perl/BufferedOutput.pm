@@ -106,8 +106,8 @@ sub buffer_important {
 }
 
 sub buffer_header {
-  my ($self, $text, $width) = @_;
-  $self->buffer($self->formatter->box_header($text, $width));
+  my ($self, $text, $width, $color_scheme) = @_;
+  $self->buffer($self->formatter->box_header($text, $width, $color_scheme));
   return;
 }
 
