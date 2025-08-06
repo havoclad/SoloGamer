@@ -15,13 +15,13 @@ with 'Logger';
 has 'generated_names_file' => (
   is      => 'ro',
   isa     => 'Str',
-  default => '/data/generated_b17_bomber_names.txt',
+  default => '/games/QotS/generated_b17_bomber_names.txt',
 );
 
 has 'verified_names_file' => (
   is      => 'ro',
   isa     => 'Str',
-  default => '/data/verified_b17_bomber_names.txt',
+  default => '/games/QotS/verified_b17_bomber_names.txt',
 );
 
 has 'automated' => (
