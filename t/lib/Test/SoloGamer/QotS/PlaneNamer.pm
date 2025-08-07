@@ -1,4 +1,4 @@
-package Test::SoloGamer::PlaneNamer;
+package Test::SoloGamer::QotS::PlaneNamer;
 
 use strict;
 use warnings;
@@ -13,7 +13,7 @@ use Test::Class::Moose;
 extends 'Test::Class::Moose';
 
 with 'Test::Class::Moose::Role::AutoUse' => {
-    autouse => [qw/SoloGamer::PlaneNamer/]
+    autouse => [qw/SoloGamer::QotS::PlaneNamer/]
 };
 
 sub test_startup {
@@ -58,7 +58,7 @@ sub test_startup {
 sub test_automated_mode {
     my ($test, $report) = @_;
     
-    my $namer = SoloGamer::PlaneNamer->new(
+    my $namer = SoloGamer::QotS::PlaneNamer->new(
         automated => 1,
         generated_names_file => $test->{generated_file},
         verified_names_file => $test->{verified_file}
@@ -83,7 +83,7 @@ sub test_automated_mode {
 sub test_get_random_name_generated {
     my ($test, $report) = @_;
     
-    my $namer = SoloGamer::PlaneNamer->new(
+    my $namer = SoloGamer::QotS::PlaneNamer->new(
         generated_names_file => $test->{generated_file},
         verified_names_file => $test->{verified_file}
     );
@@ -108,7 +108,7 @@ sub test_get_random_name_generated {
 sub test_get_random_name_verified {
     my ($test, $report) = @_;
     
-    my $namer = SoloGamer::PlaneNamer->new(
+    my $namer = SoloGamer::QotS::PlaneNamer->new(
         generated_names_file => $test->{generated_file},
         verified_names_file => $test->{verified_file}
     );
@@ -133,7 +133,7 @@ sub test_get_random_name_verified {
 sub test_interactive_accept_suggested {
     my ($test, $report) = @_;
     
-    my $namer = SoloGamer::PlaneNamer->new(
+    my $namer = SoloGamer::QotS::PlaneNamer->new(
         automated => 0,
         generated_names_file => $test->{generated_file},
         verified_names_file => $test->{verified_file}
@@ -164,7 +164,7 @@ sub test_interactive_accept_suggested {
 sub test_interactive_reroll_then_accept {
     my ($test, $report) = @_;
     
-    my $namer = SoloGamer::PlaneNamer->new(
+    my $namer = SoloGamer::QotS::PlaneNamer->new(
         automated => 0,
         generated_names_file => $test->{generated_file},
         verified_names_file => $test->{verified_file}
@@ -193,7 +193,7 @@ sub test_interactive_reroll_then_accept {
 sub test_interactive_verified_then_accept {
     my ($test, $report) = @_;
     
-    my $namer = SoloGamer::PlaneNamer->new(
+    my $namer = SoloGamer::QotS::PlaneNamer->new(
         automated => 0,
         generated_names_file => $test->{generated_file},
         verified_names_file => $test->{verified_file}
@@ -222,7 +222,7 @@ sub test_interactive_verified_then_accept {
 sub test_interactive_custom_name {
     my ($test, $report) = @_;
     
-    my $namer = SoloGamer::PlaneNamer->new(
+    my $namer = SoloGamer::QotS::PlaneNamer->new(
         automated => 0,
         generated_names_file => $test->{generated_file},
         verified_names_file => $test->{verified_file}
@@ -251,7 +251,7 @@ sub test_interactive_custom_name {
 sub test_interactive_invalid_then_valid {
     my ($test, $report) = @_;
     
-    my $namer = SoloGamer::PlaneNamer->new(
+    my $namer = SoloGamer::QotS::PlaneNamer->new(
         automated => 0,
         generated_names_file => $test->{generated_file},
         verified_names_file => $test->{verified_file}
@@ -280,7 +280,7 @@ sub test_interactive_invalid_then_valid {
 sub test_missing_name_files_error {
     my ($test, $report) = @_;
     
-    my $namer = SoloGamer::PlaneNamer->new(
+    my $namer = SoloGamer::QotS::PlaneNamer->new(
         generated_names_file => '/nonexistent/generated.txt',
         verified_names_file => '/nonexistent/verified.txt'
     );
@@ -301,7 +301,7 @@ sub test_empty_name_file_error {
     open my $fh, '>', $empty_file;
     close $fh;
     
-    my $namer = SoloGamer::PlaneNamer->new(
+    my $namer = SoloGamer::QotS::PlaneNamer->new(
         generated_names_file => $empty_file,
         verified_names_file => '/nonexistent/verified.txt'
     );

@@ -1,4 +1,4 @@
-package SoloGamer::PlaneNamer;
+package SoloGamer::QotS::PlaneNamer;
 
 use strict;
 use v5.20;

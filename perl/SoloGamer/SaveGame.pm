@@ -12,7 +12,7 @@ use Mojo::JSON qw ( encode_json decode_json );
 use namespace::autoclean;
 
 use SoloGamer::TypeLibrary qw / PositiveInt /;
-use SoloGamer::PlaneNamer;
+use SoloGamer::QotS::PlaneNamer;
 
 with 'Logger';
 
@@ -70,7 +70,7 @@ sub load_save {
     }
     
     # Create new save with plane name selection
-    my $plane_namer = SoloGamer::PlaneNamer->new(automated => $self->automated);
+    my $plane_namer = SoloGamer::QotS::PlaneNamer->new(automated => $self->automated);
     my $plane_name = $plane_namer->prompt_for_plane_name();
     
     my $temp = { 

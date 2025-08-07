@@ -55,13 +55,13 @@ open my $ver_fh, '>', "$games_dir/verified_b17_bomber_names.txt";
 print $ver_fh $verified_names;
 close $ver_fh;
 
-require SoloGamer::PlaneNamer;
+require SoloGamer::QotS::PlaneNamer;
 
 # Test 1: Accept initial suggestion (equivalent to choice "1" - accept)
 subtest 'Choice 1 - Accept Suggested Name' => sub {
     plan tests => 3;
     
-    my $namer = SoloGamer::PlaneNamer->new(
+    my $namer = SoloGamer::QotS::PlaneNamer->new(
         automated => 0,
         generated_names_file => "$games_dir/generated_b17_bomber_names.txt",
         verified_names_file => "$games_dir/verified_b17_bomber_names.txt"
@@ -91,7 +91,7 @@ subtest 'Choice 1 - Accept Suggested Name' => sub {
 subtest 'Choice 2 - Reroll for New Name' => sub {
     plan tests => 4;
     
-    my $namer = SoloGamer::PlaneNamer->new(
+    my $namer = SoloGamer::QotS::PlaneNamer->new(
         automated => 0,
         generated_names_file => "$games_dir/generated_b17_bomber_names.txt",
         verified_names_file => "$games_dir/verified_b17_bomber_names.txt"
@@ -122,7 +122,7 @@ subtest 'Choice 2 - Reroll for New Name' => sub {
 subtest 'Choice 3 - Get Historical Name' => sub {
     plan tests => 4;
     
-    my $namer = SoloGamer::PlaneNamer->new(
+    my $namer = SoloGamer::QotS::PlaneNamer->new(
         automated => 0,
         generated_names_file => "$games_dir/generated_b17_bomber_names.txt",
         verified_names_file => "$games_dir/verified_b17_bomber_names.txt"
@@ -159,7 +159,7 @@ subtest 'Choice 3 - Get Historical Name' => sub {
 subtest 'Choice 4 - Custom Name Entry' => sub {
     plan tests => 3;
     
-    my $namer = SoloGamer::PlaneNamer->new(
+    my $namer = SoloGamer::QotS::PlaneNamer->new(
         automated => 0,
         generated_names_file => "$games_dir/generated_b17_bomber_names.txt",
         verified_names_file => "$games_dir/verified_b17_bomber_names.txt"
@@ -190,7 +190,7 @@ subtest 'Choice 4 - Custom Name Entry' => sub {
 subtest 'Automated Mode - No User Interaction' => sub {
     plan tests => 3;
     
-    my $namer = SoloGamer::PlaneNamer->new(
+    my $namer = SoloGamer::QotS::PlaneNamer->new(
         automated => 1,
         generated_names_file => "$games_dir/generated_b17_bomber_names.txt",
         verified_names_file => "$games_dir/verified_b17_bomber_names.txt"
@@ -214,7 +214,7 @@ subtest 'Automated Mode - No User Interaction' => sub {
 subtest 'Choice Sequence - Reroll Multiple Times' => sub {
     plan tests => 4;
     
-    my $namer = SoloGamer::PlaneNamer->new(
+    my $namer = SoloGamer::QotS::PlaneNamer->new(
         automated => 0,
         generated_names_file => "$games_dir/generated_b17_bomber_names.txt",
         verified_names_file => "$games_dir/verified_b17_bomber_names.txt"
@@ -245,7 +245,7 @@ subtest 'Choice Sequence - Reroll Multiple Times' => sub {
 subtest 'Error Handling - Invalid Then Valid Choices' => sub {
     plan tests => 3;
     
-    my $namer = SoloGamer::PlaneNamer->new(
+    my $namer = SoloGamer::QotS::PlaneNamer->new(
         automated => 0,
         generated_names_file => "$games_dir/generated_b17_bomber_names.txt",
         verified_names_file => "$games_dir/verified_b17_bomber_names.txt"
@@ -284,7 +284,7 @@ subtest 'Complete Choice Workflow Test' => sub {
     );
     
     foreach my $test_case (@choice_sequences) {
-        my $namer = SoloGamer::PlaneNamer->new(
+        my $namer = SoloGamer::QotS::PlaneNamer->new(
             automated => 0,
             generated_names_file => "$games_dir/generated_b17_bomber_names.txt",
             verified_names_file => "$games_dir/verified_b17_bomber_names.txt"
