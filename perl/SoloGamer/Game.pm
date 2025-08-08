@@ -454,6 +454,12 @@ sub report_mission_outcome {
   $self->buffer_header("MISSION $mission OUTCOME", 40);
   $self->buffer_success($outcome);
   
+  # Display updated crew roster after mission
+  if ($self->save->crew) {
+    my $roster = $self->save->crew->display_roster();
+    $self->buffer($roster);
+  }
+  
   if ($game_over) {
     $self->buffer_header("PLAYTHROUGH OVER", 40);
   }
