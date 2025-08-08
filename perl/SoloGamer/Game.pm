@@ -445,6 +445,11 @@ sub report_mission_outcome {
     }
   }
   
+  # Update crew mission counts for successful missions
+  if ($self->save->crew && !$game_over) {
+    $self->save->update_crew_after_mission();
+  }
+  
   # Display outcome
   $self->buffer_header("MISSION $mission OUTCOME", 40);
   $self->buffer_success($outcome);
@@ -463,6 +468,12 @@ sub run_game {
   my $mission = $self->save->mission;
   my $max_missions = $self->tables->{'FLOW-start'}->{'data'}->{'missions'};
   $mission > $max_missions and croak "25 successful missions, your crew went home!";
+
+  # Display crew roster at start of mission
+  if ($self->save->crew) {
+    my $roster = $self->save->crew->display_roster();
+    $self->buffer($roster);
+  }
 
   $self->do_flow('FLOW-start');
 

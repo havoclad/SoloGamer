@@ -13,6 +13,7 @@ use namespace::autoclean;
 
 use SoloGamer::TypeLibrary qw / PositiveInt /;
 use SoloGamer::QotS::PlaneNamer;
+use SoloGamer::QotS::Crew;
 
 with 'Logger';
 
@@ -42,6 +43,13 @@ has 'automated' => (
   default  => 0,
 );
 
+has 'crew' => (
+  is      => 'rw',
+  isa     => 'Maybe[SoloGamer::QotS::Crew]',
+  lazy    => 1,
+  builder => '_build_crew',
+);
+
 sub load_save {
   my $self = shift;
 
@@ -53,6 +61,11 @@ sub load_save {
     my $json = read_file($save_to_load);
     my $decoded = decode_json($json);
     $self->save($decoded) or croak $!;
+    
+    # Load crew if it exists
+    if (exists $self->save->{crew}) {
+      $self->crew(SoloGamer::QotS::Crew->from_hash($self->save->{crew}, $self->automated));
+    }
     
     # Check if mission exists and is an array
     if (exists $self->save->{mission} && ref($self->save->{mission}) eq 'ARRAY') {
@@ -73,11 +86,16 @@ sub load_save {
     my $plane_namer = SoloGamer::QotS::PlaneNamer->new(automated => $self->automated);
     my $plane_name = $plane_namer->prompt_for_plane_name();
     
+    # Create new crew
+    my $crew = SoloGamer::QotS::Crew->new(automated => $self->automated);
+    
     my $temp = { 
       mission => [{}],
-      plane_name => $plane_name 
+      plane_name => $plane_name,
+      crew => $crew->to_hash()
     };
     $self->save($temp);
+    $self->crew($crew);
   }
   $self->mission($mission);
   return $mission;
@@ -86,6 +104,11 @@ sub load_save {
 
 sub save_game {
   my $self = shift;
+
+  # Update crew data in save before writing
+  if ($self->crew) {
+    $self->save->{crew} = $self->crew->to_hash();
+  }
 
   if ($self->save_file) {
     $self->devel("Writing save file to ", $self->save_file);
@@ -122,5 +145,30 @@ sub get_plane_name {
   
   return $self->save->{'plane_name'} || 'Unnamed B-17';
 }
+
+sub _build_crew {
+  my $self = shift;
+  
+  if (exists $self->save->{crew}) {
+    return SoloGamer::QotS::Crew->from_hash($self->save->{crew}, $self->automated);
+  }
+  
+  return undef;
+}
+
+sub get_crew {
+  my $self = shift;
+  return $self->crew;
+}
+
+sub update_crew_after_mission {
+  my $self = shift;
+  
+  if ($self->crew) {
+    $self->crew->add_mission_for_active();
+    $self->save->{crew} = $self->crew->to_hash();
+  }
+}
+
 __PACKAGE__->meta->make_immutable;
 1;
