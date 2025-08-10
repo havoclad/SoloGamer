@@ -5,10 +5,10 @@
 This document tracks the implementation status of all game tables for the B-17 Queen of the Skies board game translation into the SoloGamer automation engine. The original board game contains numerous tables that drive all aspects of gameplay, from mission selection to combat resolution.
 
 **Current Status Overview:**
-- ✅ **Complete**: 16 tables (Core game flow operational)
+- ✅ **Complete**: 19 tables (Core game flow operational, fighter waves implemented)
 - 🔶 **Partial**: 0 tables 
-- ❌ **Missing**: ~20+ critical tables (Fighter combat, crew management, extended mechanics)
-- 📊 **Overall Completion**: ~45% (Basic missions playable, advanced systems missing)
+- ❌ **Missing**: ~17+ critical tables (Fighter combat resolution, crew management, extended mechanics)
+- 📊 **Overall Completion**: ~53% (Basic missions playable, fighter encounters started)
 
 ---
 
@@ -31,7 +31,7 @@ This document tracks the implementation status of all game tables for the B-17 Q
 | G-4a: Squadron Position | ✅ Complete | `G-4a.json` | MEDIUM | ✅ High/Middle/Low (missions 6+ only) |
 | G-9: Landing Results | ✅ Complete | `G-9.json` | HIGH | ✅ Landing success/failure/damage |
 | G-11: Flight Gazetteer | ✅ Complete | `G-11.json` | HIGH | ✅ All target zone data with B-1 modifiers |
-| G-5: Crew Experience | ❌ Missing | - | MEDIUM | Crew promotion/experience tracking |
+| G-5: Crew Status | ✅ Complete | `G-5.json` | MEDIUM | ✅ Crew KIA/Wounded/Revived status |
 | G-6: Crew Replacement | ❌ Missing | - | MEDIUM | New crew member assignment |
 | G-8: Mission Bonus | ❌ Missing | - | LOW | Special mission modifiers |
 
@@ -46,11 +46,11 @@ This document tracks the implementation status of all game tables for the B-17 Q
 | O-6: Bomb Run Success | ✅ Complete | `O-6.json` | HIGH | ✅ On/Off target determination |
 | O-7: Bombing Accuracy | ✅ Complete | `O-7.json` | HIGH | ✅ Percentage accuracy by target status |
 
-### ⚔️ Fighter Combat (B-Series) - COMPLETELY MISSING
+### ⚔️ Fighter Combat (B-Series) - PARTIALLY IMPLEMENTED
 | Table | Status | File | Priority | Notes |
 |-------|--------|------|----------|--------|
-| B-1: Fighter Appearance | ❌ Missing | - | **CRITICAL** | Zone-based fighter encounters |
-| B-2: Fighter Type/Position | ❌ Missing | - | **CRITICAL** | ME-109/FW-190, attack positions |
+| B-1: Fighter Waves (Non-Designated) | ✅ Complete | `B-1.json` | **CRITICAL** | ✅ Fighter waves in normal zones |
+| B-2: Fighter Waves (Designated) | ✅ Complete | `B-2.json` | **CRITICAL** | ✅ Fighter waves in target zones |
 | B-3: Fighter Attack Resolution | ❌ Missing | - | **CRITICAL** | Hit determination vs formation position |
 | B-4: Fighter Damage Effects | ❌ Missing | - | **CRITICAL** | Aircraft system damage |
 | B-5: Crew Casualties | ❌ Missing | - | **CRITICAL** | Wound/KIA determination |
@@ -86,22 +86,22 @@ This document tracks the implementation status of all game tables for the B-17 Q
 ## Implementation Priority Matrix
 
 ### 🚨 CRITICAL PRIORITY (Game-breaking if missing)
-1. **B-1: Fighter Appearance** - No fighter encounters = no real combat
-2. **B-2: Fighter Type/Position** - Essential for combat variety  
-3. **B-3: Fighter Attack Resolution** - Core combat mechanic
-4. **B-4: Fighter Damage Effects** - Damage system foundation
-5. **B-5: Crew Casualties** - Life/death consequences
+1. **B-3: Fighter Type Determination** - Fighter types and numbers per wave
+2. **B-4: Fighter Attack Position** - Attack angles and positions  
+3. **B-5: Fighter Attack Resolution** - Core combat mechanic
+4. **B-6: Fighter Damage Effects** - Damage system foundation
+5. **B-7: Crew Casualties** - Life/death consequences
 
 ### 🔥 HIGH PRIORITY (Major gameplay impact)
-1. **B-6: Return Fire** - B-17 defensive capabilities
-2. **B-7: Fighter Results** - Combat conclusion mechanics
+1. **B-8: Return Fire** - B-17 defensive capabilities
+2. **B-9: Fighter Results** - Combat conclusion mechanics
 3. **D-1 through D-3: Damage Systems** - Aircraft degradation
 4. **C-1: Crew Positions** - Individual crew tracking
 5. **N-1: Zone Movement** - Proper navigation mechanics
 
 ### 🔶 MEDIUM PRIORITY (Enhanced gameplay)
-1. **G-5: Crew Experience** - Character progression
-2. **G-6: Crew Replacement** - Campaign continuity
+1. **G-6: Crew Replacement** - Campaign continuity
+2. **G-7: Crew Experience** - Character progression
 3. **D-4: Electrical Systems** - Additional complexity
 4. **C-2/C-3: Crew Skills** - Individual variation
 5. **N-2: Navigation Errors** - Realism enhancement
@@ -214,10 +214,13 @@ This document tracks the implementation status of all game tables for the B-17 Q
 - Basic bombing resolution
 - Landing mechanics
 - Flight zone data for all targets
+- **NEW**: G-5 Crew Status table (KIA/Wounded/Revived)
+- **NEW**: B-1 Fighter Waves in Non-Designated zones
+- **NEW**: B-2 Fighter Waves in Designated zones with weather modifiers
 
 ### Currently In Progress 🔄
 - Documentation and validation of existing tables
-- Analysis of missing fighter combat system
+- Fighter combat system implementation (B-3 through B-7 needed)
 
 ### Next Milestones 🎯
 1. **Fighter Combat Foundation** - Implement B-1 through B-7 tables
@@ -261,6 +264,6 @@ All tables follow the SoloGamer engine patterns:
 
 ---
 
-*Last Updated: [Current Date]*  
-*Document Version: 1.0*  
-*Total Tables: 16 implemented / ~36 total needed*
+*Last Updated: 2025-08-10*  
+*Document Version: 1.1*  
+*Total Tables: 19 implemented / ~36 total needed*
