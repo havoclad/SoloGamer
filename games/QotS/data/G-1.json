@@ -2,6 +2,10 @@
    "Title": "Missions 1-5",
    "table_type": "roll",
    "rolltype": "d6",
+   "roll_modifier": {
+      "condition": "$current_table == 'G-5'",
+      "value": 5
+   },
    "rolls": {
    "1": {
       "Target": "St. Omer",
