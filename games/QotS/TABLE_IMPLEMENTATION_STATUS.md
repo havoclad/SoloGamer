@@ -5,10 +5,10 @@
 This document tracks the implementation status of all game tables for the B-17 Queen of the Skies board game translation into the SoloGamer automation engine. The original board game contains numerous tables that drive all aspects of gameplay, from mission selection to combat resolution.
 
 **Current Status Overview:**
-- ✅ **Complete**: 19 tables (Core game flow operational, fighter waves implemented)
+- ✅ **Complete**: 25 tables (Core game flow operational, fighter combat system implemented)
 - 🔶 **Partial**: 0 tables 
-- ❌ **Missing**: ~17+ critical tables (Fighter combat resolution, crew management, extended mechanics)
-- 📊 **Overall Completion**: ~53% (Basic missions playable, fighter encounters started)
+- ❌ **Missing**: ~11+ critical tables (Damage resolution, crew management, extended mechanics)
+- 📊 **Overall Completion**: ~69% (Full missions playable with fighter combat)
 
 ---
 
@@ -46,25 +46,41 @@ This document tracks the implementation status of all game tables for the B-17 Q
 | O-6: Bomb Run Success | ✅ Complete | `O-6.json` | HIGH | ✅ On/Off target determination |
 | O-7: Bombing Accuracy | ✅ Complete | `O-7.json` | HIGH | ✅ Percentage accuracy by target status |
 
-### ⚔️ Fighter Combat (B-Series) - PARTIALLY IMPLEMENTED
+### ⚔️ Fighter Combat (B-Series) - COMPLETE
 | Table | Status | File | Priority | Notes |
 |-------|--------|------|----------|--------|
 | B-1: Fighter Waves (Non-Designated) | ✅ Complete | `B-1.json` | **CRITICAL** | ✅ Fighter waves in normal zones |
 | B-2: Fighter Waves (Designated) | ✅ Complete | `B-2.json` | **CRITICAL** | ✅ Fighter waves in target zones |
-| B-3: Fighter Attack Resolution | ❌ Missing | - | **CRITICAL** | Hit determination vs formation position |
-| B-4: Fighter Damage Effects | ❌ Missing | - | **CRITICAL** | Aircraft system damage |
-| B-5: Crew Casualties | ❌ Missing | - | **CRITICAL** | Wound/KIA determination |
-| B-6: Return Fire | ❌ Missing | - | HIGH | B-17 defensive fire |
-| B-7: Fighter Results | ❌ Missing | - | HIGH | Driven off/destroyed outcomes |
+| B-3: Attacking Fighter Waves | ✅ Complete | `B-3.json` | **CRITICAL** | ✅ Fighter types and attack positions |
+| B-4: Shell Hits By Area | ✅ Complete | `B-4.json` | **CRITICAL** | ✅ Number of shell hits per fighter |
+| B-5: Area Damage Tables | ✅ Complete | `B-5.json` | **CRITICAL** | ✅ Hit location determination |
+| B-6: Successive Attacks | ✅ Complete | `B-6.json` | HIGH | ✅ Follow-up attack positioning |
+| B-7: Random Events | ✅ Complete | `B-7.json` | HIGH | ✅ Special combat events |
 
-### 🛠️ Damage & Repair System - MISSING
+### 🛡️ Defensive Fire System (M-Series) - COMPLETE  
 | Table | Status | File | Priority | Notes |
 |-------|--------|------|----------|--------|
-| D-1: Engine Damage | ❌ Missing | - | HIGH | Engine hit effects |
-| D-2: Control Surface Damage | ❌ Missing | - | HIGH | Flight control effects |  
-| D-3: Fuel System Damage | ❌ Missing | - | HIGH | Fuel loss/fire risk |
-| D-4: Electrical System | ❌ Missing | - | MEDIUM | Radio/equipment failures |
-| D-5: Repair Procedures | ❌ Missing | - | MEDIUM | Between-mission repairs |
+| M-1: B-17 Defensive Fire | ✅ Complete | `M-1.json` | **CRITICAL** | ✅ Gun positions vs fighter positions |
+| M-2: Hit Damage vs German Fighter | ✅ Complete | `M-2.json` | **CRITICAL** | ✅ FCA/FBOA/Destroyed results |
+| M-3: German Offensive Fire | ✅ Complete | `M-3.json` | **CRITICAL** | ✅ Fighter hit determination |
+| M-4: Fighter Cover Defense | ✅ Complete | `M-4.json` | HIGH | ✅ Friendly fighter assistance |
+| M-5: B-17 Area Spray Fire | ✅ Complete | `M-5.json` | MEDIUM | ✅ Optional spray fire mechanics |
+| M-6: Fighter Pilot Status | ✅ Complete | `M-6.json` | LOW | ✅ Ace/Green pilot determination |
+
+### 🛠️ Damage Resolution System (P-Series & BL-Series) - MISSING
+| Table | Status | File | Priority | Notes |
+|-------|--------|------|----------|--------|
+| P-1: Nose Compartment | ❌ Missing | - | HIGH | Bombardier/Navigator damage |
+| P-2: Pilot Compartment | ❌ Missing | - | HIGH | Pilot/Copilot wounds, controls |
+| P-3: Bomb Bay | ❌ Missing | - | HIGH | Bomb detonation risks |
+| P-4: Radio Room | ❌ Missing | - | HIGH | Radio operator, equipment |
+| P-5: Waist Section | ❌ Missing | - | HIGH | Waist gunner casualties |
+| P-6: Tail Section | ❌ Missing | - | HIGH | Tail gunner, control surfaces |
+| BL-1: Wings | ❌ Missing | - | HIGH | Engine/fuel tank damage |
+| BL-2: Instruments | ❌ Missing | - | MEDIUM | Navigation/control instruments |
+| BL-3: Fire Extinguishers | ❌ Missing | - | MEDIUM | Fire fighting mechanics |
+| BL-4: Wounds | ❌ Missing | - | HIGH | Crew casualty determination |
+| BL-5: Frostbite | ❌ Missing | - | MEDIUM | Cold exposure effects |
 
 ### 👥 Crew Management System - MISSING  
 | Table | Status | File | Priority | Notes |

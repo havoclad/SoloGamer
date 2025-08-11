@@ -62,30 +62,36 @@ After analyzing the PDF rules and comparing with the current implementation, I'v
 - Equipment effects (gun jamming, rabbit's foot luck)
 - Mission abort conditions (mid-air collisions, steep dives)
 
-## Phase 2: Defensive Fire System (M-series tables)
+## Phase 2: Defensive Fire System (M-series tables) ✅ COMPLETE
 **Priority: CRITICAL - Combat resolution impossible without these**
 
-7. **M-1: B-17 Defensive Fire**
-   - Create `M-1.json` with gun position vs fighter position matrix
-   - Implement field of fire restrictions for each gun position
+7. **M-1: B-17 Defensive Fire** ✅
+   - Created `M-1.json` with gun position vs fighter position matrix
+   - Implemented field of fire restrictions for each gun position
+   - Added tail gun special rules for passing shots
 
-8. **M-2: Hit Damage Against German Fighter**
-   - Create `M-2.json` for fighter damage results
+8. **M-2: Hit Damage Against German Fighter** ✅
+   - Created `M-2.json` for fighter damage results
    - FCA (Fighter Continues Attack), FBOA (Fighter Breaks Off), Destroyed
+   - Included twin gun bonuses and cumulative damage rules
 
-9. **M-3: German Offensive Fire**
-   - Create `M-3.json` for fighter hit determination
-   - Include damage state modifiers
+9. **M-3: German Offensive Fire** ✅
+   - Created `M-3.json` for fighter hit determination
+   - Included damage state modifiers and attack position variations
+   - Implemented fighter type hit probabilities
 
-10. **M-4: Fighter Cover Defense**
-    - Create `M-4.json` for friendly fighter assistance
+10. **M-4: Fighter Cover Defense** ✅
+    - Created `M-4.json` for friendly fighter assistance
     - Poor/Fair/Good cover drives off enemy fighters
+    - Separate values for initial vs successive attacks
 
-11. **M-5: B-17 Area Spray Fire** (Optional)
-    - Create `M-5.json` for spray fire mechanics
+11. **M-5: B-17 Area Spray Fire** (Optional) ✅
+    - Created `M-5.json` for spray fire mechanics
+    - Included gun jamming risks and repair procedures
 
-12. **M-6: Fighter Pilot Status**
-    - Create `M-6.json` for Ace/Green pilot determination
+12. **M-6: Fighter Pilot Status** ✅
+    - Created `M-6.json` for Ace/Green pilot determination
+    - Optional rule for enhanced combat realism
 
 ## Phase 3: Damage Resolution System (P-series and BL-series)
 **Priority: HIGH - Determines mission outcomes**
@@ -221,8 +227,15 @@ After analyzing the PDF rules and comparing with the current implementation, I'v
 - ✅ B-6: Successive Attacks
 - ✅ B-7: Random Events
 
-### Still Missing Tables (23+ tables):
-- ❌ M-1 through M-6: Defensive fire system
+### Phase 2 Complete (6 tables):
+- ✅ M-1: B-17 Defensive Fire
+- ✅ M-2: Hit Damage Against German Fighter
+- ✅ M-3: German Offensive Fire
+- ✅ M-4: Fighter Cover Defense
+- ✅ M-5: B-17 Area Spray Fire (Optional)
+- ✅ M-6: Fighter Pilot Status (Optional)
+
+### Still Missing Tables (17+ tables):
 - ❌ P-1 through P-6: Damage by compartment
 - ❌ BL-1 through BL-5: Wings and crew wounds
 - ❌ G-6, G-7, G-8, G-10: Bailout and ditching
