@@ -3,35 +3,64 @@
 ## Executive Summary
 After analyzing the PDF rules and comparing with the current implementation, I've identified 47+ critical tables missing from the game. The current implementation has the basic game flow and mission structure but lacks the entire fighter combat system, damage resolution, and crew casualty mechanics that form the heart of the game.
 
-## Phase 1: Critical Fighter Combat System (B-3 through B-7)
+## Phase 1: Critical Fighter Combat System (B-3 through B-7) ✅ COMPLETE
 **Priority: CRITICAL - Game is unplayable without these**
 
-1. **Add PDF to .gitignore**
-   - Add `games/QotS/rules/B-17 - Queen of the Skies_text.pdf` to prevent uploading copyrighted material
+1. **Add PDF to .gitignore** ✅
+   - Added `games/QotS/rules/B-17 - Queen of the Skies_text.pdf` to prevent uploading copyrighted material
 
-2. **B-3: Attacking Fighter Waves** 
-   - Create `B-3.json` with 2D roll table (rolls 11-66)
-   - Implement fighter types (Me109, Me110, FW190) and attack positions
-   - Include special attacks (Vertical Dive, Vertical Climb)
-   - Add "No Attackers" results and random events trigger (66)
+2. **B-3: Attacking Fighter Waves** ✅
+   - Created `B-3.json` with 2D6 roll table (rolls 11-66)
+   - Implemented fighter types (Me109, Me110, FW190) and attack positions
+   - Included special attacks (Vertical Dive, Vertical Climb)
+   - Added "No Attackers" results and random events trigger (66)
 
-3. **B-4: Shell Hits By Area**
-   - Create `B-4.json` for determining number of shell hits
-   - Implement position-based hit tables (12/1:30/10:30, 3/9, 6, Vertical Dive/Climb)
-   - Add fighter type modifiers (FW190 x1.5, Me110 +1)
+3. **B-4: Shell Hits By Area** ✅
+   - Created `B-4.json` for determining number of shell hits per attack position
+   - Implemented position-based hit tables (12/1:30/10:30, 3/9, 6, Vertical Dive/Climb)
+   - Added fighter type modifiers (FW190 x1.5 rounded down, Me110 +1)
 
-4. **B-5: Area Damage Tables**
-   - Create `B-5.json` for hit location determination
-   - Implement attack angle matrices (High/Level/Low from each position)
-   - Add "Walking Hits" special damage patterns
+4. **B-5: Area Damage Tables** ✅
+   - Created `B-5.json` for hit location determination with complex nested structure
+   - Implemented attack angle matrices (High/Level/Low from each position)
+   - Added "Walking Hits" special damage patterns (Types A, B, C)
+   - Included "Superficial Damage" results and specific compartment hits
 
-5. **B-6: Successive Attacks**
-   - Create `B-6.json` for follow-up attack positions
-   - Fighters that hit get additional attacks (max 3 total)
+5. **B-6: Successive Attacks** ✅
+   - Created `B-6.json` for follow-up attack positions
+   - Fighters that hit get additional attacks (max 3 total: 1 initial + 2 successive)
+   - Includes detailed rules for successive attack positioning
 
-6. **B-7: Random Events**
-   - Create `B-7.json` with special events table
-   - Engine failures, formation changes, weather effects, etc.
+6. **B-7: Random Events** ✅
+   - Created `B-7.json` with comprehensive special events table
+   - Engine failures, formation changes, weather effects, friendly fighter effects
+   - Complex conditional events with mission-long modifiers
+
+### Critical Special Conditions Identified:
+**Fighter Type Modifiers:**
+- FW190: Shell hits × 1.5 (rounded down)
+- Me110: Shell hits +1
+- All fighters can potentially make successive attacks
+
+**Walking Hits Mechanics:**
+- Type A: Hits all 6 fuselage sections (Nose, Pilot, Bomb Bay, Radio, Waist, Tail)
+- Type B: 2 hits on each wing (4 total hits)
+- Type C: Hits 4 sections (Nose, Wing-attacking side, Waist, Tail)
+- Walking hits negate all other shell hits from that fighter
+
+**Successive Attack Chain:**
+- Any fighter scoring a hit gets another attack (new position via B-6)
+- Second successive attack possible if second attack hits
+- Maximum 3 attacks total per fighter per wave
+- Fighter cover applies after positioning but before second/third attacks
+
+**Random Events State Changes:**
+- Engine failures (can restart if rolled again)
+- Formation position changes (Lead/Tail bomber with combat modifiers)
+- Formation tightness (+/-1 to B-1/B-2 rolls for remainder of mission)
+- Friendly fighter effectiveness (+1 to M-4 rolls)
+- Equipment effects (gun jamming, rabbit's foot luck)
+- Mission abort conditions (mid-air collisions, steep dives)
 
 ## Phase 2: Defensive Fire System (M-series tables)
 **Priority: CRITICAL - Combat resolution impossible without these**
@@ -185,8 +214,14 @@ After analyzing the PDF rules and comparing with the current implementation, I'v
 - ✅ B-1, B-2: Fighter wave determination
 - ✅ FLOW tables: Basic game flow
 
-### Critical Missing Tables (28+ tables):
-- ❌ B-3 through B-7: Fighter combat core
+### Phase 1 Complete (5 tables):
+- ✅ B-3: Attacking Fighter Waves
+- ✅ B-4: Shell Hits By Area  
+- ✅ B-5: Area Damage Tables
+- ✅ B-6: Successive Attacks
+- ✅ B-7: Random Events
+
+### Still Missing Tables (23+ tables):
 - ❌ M-1 through M-6: Defensive fire system
 - ❌ P-1 through P-6: Damage by compartment
 - ❌ BL-1 through BL-5: Wings and crew wounds
