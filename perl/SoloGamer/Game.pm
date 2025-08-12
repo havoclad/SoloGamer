@@ -208,6 +208,10 @@ sub do_loop {
   
   foreach my $i (@keys) {
     $current++;
+    # Add separator before moving to each zone
+    if ($action =~ /Moving to zone/i) {
+      $self->buffer_zone_separator();
+    }
     $self->smart_buffer( "$action $i");
     if ($action =~ /Moving to zone/i && $total_zones > 1) {
       $self->buffer_progress($current, $total_zones, "", 10);
@@ -388,6 +392,10 @@ sub do_flow {
         }
       } else {
         $self->smart_buffer($next_flow->{'pre'});
+        # Add separator after takeoff message
+        if ($next_flow->{'pre'} =~ /took off/i) {
+          $self->buffer_zone_separator();
+        }
       }
     }
     if (exists $next_flow->{'type'}) {

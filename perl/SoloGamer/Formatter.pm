@@ -208,5 +208,17 @@ sub format_table {
   return join("\n", @lines);
 }
 
+sub format_zone_separator {
+  my ($self, $width) = @_;
+  
+  $width //= 40;
+  
+  # Create a string of centered dots with spaces
+  my $separator = join(' ', ('·') x ($width / 2));
+  
+  # Apply subtle gray color if colors are enabled
+  return $self->format($separator, 'bright_black');
+}
+
 __PACKAGE__->meta->make_immutable;
 1;

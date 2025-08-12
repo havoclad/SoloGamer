@@ -125,4 +125,10 @@ sub buffer_table {
   return;
 }
 
+sub buffer_zone_separator {
+  my ($self, $width) = @_;
+  $self->buffer($self->formatter->format_zone_separator($width));
+  return;
+}
+
 1;
