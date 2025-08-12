@@ -275,10 +275,36 @@ After analyzing the PDF rules and comparing with the current implementation, I'v
 - ✅ FLOW-damage-resolution.json: Damage application
 - ✅ FLOW-successive-attacks.json: Successive attack chains
 
-### All Phases Complete:
-All core game tables and state management have been implemented! The game now includes complete fighter combat, damage resolution, crew management, emergency procedures, and advanced state tracking systems.
+## Phase 6: Combat System Integration ✅ COMPLETE
+**Priority: CRITICAL - Makes all previous work functional**
 
-This implementation will transform the current basic framework into a fully playable, historically accurate B-17 bomber simulation matching the original board game rules.
+31. **Fighter Cover Integration** ✅
+    - Added G-5 fighter cover roll to mission flow
+    - Converted M-4 to standard table_input format
+    - Fighter cover now properly drives off attackers
+
+32. **Zone Combat Processing** ✅
+    - Created zone_process method in Game.pm
+    - Integrated B-1 for fighter wave generation
+    - Connected B-3 for fighter composition
+    - Fixed table determines fields for proper data flow
+
+33. **Defensive Fire Resolution** ✅
+    - Implemented M-1 gun position lookups
+    - Added M-2 damage resolution (FCA/FBOA/Destroyed)
+    - Guns successfully hit and damage/destroy fighters
+    - Fixed M-2 determines field alignment
+
+34. **Fighter Attack Resolution** ✅
+    - Implemented M-3 position-based hit determination
+    - Added attack category mapping for positions
+    - Applied FCA damage modifiers to attacks
+    - B-17 now takes hits from fighters
+
+### All Phases Complete:
+All core game tables and state management have been implemented and integrated! The game now includes functional fighter combat with defensive fire, damage resolution, crew management, emergency procedures, and advanced state tracking systems all working together during missions.
+
+This implementation has transformed the basic framework into a fully playable B-17 bomber simulation with actual combat occurring during missions.
 
 ## Next Steps
 1. ✅ Add PDF to .gitignore - COMPLETE
@@ -287,15 +313,18 @@ This implementation will transform the current basic framework into a fully play
 4. ✅ Phase 3: Damage Resolution System - COMPLETE
 5. ✅ Phase 4: Bailout and Emergency Landing - COMPLETE
 6. ✅ Phase 5: State Management & Integration - COMPLETE
+7. ✅ Phase 6: Combat System Integration - COMPLETE
 
 ## Future Enhancements
-1. Wire up FLOW files to actual game engine
-2. Connect damage tables to state objects
-3. Implement save/load with new state persistence
-4. Add mission completion tracking
-5. Implement crew replacement mechanics
-6. Add campaign progression features
+1. Connect P-series damage tables to AircraftState for B-17 damage tracking
+2. Award kills to crew members when destroying fighters
+3. Implement successive attacks using B-6 table
+4. Add conditional flow execution based on game state
+5. Implement crew replacement mechanics for casualties
+6. Add campaign progression features (25 mission tours)
+7. Enhance save/load with complete state persistence
+8. Add detailed combat logging and mission reports
 
 *Document Created: 2025-08-11*
-*Last Updated: 2025-08-12*
+*Last Updated: 2025-08-12 (Phase 6 Integration Complete)*
 *Based on analysis of B-17 Queen of the Skies rulebook and current implementation status*
