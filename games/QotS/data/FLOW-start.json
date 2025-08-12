@@ -43,6 +43,12 @@
 			"post": "We are in the <1> squadron position"
 		},
 		{
+			"type": "table",
+			"Table": "G-5",
+			"pre": "Rolling for Fighter Cover",
+			"post": "Fighter cover: <1>"
+		},
+		{
 			"type": "loop",
 			"pre": "The $plane_name took off",
 			"post": "Bombing run!",

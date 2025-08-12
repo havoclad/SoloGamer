@@ -3,7 +3,7 @@
     "table_type": "roll", 
     "rolltype": "1d6",
     "Description": "Roll one die per fighter damaged and breaks off after this attack (-2)",
-    "determines": "fighter_damage",
+    "determines": "result",
     "rolls": {
         "1": {
             "result": "FCA",

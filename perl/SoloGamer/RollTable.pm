@@ -281,8 +281,14 @@ sub roll {
     } else {
       $self->devel("Rolled a $result on table " . $self->name . " " .  $self->title);
       if ($self->table_count>1) {
+        unless (exists $self->rolls->{$result}) {
+          croak "Roll result '$result' not found in table " . $self->name . " (" . $self->title . ")";
+        }
         push $accumulator_array->@*, $self->rolls->{$result}->{$self->determines};
       } else {
+        unless (exists $self->rolls->{$result}) {
+          croak "Roll result '$result' not found in table " . $self->name . " (" . $self->title . ")";
+        }
         return { $self->rolls->{$result}->%* };
       }
     }

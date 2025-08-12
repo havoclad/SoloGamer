@@ -11,6 +11,7 @@ use namespace::autoclean;
 
 use SoloGamer::SaveGame;
 use SoloGamer::TableFactory;
+use SoloGamer::QotS::CombatState;
 
 extends 'SoloGamer::Base';
 
@@ -190,13 +191,14 @@ sub do_loop {
   my $hr         = shift;  # Whatever hash we're looping on
   my $action     = shift;
   my $reverse    = shift; # normal is low to high numerically
+  my $do_action  = shift; # What to do in each zone (e.g., "zone_process")
 
   my $path = "";
   my @keys;
   if ($reverse) { # Travelling home
     @keys = sort { $b <=> $a } keys $hr->%*;
     $path = "i";
-  } else {        # Outboung
+  } else {        # Outbound
     @keys = sort { $a <=> $b } keys $hr->%*;
     $path = "o";
   }
@@ -211,6 +213,11 @@ sub do_loop {
       $self->buffer_progress($current, $total_zones, "", 10);
     }
     $self->zone("$i$path");
+    
+    # Process the zone if action specified
+    if (defined $do_action && $do_action eq 'zone_process') {
+      $self->zone_process();
+    }
   }
   return;
 }
@@ -290,6 +297,13 @@ sub do_roll {
     my @preview_modifiers;
     
     foreach my $note ($roll->{'notes'}->@*) {
+      # Handle both string notes and modifier object notes
+      if (ref($note) ne 'HASH') {
+        # It's a simple string note, skip modifier processing
+        $self->devel("Note: $note");
+        next;
+      }
+      
       my $modifier  = $note->{'modifier'};
       my $mod_table = $note->{'table'};
       my $why       = $note->{'why'};
@@ -402,10 +416,12 @@ sub do_flow {
         my $loop_table = $next_flow->{'loop_table'};
         my $loop_variable = $next_flow->{'loop_variable'};
         my $reverse = exists $next_flow->{'reverse'} ? 1 : 0;
+        my $do_action = exists $next_flow->{'do'} ? $next_flow->{'do'} : undef;
         my $target_city = $self->save->get_from_current_mission('Target');
         $self->do_loop( $self->tables->{$loop_table}->{'data'}->{'target city'}->{$target_city}->{$loop_variable},
                         "Moving to zone: ",
                         $reverse,
+                        $do_action,
                       );
       } elsif ($next_flow->{'type'} eq 'flow') {
         my $flow_table = $next_flow->{'flow_table'};
@@ -420,6 +436,201 @@ sub do_flow {
   return;
 }
 
+
+sub zone_process {
+  my $self = shift;
+  
+  my $current_zone = $self->zone;
+  $self->devel("Processing zone: $current_zone");
+  
+  # Reset combat state for this zone
+  $self->save->reset_combat_for_zone($current_zone);
+  
+  # Determine which table to use based on zone type
+  # For now, use B-1 for non-target zones
+  # TODO: Detect target zone and use B-2 instead
+  
+  # Roll for fighter encounters (B-1 or B-2)
+  my $b1_roll = $self->do_roll('B-1');
+  if ($b1_roll) {
+    my $fighter_waves = $b1_roll->{'fighter_waves'} || 0;
+    $self->handle_output('fighter_waves', $fighter_waves, "Fighter waves: <1>");
+    
+    # Process each wave
+    for (my $wave = 1; $wave <= $fighter_waves; $wave++) {
+      $self->smart_buffer("Processing fighter wave $wave of $fighter_waves");
+      
+      # Roll for fighter composition (B-3)
+      my $b3_roll = $self->do_roll('B-3');
+      if ($b3_roll && exists $b3_roll->{'fighters'}) {
+        my $fighters = $b3_roll->{'fighters'};
+        my $num_fighters = scalar(@$fighters);
+        
+        if ($num_fighters > 0) {
+          $self->handle_output('num_fighters', $num_fighters, "<1> fighter(s) in wave $wave");
+          # Process fighter combat for this wave
+          $self->process_fighter_combat($fighters);
+        } else {
+          $self->smart_buffer("No attackers - fighters driven off");
+        }
+      }
+    }
+  }
+  
+  # Check for flak near target (would need zone type info)
+  # For now, simplified - could be enhanced with zone metadata
+  
+  return;
+}
+
+sub process_fighter_combat {
+  my $self = shift;
+  my $fighters = shift;
+  
+  my $num_fighters = scalar(@$fighters);
+  $self->devel("Processing combat with $num_fighters fighters");
+  
+  # Initialize combat state for this wave
+  if ($self->save->combat_state) {
+    $self->save->combat_state->start_new_wave({
+      zone => $self->zone,
+      fighters => $fighters,
+    });
+    
+    # Add fighters to combat state
+    foreach my $fighter (@$fighters) {
+      $self->save->combat_state->add_fighter($fighter);
+    }
+  }
+  
+  # Check fighter cover
+  my $fighter_cover = $self->save->get_from_current_mission('fighter_cover') || 'none';
+  if ($fighter_cover ne 'none' && $fighter_cover ne 'None') {
+    # Roll M-4 for fighter cover effectiveness
+    my $m4_roll = $self->do_roll('M-4');
+    if ($m4_roll) {
+      $self->handle_output('cover_result', $m4_roll->{'result'}, "Fighter cover: <1>");
+    }
+  }
+  
+  # Process each fighter's attack
+  # This would ideally use FLOW-fighter-attack but for now simplified
+  foreach my $fighter (@$fighters) {
+    $self->process_fighter_attack($fighter);
+  }
+  
+  return;
+}
+
+sub process_fighter_attack {
+  my $self = shift;
+  my $fighter = shift;
+  
+  my $type = $fighter->{'type'} || 'Me109';
+  my $position = $fighter->{'position'} || '12 High';
+  
+  $self->smart_buffer("$type attacking from $position");
+  
+  # Get M-1 table for defensive fire positions
+  my $m1_table = $self->tables->{'M-1'};
+  return unless $m1_table;
+  
+  # Normalize position for lookup (replace : with _ and spaces with _)
+  my $lookup_position = lc($position);
+  $lookup_position =~ s/:/_/g;
+  $lookup_position =~ s/\s+/_/g;
+  
+  # Get guns that can fire at this position
+  my $guns_available = $m1_table->{'data'}->{'gun_positions'}->{$lookup_position} || {};
+  
+  # Process defensive fire
+  my $fighter_damage = "";
+  foreach my $gun (keys %$guns_available) {
+    my $to_hit = $guns_available->{$gun};
+    
+    # Check if gun is operational (would check AircraftState in full implementation)
+    # For now assume all guns work
+    
+    # Roll for hit
+    my $roll = int(rand(6) + 1);
+    $self->devel("$gun fires at $type: rolled $roll, needs $to_hit to hit");
+    
+    if ($roll >= $to_hit) {
+      $self->buffer_success("$gun hits the $type!");
+      
+      # Roll M-2 for damage
+      my $m2_roll = $self->do_roll('M-2');
+      if ($m2_roll && exists $m2_roll->{'result'}) {
+        my $result = $m2_roll->{'result'};
+        if ($result eq 'FCA') {
+          $fighter_damage = 'FCA';
+          $self->smart_buffer("Fighter damaged, continuing attack with -1");
+        } elsif ($result eq 'FBOA') {
+          $self->smart_buffer("Fighter breaks off attack!");
+          return; # Fighter driven off
+        } elsif ($result eq 'Destroyed') {
+          $self->buffer_success("Fighter destroyed!");
+          # Award kill to gunner (would update CrewMember in full implementation)
+          return; # Fighter destroyed
+        }
+      }
+    }
+  }
+  
+  # Fighter attacks (M-3)
+  my $m3_table = $self->tables->{'M-3'};
+  if ($m3_table) {
+    # Determine attack position category
+    my $attack_category = $self->get_attack_category($position);
+    
+    # Get hit requirements for this fighter type and position
+    my $attack_data = $m3_table->{'data'}->{'attack_position'}->{$attack_category}->{$type} || {};
+    my $hit_on = $attack_data->{'hit_on'} || [];
+    
+    # Roll for fighter attack
+    my $attack_roll = int(rand(6) + 1);
+    
+    # Apply damage modifier if fighter was hit
+    if ($fighter_damage eq 'FCA') {
+      $attack_roll -= 1;
+    }
+    
+    $self->devel("$type attacks: rolled $attack_roll (modified), needs " . join(",", @$hit_on) . " to hit");
+    
+    # Check if hit (6 always hits regardless of modifiers)
+    if ($attack_roll == 6 || grep {$_ == $attack_roll} @$hit_on) {
+      $self->buffer_danger("B-17 hit by $type!");
+      # Would roll damage tables here (P-series)
+    } else {
+      $self->smart_buffer("$type misses");
+    }
+  }
+  
+  return;
+}
+
+sub get_attack_category {
+  my $self = shift;
+  my $position = shift;
+  
+  # Map specific positions to M-3 categories
+  if ($position =~ /vertical\s+dive/i) {
+    return 'vertical_dive';
+  } elsif ($position =~ /vertical\s+climb/i) {
+    return 'vertical_climb';
+  } elsif ($position =~ /^12\s+(high|level|low)/i) {
+    return '12_high_level_low';
+  } elsif ($position =~ /^6\s+(high|level|low)/i) {
+    return '6_high_level_low';
+  } elsif ($position =~ /^(3|9)\s+(high|level|low)/i) {
+    return '3_9_high_level_low';
+  } elsif ($position =~ /^(10:30|1:30)\s+(high|level|low)/i) {
+    return '10:30_1:30_high_level_low';
+  }
+  
+  # Default
+  return '12_high_level_low';
+}
 
 sub report_mission_outcome {
   my $self = shift;
@@ -474,6 +685,17 @@ sub run_game {
   my $mission = $self->save->mission;
   my $max_missions = $self->tables->{'FLOW-start'}->{'data'}->{'missions'};
   $mission > $max_missions and croak "25 successful missions, your crew went home!";
+
+  # Initialize aircraft state if needed
+  unless ($self->save->aircraft_state) {
+    $self->devel("Initializing aircraft state for mission");
+    # The SaveGame _build_aircraft_state will create or load it
+    $self->save->aircraft_state;
+  }
+  
+  # Initialize combat state for the mission
+  $self->devel("Initializing combat state for mission");
+  $self->save->combat_state(SoloGamer::QotS::CombatState->new());
 
   # Display crew roster at start of mission
   if ($self->save->crew) {

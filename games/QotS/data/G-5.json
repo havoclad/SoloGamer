@@ -1,7 +1,7 @@
 {
   "Title": "Fighter Cover",
   "table_type": "roll",
-  "rolltype": "d6",
+  "rolltype": "1d6",
   "determines": "fighter_cover",
   "rolls": {
     "1-2": {
