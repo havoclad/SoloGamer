@@ -14,6 +14,8 @@ use namespace::autoclean;
 use SoloGamer::TypeLibrary qw / PositiveInt /;
 use SoloGamer::QotS::PlaneNamer;
 use SoloGamer::QotS::Crew;
+use SoloGamer::QotS::AircraftState;
+use SoloGamer::QotS::CombatState;
 
 with 'Logger';
 
@@ -50,6 +52,21 @@ has 'crew' => (
   builder => '_build_crew',
 );
 
+has 'aircraft_state' => (
+  is      => 'rw',
+  isa     => 'Maybe[SoloGamer::QotS::AircraftState]',
+  lazy    => 1,
+  builder => '_build_aircraft_state',
+);
+
+has 'combat_state' => (
+  is      => 'rw',
+  isa     => 'Maybe[SoloGamer::QotS::CombatState]',
+  lazy    => 1,
+  builder => '_build_combat_state',
+  clearer => 'clear_combat_state',
+);
+
 sub load_save {
   my $self = shift;
 
@@ -65,6 +82,11 @@ sub load_save {
     # Load crew if it exists
     if (exists $self->save->{crew}) {
       $self->crew(SoloGamer::QotS::Crew->from_hash($self->save->{crew}, $self->automated));
+    }
+    
+    # Load aircraft state if it exists
+    if (exists $self->save->{aircraft_state}) {
+      $self->aircraft_state(SoloGamer::QotS::AircraftState->from_hash($self->save->{aircraft_state}));
     }
     
     # Check if mission exists and is an array
@@ -89,13 +111,18 @@ sub load_save {
     # Create new crew
     my $crew = SoloGamer::QotS::Crew->new(automated => $self->automated);
     
+    # Create new aircraft state
+    my $aircraft = SoloGamer::QotS::AircraftState->new();
+    
     my $temp = { 
       mission => [{}],
       plane_name => $plane_name,
-      crew => $crew->to_hash()
+      crew => $crew->to_hash(),
+      aircraft_state => $aircraft->to_hash()
     };
     $self->save($temp);
     $self->crew($crew);
+    $self->aircraft_state($aircraft);
   }
   $self->mission($mission);
   return $mission;
@@ -108,6 +135,11 @@ sub save_game {
   # Update crew data in save before writing
   if ($self->crew) {
     $self->save->{crew} = $self->crew->to_hash();
+  }
+  
+  # Update aircraft state in save before writing
+  if ($self->aircraft_state) {
+    $self->save->{aircraft_state} = $self->aircraft_state->to_hash();
   }
 
   if ($self->save_file) {
@@ -167,6 +199,33 @@ sub update_crew_after_mission {
   if ($self->crew) {
     $self->crew->add_mission_for_active();
     $self->save->{crew} = $self->crew->to_hash();
+  }
+}
+
+sub _build_aircraft_state {
+  my $self = shift;
+  
+  if (exists $self->save->{aircraft_state}) {
+    return SoloGamer::QotS::AircraftState->from_hash($self->save->{aircraft_state});
+  }
+  
+  return SoloGamer::QotS::AircraftState->new();
+}
+
+sub _build_combat_state {
+  my $self = shift;
+  
+  return SoloGamer::QotS::CombatState->new();
+}
+
+sub reset_combat_for_zone {
+  my ($self, $zone) = @_;
+  
+  if ($self->combat_state) {
+    $self->combat_state->reset_for_zone($zone);
+  } else {
+    $self->combat_state(SoloGamer::QotS::CombatState->new());
+    $self->combat_state->zone($zone) if defined $zone;
   }
 }
 
