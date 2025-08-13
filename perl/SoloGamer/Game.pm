@@ -180,8 +180,12 @@ sub do_max {
   my $variable = shift;
   my $choices = shift;
 
+  # Ensure numeric comparison
+  $variable = int($variable) if defined $variable;
+  
   foreach my $item (@$choices) {
-    return $item->{'Table'} if $variable <= $item->{'max'};
+    my $max = int($item->{'max'});
+    return $item->{'Table'} if $variable <= $max;
   }
   croak "Didn't find a max that matched $variable";
 }
@@ -380,9 +384,15 @@ sub do_flow {
         }
         # Handle choosemax which eventually calls a table
         elsif ($next_flow->{'type'} eq 'choosemax' && exists $next_flow->{'choices'}) {
-          # For choosemax, we can't know which table will be chosen until runtime
-          # So we'll just indicate it's a variable selection
-          my $enhanced_pre = $next_flow->{'pre'} . " (table varies by " . ($next_flow->{'variable'} || 'selection') . ")";
+          # For choosemax, determine which table will be used and show it in the pre message
+          my $choice = $next_flow->{'variable'};
+          my $mission_value = $self->save->get_from_current_mission($choice);
+          # If no mission value from current mission data, use the global mission number
+          if (!defined $mission_value) {
+            $mission_value = $self->save->mission;
+          }
+          my $table = $self->do_max($mission_value, $next_flow->{'choices'});
+          my $enhanced_pre = $next_flow->{'pre'} . " on table $table";
           $self->smart_buffer($enhanced_pre);
           $enhanced = 1;
         }
@@ -402,7 +412,14 @@ sub do_flow {
       if ($next_flow->{'type'} eq 'choosemax') {
         $self->save->add_save('Mission', $self->save->mission);
         my $choice = $next_flow->{'variable'};
-        my $table = $self->do_max($self->save->get_from_current_mission($choice), $next_flow->{'choices'});
+        my $mission_value = $self->save->get_from_current_mission($choice);
+        # If no mission value from current mission data, use the global mission number
+        if (!defined $mission_value) {
+          $mission_value = $self->save->mission;
+          $self->devel("Using global mission number: $mission_value");
+        }
+        my $table = $self->do_max($mission_value, $next_flow->{'choices'});
+        
         my $roll = $self->do_roll($table);
         $self->handle_output('Target', $roll->{'Target'});
         $self->handle_output('Type', $roll->{'Type'});
