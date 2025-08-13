@@ -67,6 +67,13 @@ sub buffer_roll {
   return;
 }
 
+sub buffer_roll_details {
+  my ($self, $raw_result, $individual_rolls, $roll_type, $modifiers, $final_result) = @_;
+  my $text = $self->formatter->format_roll_details($raw_result, $individual_rolls, $roll_type, $modifiers, $final_result);
+  $self->buffer($text);
+  return;
+}
+
 sub buffer_modifier_preview {
   my ($self, $modifiers) = @_;
   my $text = $self->formatter->format_modifier_preview($modifiers);

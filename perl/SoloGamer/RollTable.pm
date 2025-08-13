@@ -173,24 +173,34 @@ sub get_raw_result {
   my $self = shift;
 
   my $result = '';
-  $self->devel("Roll Type is: ", $self->rolltype);
-  if ($self->rolltype =~ /^(\d+)d(\d+)$/) {
+  my @individual_rolls = ();
+  my $roll_type = $self->rolltype;
+  
+  $self->devel("Roll Type is: ", $roll_type);
+  
+  if ($roll_type =~ /^(\d+)d(\d+)$/) {
     my $num_rolls = $1;
     my $die_size  = $2;
     my $int_result = 0;
     foreach my $n (1 .. $num_rolls) {
-      $int_result += int(rand($die_size)+1);
+      my $roll = int(rand($die_size)+1);
+      push @individual_rolls, $roll;
+      $int_result += $roll;
     }
     $result = $int_result;
-  } elsif ($self->rolltype =~ /^(d\d+)+$/) {
-    my @dice = split /d/, $self->rolltype;
+  } elsif ($roll_type =~ /^(d\d+)+$/) {
+    my @dice = split /d/, $roll_type;
     shift @dice;
     foreach my $die (@dice) {
       $self->devel("Rolling a die with $die sides");
-      $result .= int(rand($die)+1);
+      my $roll = int(rand($die)+1);
+      push @individual_rolls, $roll;
+      $result .= $roll;
     }
   }
-  return $result;
+  
+  # Return structured data for detailed display, but preserve backward compatibility
+  return wantarray ? ($result, \@individual_rolls, $roll_type) : $result;
 }
 
 sub evaluate_roll_modifier {
@@ -267,10 +277,20 @@ sub roll {
   
   my $accumulator_array = [];
   for (1 .. $self->table_count) {
-    my $result = $self->get_raw_result;
-    $result += $total_modifiers;
+    my ($raw_result, $individual_rolls, $roll_type) = $self->get_raw_result;
+    my $result = $raw_result + $total_modifiers;
     $result = min ($result, $self->max_roll);  # don't fall off the table
     $result = max ($result, $self->min_roll);
+    
+    # Store roll details for potential display (will be shown by Game class)
+    $self->{_last_roll_details} = {
+      raw_result => $raw_result,
+      individual_rolls => $individual_rolls,
+      roll_type => $roll_type,
+      modifiers => $total_modifiers,
+      final_result => $result
+    };
+    
     if ($table_input) {
       $self->devel("Rolled a $result on table " . $self->name . " " .  $self->title , " with table-input: ", $table_input);
       if ($self->table_count>1) {
@@ -341,5 +361,11 @@ sub add_modifier {
                                  };
   return;
 }
+
+sub get_last_roll_details {
+  my $self = shift;
+  return $self->{_last_roll_details};
+}
+
 __PACKAGE__->meta->make_immutable;
 1;

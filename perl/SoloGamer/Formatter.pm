@@ -220,5 +220,28 @@ sub format_zone_separator {
   return $self->format($separator, 'bright_black');
 }
 
+sub format_roll_details {
+  my ($self, $raw_result, $individual_rolls, $roll_type, $modifiers, $final_result) = @_;
+  
+  my $output = "";
+  
+  # Format the basic roll information
+  if (@$individual_rolls > 1) {
+    my $dice_str = "[" . join(",", @$individual_rolls) . "]";
+    $output .= $self->format("Rolling $roll_type: $dice_str = $raw_result", 'yellow');
+  } else {
+    $output .= $self->format("Rolling $roll_type: $raw_result", 'yellow');
+  }
+  
+  # Add modifier information if present
+  if ($modifiers && $modifiers != 0) {
+    my $sign = $modifiers >= 0 ? '+' : '';
+    $output .= $self->format(" $sign$modifiers modifiers", 'cyan');
+    $output .= $self->format(" = $final_result", 'yellow');
+  }
+  
+  return $output;
+}
+
 __PACKAGE__->meta->make_immutable;
 1;
