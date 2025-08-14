@@ -417,10 +417,6 @@ sub do_flow {
         }
       } else {
         $self->smart_buffer($next_flow->{'pre'});
-        # Add separator after takeoff message
-        if ($next_flow->{'pre'} =~ /took off/i) {
-          $self->buffer_zone_separator();
-        }
       }
     }
     if (exists $next_flow->{'type'}) {
