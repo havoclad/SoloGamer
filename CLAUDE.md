@@ -139,3 +139,4 @@ t/
 ## Development Principles
 
 - **Always fix warnings before marking a task complete**
+- remember, the build will take around 10 minutes
