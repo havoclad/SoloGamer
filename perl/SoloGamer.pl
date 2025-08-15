@@ -9,6 +9,7 @@ use Getopt::Long;
 use lib '/perl';
 
 use SoloGamer::Game;
+use SoloGamer::QotS::Game;
 
 # Note: UTF-8 handling is managed at the data level
 # Box drawing and weather icons are stored as UTF-8 in the source files
@@ -73,12 +74,27 @@ EOF
   exit 0;
 }
 
-my $game = SoloGamer::Game->new(name      => $options{game}, 
+# Default to QotS if no game specified
+$options{game} ||= 'QotS';
+
+# Instantiate the appropriate game class based on the game name
+my $game;
+if ($options{game} eq 'QotS') {
+  $game = SoloGamer::QotS::Game->new(name      => $options{game}, 
+                                      verbose   => $options{info},
+                                      save_file => $options{save_file},
+                                      automated => $options{automated},
+                                      use_color => $options{color},
+                                      );
+} else {
+  # For future games, use the base Game class or their specific subclass
+  $game = SoloGamer::Game->new(name      => $options{game}, 
                                 verbose   => $options{info},
                                 save_file => $options{save_file},
                                 automated => $options{automated},
                                 use_color => $options{color},
                                 );
+}
 
 my $data = $game->tables;
 
