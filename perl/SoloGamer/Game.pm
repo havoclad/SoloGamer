@@ -87,6 +87,36 @@ sub BUILD {
   return;
 }
 
+sub new_game {
+  my $class = shift;
+  my %options = @_;
+  
+  my $game_name = $options{name} || 'QotS';
+  
+  # Map game names to their implementation classes
+  my %game_classes = (
+    'QotS' => 'SoloGamer::QotS::Game',
+    # Future games would be added here
+    # 'AnotherGame' => 'SoloGamer::AnotherGame::Game',
+  );
+  
+  my $game_class = $game_classes{$game_name};
+  
+  if (!$game_class) {
+    # If no specific implementation exists, use the base Game class
+    return SoloGamer::Game->new(%options);
+  }
+  
+  # Dynamically load the game class
+  eval "require $game_class";
+  if ($@) {
+    croak "Failed to load game class $game_class: $@";
+  }
+  
+  # Instantiate and return the specific game implementation
+  return $game_class->new(%options);
+}
+
 sub substitute_variables {
   my ($self, $text) = @_;
   
