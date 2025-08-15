@@ -1,5 +1,5 @@
 package SoloGamer::Base;
-use v5.10;
+use v5.42;
 
 use Moose;
 use namespace::autoclean;

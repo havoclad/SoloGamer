@@ -1,10 +1,11 @@
 package Logger;
-use v5.10;
+use v5.42;
+use feature 'signatures';
+no warnings 'experimental::signatures';
 
 use Moose::Role;
 
-sub devel {
-  my ($self, @lines)  = @_;
+sub devel ($self, @lines) {
 
   if ($self->verbose) {
     say @lines;

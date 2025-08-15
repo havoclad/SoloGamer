@@ -1,5 +1,5 @@
 package SoloGamer::FlowTable;
-use v5.20;
+use v5.42;
 
 use Moose;
 use namespace::autoclean;

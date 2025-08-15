@@ -1,7 +1,6 @@
 package SoloGamer::SaveGame;
 
-use strict;
-use v5.20;
+use v5.42;
 
 use File::Copy;
 use File::Slurp;
