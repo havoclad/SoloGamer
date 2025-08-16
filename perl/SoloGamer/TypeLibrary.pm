@@ -1,4 +1,6 @@
 package SoloGamer::TypeLibrary;
+
+use v5.42;
  
 # predeclare our own types
 use MooseX::Types -declare => [
