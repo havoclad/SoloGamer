@@ -1,6 +1,7 @@
 package SoloGamer::QotS::Game;
 
-use v5.42;
+use strict;
+use v5.20;
 
 use Carp;
 use Moose;

@@ -1,5 +1,5 @@
 package SoloGamer::RollTable;
-use v5.42;
+use v5.20;
 
 use List::Util qw / max min sum /;
 use Carp;

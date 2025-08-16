@@ -1,6 +1,7 @@
 package SoloGamer::QotS::CrewMember;
 
-use v5.42;
+use strict;
+use v5.20;
 
 use Moose;
 use Moose::Util::TypeConstraints;

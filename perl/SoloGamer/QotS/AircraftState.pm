@@ -1,6 +1,7 @@
 package SoloGamer::QotS::AircraftState;
 
-use v5.42;
+use strict;
+use v5.20;
 
 use Moose;
 use namespace::autoclean;

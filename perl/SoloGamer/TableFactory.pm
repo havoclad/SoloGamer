@@ -1,8 +1,7 @@
 package SoloGamer::TableFactory;
 
-use v5.42;
-use feature 'signatures';
-no warnings 'experimental::signatures';
+use strict;
+use v5.20;
 
 use File::Slurp;
 use File::Basename;
@@ -26,7 +25,9 @@ has 'automated'  => (
   lazy           => 1,
 );
 
-sub load_json_file ($self, $filename) {
+sub load_json_file {
+  my $self     = shift;
+  my $filename = shift;
 
   my $f = read_file($filename);
   my $p = decode_json($f);
@@ -34,7 +35,9 @@ sub load_json_file ($self, $filename) {
   return $p;
 }
 
-sub new_table ($self, $filename) {
+sub new_table {
+  my $self     = shift;
+  my $filename = shift;
 
   my $json = $self->load_json_file($filename);
   my $h;

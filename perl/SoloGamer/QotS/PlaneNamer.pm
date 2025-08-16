@@ -1,6 +1,7 @@
 package SoloGamer::QotS::PlaneNamer;
 
-use v5.42;
+use strict;
+use v5.20;
 
 use Carp;
 use File::Slurp;

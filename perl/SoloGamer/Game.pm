@@ -1,6 +1,7 @@
 package SoloGamer::Game;
 
-use v5.42;
+use strict;
+use v5.20;
 
 use File::Basename;
 use Carp;

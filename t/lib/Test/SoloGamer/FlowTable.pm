@@ -1,9 +1,11 @@
 package Test::SoloGamer::FlowTable;
 
-use v5.42;
+use strict;
+use warnings;
+use v5.20;
 
 use Test::Class::Moose;
-use Test2::V0 qw(dies like);
+use Test2::V0 ();  # Don't import test functions
 
 use lib '/perl';
 

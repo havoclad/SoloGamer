@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 
-use v5.42;
-use feature 'signatures';
-no warnings 'experimental::signatures';
+use strict;
+use warnings;
+use v5.10;
 
 use Getopt::Long;
 
@@ -23,7 +23,8 @@ my %options = (
   help      => 0,
 );
 
-sub validate_save_file ($opt_name, $opt_value) {
+sub validate_save_file {
+  my ($opt_name, $opt_value) = @_;
   
   # Handle optional parameter case (no value provided)
   if (!defined $opt_value || $opt_value eq '') {
