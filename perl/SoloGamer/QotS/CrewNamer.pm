@@ -218,6 +218,7 @@ sub prompt_for_crew_names {
       print "Invalid choice. Choice (Enter/r/i/c): ";
     }
   }
+  return;
 }
 
 __PACKAGE__->meta->make_immutable;

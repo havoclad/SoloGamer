@@ -164,7 +164,7 @@ sub get_fighter {
     return $fighter if $fighter->{id} eq $fighter_id;
   }
   
-  return undef;
+  return;
 }
 
 sub update_fighter_status {
@@ -192,6 +192,7 @@ sub _remove_fighter_from_queue {
   @{$self->defensive_fire_queue} = @new_queue;
   
   delete $self->successive_attacks->{$fighter_id};
+  return;
 }
 
 sub damage_fighter {
@@ -316,7 +317,7 @@ sub get_next_defensive_target {
     }
   }
   
-  return undef;
+  return;
 }
 
 sub record_successive_attack {

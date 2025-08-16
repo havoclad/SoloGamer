@@ -50,6 +50,7 @@ sub BUILD {
   if (scalar keys %{$self->crew_members} == 0 && !exists $args->{skip_init}) {
     $self->initialize_crew();
   }
+  return;
 }
 
 sub initialize_crew {
@@ -61,6 +62,7 @@ sub initialize_crew {
   } else {
     $self->_initialize_new_crew();
   }
+  return;
 }
 
 sub _initialize_from_data {
@@ -81,6 +83,7 @@ sub _initialize_from_data {
       $self->devel("Warning: Missing crew member for position: $position");
     }
   }
+  return;
 }
 
 sub _initialize_new_crew {
@@ -98,6 +101,7 @@ sub _initialize_new_crew {
   }
   
   $self->devel("Crew initialized with " . scalar(keys %{$self->crew_members}) . " members");
+  return;
 }
 
 sub get_crew_member {
@@ -152,6 +156,7 @@ sub add_mission_for_active {
   }
   
   $self->devel("Added mission for " . scalar(@active) . " active crew members");
+  return;
 }
 
 sub replace_crew_member {

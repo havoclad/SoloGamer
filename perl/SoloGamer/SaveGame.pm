@@ -184,7 +184,7 @@ sub _build_crew {
     return SoloGamer::QotS::Crew->from_hash($self->save->{crew}, $self->automated);
   }
   
-  return undef;
+  return;
 }
 
 sub get_crew {
@@ -199,6 +199,7 @@ sub update_crew_after_mission {
     $self->crew->add_mission_for_active();
     $self->save->{crew} = $self->crew->to_hash();
   }
+  return;
 }
 
 sub _build_aircraft_state {
@@ -226,6 +227,7 @@ sub reset_combat_for_zone {
     $self->combat_state(SoloGamer::QotS::CombatState->new());
     $self->combat_state->zone($zone) if defined $zone;
   }
+  return;
 }
 
 __PACKAGE__->meta->make_immutable;

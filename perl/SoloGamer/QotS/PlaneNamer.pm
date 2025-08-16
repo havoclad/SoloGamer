@@ -110,6 +110,7 @@ sub prompt_for_plane_name {
       print "Invalid choice. Choice (Enter/r/v/c): ";
     }
   }
+  return;
 }
 
 __PACKAGE__->meta->make_immutable;

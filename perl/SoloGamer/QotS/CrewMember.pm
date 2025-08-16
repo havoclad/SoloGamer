@@ -137,6 +137,7 @@ sub add_mission {
   
   $self->missions($self->missions + 1);
   $self->devel("Added mission for " . $self->name . ", total: " . $self->missions);
+  return;
 }
 
 sub add_kills {
@@ -156,6 +157,7 @@ sub add_kills {
   
   $self->kills($self->kills + $count);
   $self->devel("Added $count kills for " . $self->name . ", total: " . $self->kills);
+  return;
 }
 
 sub apply_wound {
@@ -212,6 +214,7 @@ sub apply_wound {
     turn => 'current'
   };
   $self->devel($self->name . " wounded: $severity at $location");
+  return;
 }
 
 sub apply_frostbite {
@@ -244,6 +247,7 @@ sub apply_frostbite {
   
   $self->frostbite_status($severity);
   $self->devel($self->name . " frostbite: $severity");
+  return;
 }
 
 sub move_to_position {
@@ -278,6 +282,7 @@ sub set_disposition {
   
   $self->final_disposition($status);
   $self->devel($self->name . " final disposition: $status");
+  return;
 }
 
 sub to_hash {
