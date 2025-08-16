@@ -32,13 +32,17 @@ sub validate_save_file {
     return;
   }
   
-  # Security: validate filename contains no path separators or dangerous characters
-  if ($opt_value =~ m{[/\\]} || $opt_value =~ m{\.\.} || $opt_value =~ m{^[.-]}) {
-    die "Invalid save file name '$opt_value': must be a simple filename without paths, '..' sequences, or leading dots/dashes";
+  # Security: validate filename contains only word characters (letters, numbers, underscore)
+  if ($opt_value !~ /^\w+$/) {
+    die "Invalid save file name '$opt_value': must contain only letters, numbers, and underscores";
   }
   
+  # Append .json extension if not present
+  my $filename = $opt_value;
+  $filename .= '.json' unless $filename =~ /\.json$/;
+  
   # Construct safe path within saves directory and store in global variable
-  $options{save_file} = '/app/saves/' . $opt_value;
+  $options{save_file} = '/app/saves/' . $filename;
   return;
 }
 
