@@ -1,8 +1,6 @@
 package TestFixture::GameData;
 
-use strict;
-use warnings;
-use v5.20;
+use v5.42;
 
 use Exporter 'import';
 

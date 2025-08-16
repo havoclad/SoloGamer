@@ -1,8 +1,6 @@
 package Test::Role::BufferedOutput;
 
-use strict;
-use warnings;
-use v5.20;
+use v5.42;
 
 use Test::Class::Moose;
 use Test2::V0 ();  # Don't import test functions

@@ -1,5 +1,6 @@
 package SoloGamer::Formatter;
-use v5.10;
+use v5.42;
+use utf8;
 
 use Moose;
 use Term::ANSIColor;

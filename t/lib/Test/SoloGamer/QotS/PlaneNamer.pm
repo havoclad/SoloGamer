@@ -1,8 +1,6 @@
 package Test::SoloGamer::QotS::PlaneNamer;
 
-use strict;
-use warnings;
-use v5.20;
+use v5.42;
 
 use Test2::V0;
 use File::Temp;

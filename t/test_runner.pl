@@ -1,8 +1,6 @@
 #!/usr/bin/env perl
 
-use strict;
-use warnings;
-use v5.20;
+use v5.42;
 
 use lib '/t/lib';
 use lib '/perl';

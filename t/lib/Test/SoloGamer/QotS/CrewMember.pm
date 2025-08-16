@@ -1,8 +1,6 @@
 package Test::SoloGamer::QotS::CrewMember;
 
-use strict;
-use warnings;
-use v5.20;
+use v5.42;
 
 use Test::Class::Moose;
 use Test::Exception;
