@@ -5,6 +5,7 @@ use v5.20;
 
 use File::Basename;
 use Carp;
+use Module::Runtime qw(require_module);
 
 use Moose;
 use namespace::autoclean;
@@ -88,8 +89,7 @@ sub BUILD {
 }
 
 sub new_game {
-  my $class = shift;
-  my %options = @_;
+  my ($class, %options) = @_;
   
   my $game_name = $options{name} || 'QotS';
   
@@ -108,7 +108,9 @@ sub new_game {
   }
   
   # Dynamically load the game class
-  eval "require $game_class";
+  eval {
+    require_module($game_class);
+  };
   if ($@) {
     croak "Failed to load game class $game_class: $@";
   }
