@@ -4,9 +4,6 @@
 	"missions": "25",
 	"flow": [
 		{
-			"pre": "Welcome to B-17 Queen of the Skies"
-		},
-		{
 			"type": "choosemax",
 			"variable": "Mission",
 			"pre": "Rolling for Mission",

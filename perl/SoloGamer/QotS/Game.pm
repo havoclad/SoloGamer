@@ -10,6 +10,16 @@ use SoloGamer::QotS::CombatState;
 
 extends 'SoloGamer::Game';
 
+after 'BUILD' => sub {
+  my $self = shift;
+  
+  # Display welcome banner at the very start, before plane/crew naming
+  $self->buffer_header("Welcome to B-17 Queen of the Skies", 40);
+  $self->print_output;
+  
+  return;
+};
+
 override 'substitute_variables' => sub {
   my ($self, $text) = @_;
   
