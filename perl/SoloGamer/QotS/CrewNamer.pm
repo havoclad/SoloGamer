@@ -122,7 +122,7 @@ sub get_random_names {
 sub _build_input_fh {
   my $self = shift;
   
-  return undef unless $self->input_file;
+  return unless $self->input_file;
   
   open my $fh, '<', $self->input_file
     or croak "Cannot open input file '" . $self->input_file . "': $!";
