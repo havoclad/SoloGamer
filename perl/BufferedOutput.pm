@@ -34,10 +34,10 @@ sub print_output {
     if ($line =~ /[^\x00-\xFF]/) {
       # Temporarily set UTF-8 for this line only
       my $old_layers = join('', PerlIO::get_layers(STDOUT));
-      binmode(STDOUT, ':utf8') unless $old_layers =~ /utf8/;
+      binmode(STDOUT, ':encoding(UTF-8)') unless $old_layers =~ /encoding/;
       say $line;
-      # Reset to original layers if we added utf8
-      binmode(STDOUT, ':raw') if $old_layers !~ /utf8/;
+      # Reset to original layers if we added encoding
+      binmode(STDOUT, ':raw') if $old_layers !~ /encoding/;
     } else {
       say $line;
     }
