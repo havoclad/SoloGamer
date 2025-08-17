@@ -12,7 +12,7 @@ has 'use_color' => (
   lazy    => 1,
 );
 
-sub format {
+sub apply_format {
   my ($self, $text, $style) = @_;
   
   return $text unless $self->use_color && $style;
@@ -22,32 +22,32 @@ sub format {
 
 sub format_roll {
   my ($self, $text) = @_;
-  return $self->format($text, 'yellow');
+  return $self->apply_format($text, 'yellow');
 }
 
 sub format_success {
   my ($self, $text) = @_;
-  return $self->format($text, 'green');
+  return $self->apply_format($text, 'green');
 }
 
 sub format_danger {
   my ($self, $text) = @_;
-  return $self->format($text, 'red');
+  return $self->apply_format($text, 'red');
 }
 
 sub format_location {
   my ($self, $text) = @_;
-  return $self->format($text, 'blue');
+  return $self->apply_format($text, 'blue');
 }
 
 sub format_important {
   my ($self, $text) = @_;
-  return $self->format($text, 'bold white');
+  return $self->apply_format($text, 'bold white');
 }
 
 sub format_header {
   my ($self, $text) = @_;
-  return $self->format($text, 'bold cyan');
+  return $self->apply_format($text, 'bold cyan');
 }
 
 sub box_header {
@@ -66,9 +66,9 @@ sub box_header {
   my $color = $self->_get_banner_color($text, $color_scheme);
   
   return join("\n", 
-    $self->format($top, $color),
-    $self->format($middle, $color),
-    $self->format($bottom, $color)
+    $self->apply_format($top, $color),
+    $self->apply_format($middle, $color),
+    $self->apply_format($bottom, $color)
   );
 }
 
@@ -138,7 +138,7 @@ sub progress_bar {
   my $bar = "[" . ("█" x $filled) . ("░" x $empty) . "]";
   my $percent = sprintf("%3d%%", ($current / $total) * 100);
   
-  return $self->format($bar, 'cyan') . " " . $percent;
+  return $self->apply_format($bar, 'cyan') . " " . $percent;
 }
 
 sub format_modifier_preview {
@@ -147,7 +147,7 @@ sub format_modifier_preview {
   return '' unless @$modifiers;
   
   my @lines;
-  push @lines, $self->format("Future rolls will be modified:", 'bright_black');
+  push @lines, $self->apply_format("Future rolls will be modified:", 'bright_black');
   
   foreach my $mod (@$modifiers) {
     my $table = $mod->{table};
@@ -155,7 +155,7 @@ sub format_modifier_preview {
     my $why = $mod->{why};
     
     my $sign = $modifier >= 0 ? '+' : '';
-    push @lines, $self->format("  - $why ($table): $sign$modifier penalty", 'bright_black');
+    push @lines, $self->apply_format("  - $why ($table): $sign$modifier penalty", 'bright_black');
   }
   
   return join("\n", @lines);
@@ -167,14 +167,14 @@ sub format_modifier_applied {
   return '' unless @$modifiers;
   
   my @lines;
-  push @lines, $self->format("Applied modifiers:", 'bright_black');
+  push @lines, $self->apply_format("Applied modifiers:", 'bright_black');
   
   foreach my $mod (@$modifiers) {
     my $modifier = $mod->{modifier};
     my $why = $mod->{why};
     
     my $sign = $modifier >= 0 ? '+' : '';
-    push @lines, $self->format("  - $why: $sign$modifier penalty", 'bright_black');
+    push @lines, $self->apply_format("  - $why: $sign$modifier penalty", 'bright_black');
   }
   
   return join("\n", @lines);
@@ -218,7 +218,7 @@ sub format_zone_separator {
   my $separator = join(' ', ('·') x ($width / 2));
   
   # Apply subtle gray color if colors are enabled
-  return $self->format($separator, 'bright_black');
+  return $self->apply_format($separator, 'bright_black');
 }
 
 sub format_roll_details {
@@ -229,16 +229,16 @@ sub format_roll_details {
   # Format the basic roll information
   if (@$individual_rolls > 1) {
     my $dice_str = "[" . join(",", @$individual_rolls) . "]";
-    $output .= $self->format("Rolling $roll_type: $dice_str = $raw_result", 'yellow');
+    $output .= $self->apply_format("Rolling $roll_type: $dice_str = $raw_result", 'yellow');
   } else {
-    $output .= $self->format("Rolling $roll_type: $raw_result", 'yellow');
+    $output .= $self->apply_format("Rolling $roll_type: $raw_result", 'yellow');
   }
   
   # Add modifier information if present
   if ($modifiers && $modifiers != 0) {
     my $sign = $modifiers >= 0 ? '+' : '';
-    $output .= $self->format(" $sign$modifiers modifiers", 'cyan');
-    $output .= $self->format(" = $final_result", 'yellow');
+    $output .= $self->apply_format(" $sign$modifiers modifiers", 'cyan');
+    $output .= $self->apply_format(" = $final_result", 'yellow');
   }
   
   return $output;
