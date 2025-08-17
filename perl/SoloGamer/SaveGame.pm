@@ -44,6 +44,13 @@ has 'automated' => (
   default  => 0,
 );
 
+has 'input_file' => (
+  is       => 'ro',
+  isa      => 'Str',
+  init_arg => 'input_file',
+  default  => '',
+);
+
 has 'crew' => (
   is      => 'rw',
   isa     => 'Maybe[SoloGamer::QotS::Crew]',
@@ -104,11 +111,17 @@ sub load_save {
     }
     
     # Create new save with plane name selection
-    my $plane_namer = SoloGamer::QotS::PlaneNamer->new(automated => $self->automated);
+    my $plane_namer = SoloGamer::QotS::PlaneNamer->new(
+      automated  => $self->automated,
+      input_file => $self->input_file,
+    );
     my $plane_name = $plane_namer->prompt_for_plane_name();
     
     # Create new crew
-    my $crew = SoloGamer::QotS::Crew->new(automated => $self->automated);
+    my $crew = SoloGamer::QotS::Crew->new(
+      automated  => $self->automated,
+      input_file => $self->input_file,
+    );
     
     # Create new aircraft state
     my $aircraft = SoloGamer::QotS::AircraftState->new();

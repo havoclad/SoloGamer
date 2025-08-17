@@ -30,6 +30,20 @@ has 'automated' => (
   default  => 0,
 );
 
+has 'input_file' => (
+  is       => 'ro',
+  isa      => 'Str',
+  init_arg => 'input_file',
+  default  => '',
+);
+
+has '_input_fh' => (
+  is       => 'ro',
+  lazy     => 1,
+  builder  => '_build_input_fh',
+  clearer  => '_clear_input_fh',
+);
+
 has '_first_names' => (
   is      => 'ro',
   isa     => 'ArrayRef[Str]',
@@ -105,6 +119,76 @@ sub get_random_names {
   return @names;
 }
 
+sub _build_input_fh {
+  my $self = shift;
+  
+  return undef unless $self->input_file;
+  
+  open my $fh, '<', $self->input_file
+    or croak "Cannot open input file '" . $self->input_file . "': $!";
+  return $fh;
+}
+
+sub _get_input {
+  my $self = shift;
+  my $prompt = shift;
+  my $options = shift || {};
+  
+  # In automated mode, just return default if available
+  if ($self->automated) {
+    return $options->{default} if exists $options->{default};
+    return '';
+  }
+  
+  # If input_file is provided, read from file
+  if ($self->input_file && $self->_input_fh) {
+    my $line = readline($self->_input_fh);
+    if (defined $line) {
+      chomp $line;
+      say "Reading from input file: $line" if $self->can('devel');
+      return $line;
+    } else {
+      # EOF reached, fall back to default if available
+      return $options->{default} if exists $options->{default};
+      return '';
+    }
+  }
+  
+  # Check if IO::Prompter is available and we should use it
+  my $use_prompter = 0;
+  eval {
+    require IO::Prompter;
+    IO::Prompter->import();
+    # Use IO::Prompter unless we have an input_file (for scripted mode)
+    $use_prompter = 1;
+  };
+  
+  if ($use_prompter && $options->{menu}) {
+    # Use IO::Prompter for menu-based prompts
+    my $choice = prompt(
+      $prompt,
+      -menu => $options->{menu},
+      -default => $options->{default} // '',
+      -prompt => 'Your choice: ',
+    );
+    return defined $choice ? "$choice" : ($options->{default} // '');
+  } elsif ($use_prompter) {
+    # Use IO::Prompter for simple prompts
+    my $response = prompt(
+      $prompt,
+      -default => $options->{default} // '',
+    );
+    return defined $response ? "$response" : ($options->{default} // '');
+  } else {
+    # Fallback to STDIN for tests
+    print $prompt;
+    print " Your choice: " if $options->{menu};
+    my $input = <STDIN>;
+    chomp $input if defined $input;
+    return defined $input ? $input : ($options->{default} // '');
+  }
+}
+
 sub prompt_for_crew_names {
   my $self = shift;
   my $positions = shift;
@@ -133,25 +217,37 @@ sub prompt_for_crew_names {
   print "=" x 50 . "\n";
   print "Your B-17 crew needs names.\n\n";
   
-  print "Suggested crew roster:\n";
-  for (my $i = 0; $i < 10; $i++) {
-    printf "  %-25s %s\n", $positions->[$i] . ":", $suggested_names[$i];
-  }
-  
-  print "\nOptions:\n";
-  print "  [Enter] - Accept all suggested names\n";
-  print "  r - Reroll all names\n";
-  print "  i - Name crew individually\n";
-  print "  c - Enter all custom names\n";
-  print "Choice: ";
-  
   while (1) {
-    my $choice = <STDIN>;
-    chomp $choice if defined $choice;
-    $choice //= '';
-    $choice = lc($choice);
+    print "Suggested crew roster:\n";
+    for (my $i = 0; $i < 10; $i++) {
+      printf "  %-25s %s\n", $positions->[$i] . ":", $suggested_names[$i];
+    }
     
-    if ($choice eq '' || $choice eq "\n") {
+    my $choice = $self->_get_input(
+      "\nChoose an option:",
+      {
+        menu => {
+          'Accept all suggested names' => 'accept',
+          'Reroll all names' => 'reroll',
+          'Name crew individually' => 'individual',
+          'Enter all custom names' => 'custom',
+        },
+        default => 'accept',
+      }
+    );
+    
+    # Handle empty choice as accept
+    if (!defined $choice || $choice eq '') {
+      for (my $i = 0; $i < 10; $i++) {
+        push @crew_names, {
+          position => $positions->[$i],
+          name => $suggested_names[$i]
+        };
+      }
+      return \@crew_names;
+    }
+    
+    if ($choice eq 'accept') {
       for (my $i = 0; $i < 10; $i++) {
         push @crew_names, {
           position => $positions->[$i],
@@ -160,62 +256,45 @@ sub prompt_for_crew_names {
       }
       return \@crew_names;
       
-    } elsif ($choice eq 'r') {
+    } elsif ($choice eq 'reroll' || $choice eq 'r') {
       @suggested_names = $self->get_random_names(10);
-      print "\nNew crew roster:\n";
-      for (my $i = 0; $i < 10; $i++) {
-        printf "  %-25s %s\n", $positions->[$i] . ":", $suggested_names[$i];
-      }
-      print "Choice (Enter/r/i/c): ";
+      print "\n";
+      # Loop continues, will show new roster
       
-    } elsif ($choice eq 'i') {
+    } elsif ($choice eq 'individual' || $choice eq 'i') {
       print "\nNaming crew individually:\n";
       for (my $i = 0; $i < 10; $i++) {
-        print "\n$positions->[$i]:\n";
-        print "  Suggested: $suggested_names[$i]\n";
-        print "  [Enter] to accept, or type a custom name: ";
+        print "\n$positions->[$i] (suggested: $suggested_names[$i])\n";
         
-        my $name_choice = <STDIN>;
-        chomp $name_choice if defined $name_choice;
+        my $name_choice = $self->_get_input(
+          "Enter name or press Enter to accept suggestion:",
+          { default => $suggested_names[$i] }
+        );
         
-        if (!defined $name_choice || $name_choice eq '') {
-          push @crew_names, {
-            position => $positions->[$i],
-            name => $suggested_names[$i]
-          };
-        } else {
-          push @crew_names, {
-            position => $positions->[$i],
-            name => $name_choice
-          };
-        }
+        push @crew_names, {
+          position => $positions->[$i],
+          name => $name_choice || $suggested_names[$i]
+        };
       }
       return \@crew_names;
       
-    } elsif ($choice eq 'c') {
+    } elsif ($choice eq 'custom' || $choice eq 'c') {
       print "\nEnter custom names for each position:\n";
       for (my $i = 0; $i < 10; $i++) {
-        print "$positions->[$i]: ";
-        my $custom_name = <STDIN>;
-        chomp $custom_name if defined $custom_name;
+        my $custom_name = $self->_get_input(
+          "$positions->[$i]:",
+          { default => $suggested_names[$i] }
+        );
         
-        if (!defined $custom_name || $custom_name eq '') {
-          print "Invalid name. Using suggested: $suggested_names[$i]\n";
-          push @crew_names, {
-            position => $positions->[$i],
-            name => $suggested_names[$i]
-          };
-        } else {
-          push @crew_names, {
-            position => $positions->[$i],
-            name => $custom_name
-          };
-        }
+        push @crew_names, {
+          position => $positions->[$i],
+          name => $custom_name || $suggested_names[$i]
+        };
       }
       return \@crew_names;
       
     } else {
-      print "Invalid choice. Choice (Enter/r/i/c): ";
+      print "Invalid choice. Please try again.\n";
     }
   }
   return;

@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Perl modules that require compilation
-RUN cpanm install Mojo::JSON File::Slurp MooseX::Singleton MooseX::Types Test::MockObject Perl::Critic Test::Class::Moose Test2::Suite Devel::Cover
+RUN cpanm install Mojo::JSON File::Slurp MooseX::Singleton MooseX::Types Test::MockObject Perl::Critic Test::Class::Moose Test2::Suite Devel::Cover IO::Prompter
 
 # Runtime stage - minimal dependencies only
 FROM perl:5.42-slim AS runtime

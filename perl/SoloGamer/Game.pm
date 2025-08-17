@@ -66,6 +66,13 @@ has 'automated' => (
   init_arg => 'automated',
 );
 
+has 'input_file' => (
+  is       => 'ro',
+  isa      => 'Str',
+  init_arg => 'input_file',
+  default  => '',
+);
+
 has 'use_color' => (
   is       => 'ro',
   isa      => 'Bool',
@@ -150,9 +157,10 @@ sub smart_buffer {
 sub _build_save {
   my $self = shift;
   
-  my $save = SoloGamer::SaveGame->initialize( save_file => $self->save_file,
-                                              verbose   => $self->{'verbose'},
-                                              automated => $self->automated,
+  my $save = SoloGamer::SaveGame->initialize( save_file  => $self->save_file,
+                                              verbose    => $self->{'verbose'},
+                                              automated  => $self->automated,
+                                              input_file => $self->input_file,
                                             );
   $save->load_save;
   return $save;

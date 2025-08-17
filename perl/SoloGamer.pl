@@ -14,13 +14,14 @@ use SoloGamer::Game;
 # Box drawing and weather icons are stored as UTF-8 in the source files
 
 my %options = (
-  info      => 0,
-  debug     => 0,
-  game      => "",
-  save_file => "",
-  automated => 0,
-  color     => 1,
-  help      => 0,
+  info       => 0,
+  debug      => 0,
+  game       => "",
+  save_file  => "",
+  automated  => 0,
+  color      => 1,
+  help       => 0,
+  input_file => "",
 );
 
 sub validate_save_file ($opt_name, $opt_value) {
@@ -51,6 +52,7 @@ GetOptions("info"        => \$options{info},
            "save_file:s" => \&validate_save_file,
            "automated"   => \$options{automated},
            "color!"      => \$options{color},
+           "input_file=s" => \$options{input_file},
            "help|h"      => \$options{help},
    ) || die "Invalid options";
 
@@ -62,6 +64,7 @@ Options:
   --game=NAME        Set game name (default: QotS)
   --save_file[=NAME] Save/load game to specified file
   --automated        Run in automated mode (no user input)
+  --input_file=FILE  Read user inputs from file for scripted interaction
   --info             Enable verbose logging
   --debug            Enable debug output at end of game
   --color, --no-color Enable/disable colored output (default: enabled)
@@ -81,11 +84,12 @@ $options{game} ||= 'QotS';
 
 # Use the factory method to instantiate the appropriate game class
 my $game = SoloGamer::Game->new_game(
-  name      => $options{game},
-  verbose   => $options{info},
-  save_file => $options{save_file},
-  automated => $options{automated},
-  use_color => $options{color},
+  name       => $options{game},
+  verbose    => $options{info},
+  save_file  => $options{save_file},
+  automated  => $options{automated},
+  use_color  => $options{color},
+  input_file => $options{input_file},
 );
 
 my $data = $game->tables;

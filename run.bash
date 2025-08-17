@@ -3,7 +3,7 @@
 # Check if we should run in interactive mode
 INTERACTIVE_FLAGS="-it"
 for arg in "$@"; do
-    if [[ "$arg" == "--automated" ]]; then
+    if [[ "$arg" == "--automated" ]] || [[ "$arg" == --input_file* ]]; then
         INTERACTIVE_FLAGS=""
         break
     fi

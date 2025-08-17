@@ -18,6 +18,13 @@ has 'automated' => (
   default  => 0,
 );
 
+has 'input_file' => (
+  is       => 'ro',
+  isa      => 'Str',
+  init_arg => 'input_file',
+  default  => '',
+);
+
 has 'crew_members' => (
   is      => 'ro',
   isa     => 'HashRef[SoloGamer::QotS::CrewMember]',
@@ -89,7 +96,10 @@ sub _initialize_from_data {
 sub _initialize_new_crew {
   my $self = shift;
   
-  my $namer = SoloGamer::QotS::CrewNamer->new(automated => $self->automated);
+  my $namer = SoloGamer::QotS::CrewNamer->new(
+    automated  => $self->automated,
+    input_file => $self->input_file,
+  );
   my $crew_names = $namer->prompt_for_crew_names($self->_positions);
   
   foreach my $crew_info (@$crew_names) {
@@ -170,7 +180,10 @@ sub replace_crew_member {
   }
   
   unless ($new_name) {
-    my $namer = SoloGamer::QotS::CrewNamer->new(automated => $self->automated);
+    my $namer = SoloGamer::QotS::CrewNamer->new(
+      automated  => $self->automated,
+      input_file => $self->input_file,
+    );
     $new_name = $namer->get_random_name();
   }
   
