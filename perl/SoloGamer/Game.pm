@@ -102,33 +102,20 @@ sub new_game {
   # Map game names to their implementation classes
   my %game_classes = (
     'QotS' => 'SoloGamer::QotS::Game',
-    # Future games would be added here
-    # 'AnotherGame' => 'SoloGamer::AnotherGame::Game',
   );
   
-  my $game_class = $game_classes{$game_name};
-  
-  if (!$game_class) {
-    # If no specific implementation exists, use the base Game class
-    return SoloGamer::Game->new(%options);
-  }
+  my $game_class = $game_classes{$game_name} // 'QotS';
   
   # Dynamically load the game class
   eval {
     require_module($game_class);
-  };
-  if ($@) {
-    croak "Failed to load game class $game_class: $@";
-  }
+  } or croak "Failed to load game class $game_class: $@";
   
-  # Instantiate and return the specific game implementation
   return $game_class->new(%options);
 }
 
 sub substitute_variables {
   my ($self, $text) = @_;
-  
-  return $text unless defined $text && length $text;
   
   # Base implementation - subclasses can override to add specific substitutions
   return $text;
