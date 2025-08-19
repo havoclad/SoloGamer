@@ -4,6 +4,7 @@ use v5.42;
 
 use Carp;
 use File::Slurp;
+use IO::Prompter;
 use List::Util qw(shuffle);
 
 use Moose;
@@ -80,66 +81,6 @@ sub _build_input_fh {
   return $fh;
 }
 
-sub _get_input {
-  my $self = shift;
-  my $prompt = shift;
-  my $options = shift || {};
-  
-  # In automated mode, just return default if available
-  if ($self->automated) {
-    return $options->{default} if exists $options->{default};
-    return '';
-  }
-  
-  # If input_file is provided, read from file
-  if ($self->input_file && $self->_input_fh) {
-    my $line = readline($self->_input_fh);
-    if (defined $line) {
-      chomp $line;
-      say "Reading from input file: $line" if $self->can('devel');
-      return $line;
-    } else {
-      # EOF reached, fall back to default if available
-      return $options->{default} if exists $options->{default};
-      return '';
-    }
-  }
-  
-  # Check if IO::Prompter is available and we should use it
-  my $use_prompter = 0;
-  eval {
-    require IO::Prompter;
-    IO::Prompter->import();
-    # Use IO::Prompter unless we have an input_file (for scripted mode)
-    $use_prompter = 1;
-  };
-  
-  if ($use_prompter && $options->{menu}) {
-    # Use IO::Prompter for menu-based prompts
-    my $choice = prompt(
-      $prompt,
-      -menu => $options->{menu},
-      -default => $options->{default} // '',
-      -prompt => 'Your choice: ',
-    );
-    return defined $choice ? "$choice" : ($options->{default} // '');
-  } elsif ($use_prompter) {
-    # Use IO::Prompter for simple prompts
-    my $response = prompt(
-      $prompt,
-      -default => $options->{default} // '',
-    );
-    return defined $response ? "$response" : ($options->{default} // '');
-  } else {
-    # Fallback to STDIN for tests
-    print $prompt;
-    print " Your choice: " if $options->{menu};
-    my $input = <STDIN>;
-    chomp $input if defined $input;
-    return defined $input ? $input : ($options->{default} // '');
-  }
-}
-
 sub prompt_for_plane_name {
   my $self = shift;
   
@@ -160,34 +101,28 @@ sub prompt_for_plane_name {
   print "Suggested name: $suggested_name\n\n";
   
   while (1) {
-    my $choice = $self->_get_input(
-      "Choose an option:",
-      {
-        menu => {
-          "Accept suggested name ($suggested_name)" => 'accept',
-          'Reroll for a new random name' => 'reroll',
-          'Get a name from the verified historical list' => 'verified',
-          'Enter a custom name' => 'custom',
+    my $choice = prompt
+      'Choose an option:',
+      -number,
+      -menu => {
+        "Accept suggested name ($suggested_name)" => 'a',
+        'Reroll for a new random name' => 'r',
+        'Get a name from the verified historical list' => 'h',
+        'Enter a custom name' => 'c',
         },
-        default => 'accept',
-      }
-    );
-    
-    # Handle empty choice as accept
-    if (!defined $choice || $choice eq '') {
+      -default => 'a',
+      '>',
+    ;
+    if ($choice eq 'a') {
       return $suggested_name;
-    }
-    
-    if ($choice eq 'accept') {
-      return $suggested_name;
-    } elsif ($choice eq 'reroll' || $choice eq 'r') {
+    } elsif ($choice eq 'r') {
       $suggested_name = $self->get_random_name();
       print "New suggested name: $suggested_name\n";
-    } elsif ($choice eq 'verified' || $choice eq 'v') {
+    } elsif ($choice eq 'h') {
       $suggested_name = $self->get_random_name(1);  # Use verified list
       print "Historical name: $suggested_name\n";
-    } elsif ($choice eq 'custom' || $choice eq 'c') {
-      my $custom_name = $self->_get_input("Enter your custom plane name:");
+    } elsif ($choice eq 'c') {
+      my $custom_name = prompt 'Enter your custom plane name:';
       if (defined $custom_name && length($custom_name) > 0) {
         return $custom_name;
       } else {
