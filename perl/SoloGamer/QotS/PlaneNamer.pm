@@ -6,6 +6,7 @@ use Carp;
 use File::Slurp;
 use IO::Prompter;
 use List::Util qw(shuffle);
+use Term::ReadKey;
 
 use Moose;
 use namespace::autoclean;
@@ -100,39 +101,14 @@ sub prompt_for_plane_name {
   print "Your B-17 needs a name for this mission series.\n";
   print "Suggested name: $suggested_name\n\n";
   
-  while (1) {
-    my $choice = prompt
-      'Choose an option:',
-      -number,
-      -menu => {
-        "Accept suggested name ($suggested_name)" => 'a',
-        'Reroll for a new random name' => 'r',
-        'Get a name from the verified historical list' => 'h',
-        'Enter a custom name' => 'c',
-        },
-      -default => 'a',
-      '>',
-    ;
-    if ($choice eq 'a') {
-      return $suggested_name;
-    } elsif ($choice eq 'r') {
-      $suggested_name = $self->get_random_name();
-      print "New suggested name: $suggested_name\n";
-    } elsif ($choice eq 'h') {
-      $suggested_name = $self->get_random_name(1);  # Use verified list
-      print "Historical name: $suggested_name\n";
-    } elsif ($choice eq 'c') {
-      my $custom_name = prompt 'Enter your custom plane name:';
-      if (defined $custom_name && length($custom_name) > 0) {
-        return $custom_name;
-      } else {
-        print "Invalid name. Please try again.\n";
-      }
-    } else {
-      print "Invalid choice. Please try again.\n";
-    }
+  SWITCH:
+  for (prompt '[A]ccept suggested name, roll a (N)ew name, roll a (H)istorical name, Enter a (C)ustom name', -keyletters, -single) {
+    if (/A/i) { return $suggested_name }
+    if (/N/i) { $suggested_name = $self->get_random_name() }
+    if (/H/i) { $suggested_name = $self->get_random_name(1) }
+    if (/C/i) { return prompt 'Enter your custom plane name' }
+    return $suggested_name;
   }
-  return;
 }
 
 __PACKAGE__->meta->make_immutable;
