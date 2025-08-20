@@ -26,7 +26,7 @@ RUN apt-get update && apt-get install -y \
     libmoose-perl \
     libnamespace-autoclean-perl \
     libtest-exception-perl \
-    libterm-readkey-perl \
+    # libterm-readkey-perl - Currently installs compiled version for 5.40
     && rm -rf /var/lib/apt/lists/*
 
 # Copy Perl modules from builder stage
