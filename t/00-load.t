@@ -30,18 +30,6 @@ my @modules_to_test = (
     # Roles
     'Logger',
     'BufferedOutput',
-    
-    # Test modules
-    'Test::SoloGamer::Base',
-    'Test::SoloGamer::Table',
-    'Test::SoloGamer::TableFactory',
-    'Test::SoloGamer::RollTable',
-    'Test::SoloGamer::FlowTable',
-    'Test::SoloGamer::OnlyIfRollTable',
-    'Test::SoloGamer::Game',
-    'Test::SoloGamer::SaveGame',
-    'Test::Role::Logger',
-    'Test::Role::BufferedOutput',
 );
 
 plan tests => scalar @modules_to_test;

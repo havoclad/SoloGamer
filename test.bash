@@ -24,22 +24,6 @@ TEST_CMD="prove -I/t/lib -I/perl -r /t"
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
     case $1 in
-        --class=*)
-            # Run specific test class
-            CLASS="${1#*=}"
-            TEST_CMD="perl -I/t/lib -I/perl -MTest::Class::Moose::CLI -e 'Test::Class::Moose::CLI->new_with_options(test_classes => [\"$CLASS\"])->run'"
-            shift
-            ;;
-        --method=*)
-            # Run specific test method (requires --class)
-            METHOD="${1#*=}"
-            if [[ -z "$CLASS" ]]; then
-                echo "Error: --method requires --class to be specified first"
-                exit 1
-            fi
-            TEST_CMD="perl -I/t/lib -I/perl -MTest::Class::Moose::CLI -e 'Test::Class::Moose::CLI->new_with_options(test_classes => [\"$CLASS\"], test_methods => [\"$METHOD\"])->run'"
-            shift
-            ;;
         --verbose|-v)
             # Verbose output
             TEST_CMD="$TEST_CMD --verbose"
@@ -55,36 +39,21 @@ while [[ $# -gt 0 ]]; do
             TEST_CMD="cover -test -ignore_re '^t/'"
             shift
             ;;
-        --prove)
-            # Use prove test runner (default)
-            TEST_CMD="prove -I/t/lib -I/perl -r /t"
-            shift
-            ;;
-        --tcm)
-            # Use Test::Class::Moose runner directly
-            TEST_CMD="perl -I/t/lib -I/perl /t/test_runner.pl"
-            shift
-            ;;
         --help|-h)
             echo "Usage: $0 [options]"
             echo ""
             echo "Options:"
             echo "  --build, -b           Build Docker image before running tests"
-            echo "  --class=CLASS         Run specific test class"
-            echo "  --method=METHOD       Run specific test method (requires --class)"
             echo "  --verbose, -v         Verbose output"
             echo "  --parallel, -p        Run tests in parallel"
             echo "  --coverage, -c        Run with code coverage"
-            echo "  --prove               Use prove test runner (default)"
-            echo "  --tcm                 Use Test::Class::Moose runner directly"
             echo "  --help, -h            Show this help"
             echo ""
             echo "Examples:"
-            echo "  $0                                    # Run all tests"
-            echo "  $0 --class=Test::Role::Logger         # Run Logger role tests"
-            echo "  $0 --class=Test::SoloGamer::RollTable # Run RollTable tests"
-            echo "  $0 --verbose --parallel               # Run all tests with verbose output in parallel"
-            echo "  $0 --coverage                         # Run tests with coverage report"
+            echo "  $0                      # Run all tests"
+            echo "  $0 --verbose            # Run tests with verbose output"
+            echo "  $0 --parallel           # Run tests in parallel"
+            echo "  $0 --coverage           # Run tests with coverage report"
             exit 0
             ;;
         *)
@@ -108,7 +77,7 @@ docker run --rm \
     -w /app \
     --entrypoint /bin/bash \
     havoclad/sologamer \
-    -c "$TEST_CMD 2>&1 | grep -v 'Test::Builder\|Formatter.*loaded too late' || $TEST_CMD"
+    -c "$TEST_CMD"
 
 echo ""
 echo "========================================"
