@@ -21,12 +21,10 @@ SoloGamer is a Perl-based automation engine for solo board games, primarily "B-1
 
 ### Testing and Code Quality
 ```bash
-# Run the comprehensive test suite (Test::Class::Moose + Test2)
+# Run the test suite
 ./test.bash                          # Run all tests (basic usage)
 ./test.bash --verbose                # Run with verbose output
 ./test.bash --parallel               # Run tests in parallel
-./test.bash --coverage               # Run with code coverage report
-./test.bash --tcm                    # Use Test::Class::Moose runner directly
 ./test.bash --help                   # Show all available options
 
 # Check code quality with Perl::Critic
@@ -107,26 +105,30 @@ Example table structure:
 - Build script copies all perl/ content to docker/in/ for building
 - Run script handles volume mounting and cleanup
 
-### Testing Infrastructure
-The project includes a comprehensive Test::Class::Moose testing harness:
+### Testing Infrastructure & TDD Requirements
 
-- **Unit Tests**: Object-oriented tests mirroring production code structure
-- **Role Tests**: Independent testing of Moose roles (`Logger`, `BufferedOutput`)
-- **Integration Tests**: Full game flow scenarios with realistic test data
-- **Factory Tests**: Comprehensive coverage of the `TableFactory` pattern
-- **Singleton Tests**: Proper testing of `SaveGame` singleton behavior
+#### Test-Driven Development Guidelines
+- **MANDATORY**: Write tests for ALL bug fixes to prevent regressions
+- **REQUIRED**: Include test cases with all new feature development
+- **ENFORCED**: Git pre-commit hook automatically runs tests before commits
+- **BYPASS**: Use `git commit --no-verify` only in emergencies
 
-Test Structure:
+#### Current Test Structure
 ```
 t/
 ├── 00-load.t                    # Module loading verification
-├── integration/                 # End-to-end integration tests
-└── lib/Test/                   # Test::Class::Moose test classes
-    ├── SoloGamer/              # Unit tests for each class
-    └── Role/                   # Moose role tests
+├── 03-mission-table-display.t   # Mission table logic tests
+└── integration/                 # End-to-end integration tests
+    └── 01-full-game-flow.t      # Complete game flow testing
 ```
 
-**Note**: Minor warnings about Test::Builder/Test2 loading order are cosmetic and don't affect test functionality.
+#### Writing New Tests
+When fixing bugs or adding features:
+1. Write the test FIRST (it should fail initially)
+2. Implement the fix/feature
+3. Ensure the test passes
+4. Run full test suite with `./test.bash`
+5. Commit only when all tests pass
 
 ### Code Quality Standards
 - **ALWAYS** run `./test.bash` before commits to ensure all tests pass

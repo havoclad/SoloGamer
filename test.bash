@@ -34,11 +34,6 @@ while [[ $# -gt 0 ]]; do
             TEST_CMD="$TEST_CMD --jobs 4"
             shift
             ;;
-        --coverage|-c)
-            # Run with coverage
-            TEST_CMD="cover -test -ignore_re '^t/'"
-            shift
-            ;;
         --help|-h)
             echo "Usage: $0 [options]"
             echo ""
@@ -46,14 +41,12 @@ while [[ $# -gt 0 ]]; do
             echo "  --build, -b           Build Docker image before running tests"
             echo "  --verbose, -v         Verbose output"
             echo "  --parallel, -p        Run tests in parallel"
-            echo "  --coverage, -c        Run with code coverage"
             echo "  --help, -h            Show this help"
             echo ""
             echo "Examples:"
             echo "  $0                      # Run all tests"
             echo "  $0 --verbose            # Run tests with verbose output"
             echo "  $0 --parallel           # Run tests in parallel"
-            echo "  $0 --coverage           # Run tests with coverage report"
             exit 0
             ;;
         *)
