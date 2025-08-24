@@ -2,6 +2,7 @@
 
 use v5.42;
 
+use Carp;
 use Getopt::Long;
 
 use lib '/perl';
@@ -14,12 +15,12 @@ use SoloGamer::Game;
 my %options = (
   info       => 0,
   debug      => 0,
-  game       => "",
-  save_file  => "",
+  game       => '',
+  save_file  => '',
   automated  => 0,
   color      => 1,
   help       => 0,
-  input_file => "",
+  input_file => '',
 );
 
 sub validate_save_file ($opt_name, $opt_value) {
@@ -30,17 +31,12 @@ sub validate_save_file ($opt_name, $opt_value) {
     return;
   }
   
-  # Security: validate filename contains only word characters (letters, numbers, underscore)
-  if ($opt_value !~ /^\w+$/) {
-    die "Invalid save file name '$opt_value': must contain only letters, numbers, and underscores";
+  if ($opt_value !~ /^\w+$/x) {
+    croak "Invalid save file name '$opt_value': must contain only letters, numbers, and underscores";
   }
   
-  # Append .json extension if not present
-  my $filename = $opt_value;
-  $filename .= '.json' unless $filename =~ /\.json$/;
-  
   # Construct safe path within saves directory and store in global variable
-  $options{save_file} = '/app/saves/' . $filename;
+  $options{save_file} = "/app/saves/$opt_value.json";
   return;
 }
 
@@ -52,7 +48,7 @@ GetOptions("info"        => \$options{info},
            "color!"      => \$options{color},
            "input_file=s" => \$options{input_file},
            "help|h"      => \$options{help},
-   ) || die "Invalid options";
+   ) || croak "Invalid options";
 
 if ($options{help}) {
   print <<'EOF';
