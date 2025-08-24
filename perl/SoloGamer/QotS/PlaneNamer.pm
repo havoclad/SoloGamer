@@ -62,7 +62,7 @@ sub get_random_name {
   }
   
   my @names = read_file($file, chomp => 1);
-  @names = grep { $_ && $_ !~ /^\s*$/ } @names;  # Remove empty lines
+  @names = grep { $_ && $_ !~ /^\s*$/x } @names;  # Remove empty lines
   
   if (@names == 0) {
     croak "No names found in file: $file";

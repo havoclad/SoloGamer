@@ -66,7 +66,7 @@ sub _build_first_names {
   }
   
   my @names = read_file($self->first_names_file, chomp => 1);
-  @names = grep { $_ && $_ !~ /^\s*$/ } @names;
+  @names = grep { $_ && $_ !~ /^\s*$/x } @names;
   
   if (@names == 0) {
     croak "No first names found in file: " . $self->first_names_file;
@@ -83,7 +83,7 @@ sub _build_last_names {
   }
   
   my @names = read_file($self->last_names_file, chomp => 1);
-  @names = grep { $_ && $_ !~ /^\s*$/ } @names;
+  @names = grep { $_ && $_ !~ /^\s*$/x } @names;
   
   if (@names == 0) {
     croak "No last names found in file: " . $self->last_names_file;

@@ -292,9 +292,9 @@ sub _calculate_fire_priority {
     $priority = 1;
   } elsif ($fighter->{position} =~ /Vertical/) {
     $priority = 2;
-  } elsif ($fighter->{position} =~ /1:30|10:30/) {
+  } elsif ($fighter->{position} =~ /1:30|10:30/x) {
     $priority = 3;
-  } elsif ($fighter->{position} =~ /3|9/) {
+  } elsif ($fighter->{position} =~ /3|9/x) {
     $priority = 5;
   } elsif ($fighter->{position} eq '6') {
     $priority = 7;

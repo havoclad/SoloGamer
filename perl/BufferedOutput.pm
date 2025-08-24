@@ -30,8 +30,7 @@ sub print_output {
   my $self = shift;
 
   foreach my $line ($self->buffered_output->@*) {
-    # Check if line contains wide characters (Unicode > 255)
-    if ($line =~ /[^\x00-\xFF]/) {
+    if ($line =~ /[^\x00-\xFF]/x) { # Checking for wide characters (Unicode > 255)
       # Temporarily set UTF-8 for this line only
       my $old_layers = join('', PerlIO::get_layers(STDOUT));
       binmode(STDOUT, ':encoding(UTF-8)') unless $old_layers =~ /encoding/;
@@ -68,8 +67,8 @@ sub buffer_roll {
 }
 
 sub buffer_roll_details {
-  my ($self, $raw_result, $individual_rolls, $roll_type, $modifiers, $final_result) = @_;
-  my $text = $self->formatter->format_roll_details($raw_result, $individual_rolls, $roll_type, $modifiers, $final_result);
+  my ($self, @other_args) = @_;
+  my $text = $self->formatter->format_roll_details(@other_args);
   $self->buffer($text);
   return;
 }

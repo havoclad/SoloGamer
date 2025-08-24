@@ -2,6 +2,7 @@ package SoloGamer::QotS::CrewMember;
 
 use v5.42;
 
+use Carp;
 use Moose;
 use Moose::Util::TypeConstraints;
 use namespace::autoclean;
@@ -311,7 +312,7 @@ sub from_hash {
   my $hash = shift;
   
   unless ($hash && ref($hash) eq 'HASH') {
-    die "from_hash requires a hash reference";
+    croak 'from_hash requires a hash reference';
   }
   
   my %args = (
