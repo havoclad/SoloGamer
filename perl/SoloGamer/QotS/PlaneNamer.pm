@@ -3,9 +3,8 @@ package SoloGamer::QotS::PlaneNamer;
 use v5.42;
 
 use Carp;
-use File::Slurp;
+use HavocLad::File::RandomLine qw(random_line);
 use IO::Prompter;
-use List::Util qw(shuffle);
 use Term::ReadKey;
 
 use Moose;
@@ -61,15 +60,7 @@ sub get_random_name {
     }
   }
   
-  my @names = read_file($file, chomp => 1);
-  @names = grep { $_ && $_ !~ /^\s*$/x } @names;  # Remove empty lines
-  
-  if (@names == 0) {
-    croak "No names found in file: $file";
-  }
-  
-  my @shuffled = shuffle(@names);
-  return $shuffled[0];
+  return random_line($file);
 }
 
 sub _build_input_fh {

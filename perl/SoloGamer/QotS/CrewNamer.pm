@@ -3,8 +3,7 @@ package SoloGamer::QotS::CrewNamer;
 use v5.42;
 
 use Carp;
-use File::Slurp;
-use List::Util qw(shuffle);
+use HavocLad::File::RandomLine qw(random_line);
 
 use Moose;
 use namespace::autoclean;
@@ -44,61 +43,13 @@ has '_input_fh' => (
   clearer  => '_clear_input_fh',
 );
 
-has '_first_names' => (
-  is      => 'ro',
-  isa     => 'ArrayRef[Str]',
-  lazy    => 1,
-  builder => '_build_first_names',
-);
-
-has '_last_names' => (
-  is      => 'ro',
-  isa     => 'ArrayRef[Str]',
-  lazy    => 1,
-  builder => '_build_last_names',
-);
-
-sub _build_first_names {
-  my $self = shift;
-  
-  if (! -e $self->first_names_file) {
-    croak "First names file not found: " . $self->first_names_file;
-  }
-  
-  my @names = read_file($self->first_names_file, chomp => 1);
-  @names = grep { $_ && $_ !~ /^\s*$/x } @names;
-  
-  if (@names == 0) {
-    croak "No first names found in file: " . $self->first_names_file;
-  }
-  
-  return \@names;
-}
-
-sub _build_last_names {
-  my $self = shift;
-  
-  if (! -e $self->last_names_file) {
-    croak "Last names file not found: " . $self->last_names_file;
-  }
-  
-  my @names = read_file($self->last_names_file, chomp => 1);
-  @names = grep { $_ && $_ !~ /^\s*$/x } @names;
-  
-  if (@names == 0) {
-    croak "No last names found in file: " . $self->last_names_file;
-  }
-  
-  return \@names;
-}
-
 sub get_random_name {
   my $self = shift;
   
-  my @first_shuffled = shuffle(@{$self->_first_names});
-  my @last_shuffled = shuffle(@{$self->_last_names});
+  my $first_name = random_line($self->first_names_file);
+  my $last_name = random_line($self->last_names_file);
   
-  return $first_shuffled[0] . ' ' . $last_shuffled[0];
+  return $first_name . ' ' . $last_name;
 }
 
 sub get_random_names {
