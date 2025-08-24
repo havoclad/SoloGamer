@@ -30,6 +30,9 @@ my @modules_to_test = (
     # Roles
     'Logger',
     'BufferedOutput',
+    
+    # Utilities
+    'HavocLad::File::RandomLine',
 );
 
 plan tests => scalar @modules_to_test;
