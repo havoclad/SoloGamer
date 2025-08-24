@@ -1,8 +1,6 @@
 #!/usr/local/bin/perl
 
 use v5.42;
-use feature 'signatures';
-no warnings 'experimental::signatures';
 
 use Getopt::Long;
 

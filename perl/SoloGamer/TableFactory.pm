@@ -1,8 +1,6 @@
 package SoloGamer::TableFactory;
 
 use v5.42;
-use feature 'signatures';
-no warnings 'experimental::signatures';
 
 use File::Slurp;
 use File::Basename;

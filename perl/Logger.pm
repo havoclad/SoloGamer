@@ -1,7 +1,5 @@
 package Logger;
 use v5.42;
-use feature 'signatures';
-no warnings 'experimental::signatures';
 
 use Moose::Role;
 
