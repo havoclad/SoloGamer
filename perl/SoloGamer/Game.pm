@@ -130,9 +130,9 @@ sub smart_buffer {
   $text = $self->substitute_variables($text);
   
   # Generic buffering logic - subclasses can override for game-specific patterns
-  if ($text =~ /^Rolling for/i) {
+  if ($text =~ /^Rolling for/ix) {
     $self->buffer_roll($text);
-  } elsif ($text =~ /^Welcome to/i) {
+  } elsif ($text =~ /^Welcome to/ix) {
     $self->buffer_header($text, 40);
   } else {
     $self->buffer($text);
@@ -388,7 +388,7 @@ sub do_flow {
     }
     if (exists $next_flow->{'pre'}) {
       # Check if this is a table type flow to enhance the pre message
-      if (exists $next_flow->{'type'} && $next_flow->{'pre'} =~ /^Rolling for/i) {
+      if (exists $next_flow->{'type'} && $next_flow->{'pre'} =~ /^Rolling for/ix) {
         my $enhanced = 0;
         
         # Handle direct table references
