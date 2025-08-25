@@ -144,7 +144,7 @@ sub _generate_fighter_id {
   my $wave = $self->wave_number;
   my $type = substr($fighter_data->{type}, 0, 2);
   my $position = $fighter_data->{position};
-  $position =~ s/[:\s]/_/g;
+  $position =~ s/[:\s]/_/gsx;
   
   my $count = 1;
   foreach my $existing (@{$self->active_fighters}) {
@@ -288,16 +288,12 @@ sub _calculate_fire_priority {
   
   my $priority = 10;
   
-  if ($fighter->{position} =~ /12/) {
-    $priority = 1;
-  } elsif ($fighter->{position} =~ /Vertical/) {
-    $priority = 2;
-  } elsif ($fighter->{position} =~ /1:30|10:30/x) {
-    $priority = 3;
-  } elsif ($fighter->{position} =~ /3|9/x) {
-    $priority = 5;
-  } elsif ($fighter->{position} eq '6') {
-    $priority = 7;
+  SWITCH: for ($fighter->{position}) {
+    if (/12/xms)       { $priority = 1; last SWITCH; }
+    if (/Vertical/xms) { $priority = 2; last SWITCH; }
+    if (/10?:30/xms)   { $priority = 3; last SWITCH; }
+    if (/3|9/xms)      { $priority = 5; last SWITCH; }
+    if (/6/xms)        { $priority = 7; last SWITCH; }
   }
   
   $priority-- if $fighter->{type} eq 'Me110';

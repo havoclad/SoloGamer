@@ -216,22 +216,33 @@ sub damage_engine {
   
   my $engine = $self->engines->{$engine_num};
   
-  if ($damage_type eq 'runaway') {
-    $engine->{status} = 'runaway';
-    $self->devel("Engine $engine_num is running away - must be feathered!");
-  } elsif ($damage_type eq 'oil_tank') {
-    $engine->{oil_tank} = 'damaged';
-    $engine->{status} = 'failing';
-    $self->devel("Engine $engine_num oil tank hit - engine will fail soon");
-  } elsif ($damage_type eq 'fire') {
-    $engine->{status} = 'on_fire';
-    $self->devel("Engine $engine_num is on fire!");
-  } elsif ($damage_type eq 'out') {
-    $engine->{status} = 'out';
-    $self->devel("Engine $engine_num is out");
-  } elsif ($damage_type eq 'supercharger') {
-    $engine->{supercharger} = 'damaged';
-    $self->devel("Engine $engine_num supercharger damaged");
+  SWITCH: for ($damage_type) {
+    if (/runaway/xms) {
+      $engine->{status} = 'runaway';
+      $self->devel("Engine $engine_num is running away - must be feathered!");
+      last SWITCH;
+    }
+    if (/oil_tank/xms) {
+      $engine->{oil_tank} = 'damaged';
+      $engine->{status} = 'failing';
+      $self->devel("Engine $engine_num oil tank hit - engine will fail soon");
+      last SWITCH;
+    }
+    if (/fire/xms) {
+      $engine->{status} = 'on_fire';
+      $self->devel("Engine $engine_num is on fire!");
+      last SWITCH;
+    }
+    if (/out/xms) {
+      $engine->{status} = 'out';
+      $self->devel("Engine $engine_num is out");
+      last SWITCH;
+    }
+    if (/supercharger/xms) {
+      $engine->{supercharger} = 'damaged';
+      $self->devel("Engine $engine_num supercharger damaged");
+      last SWITCH;
+    }
   }
   
   return $engine->{status};
