@@ -46,16 +46,17 @@ override 'roll' => sub  {
   my $test_criteria = $self->test_criteria;
   $self->devel("In OnlyIf with testing $to_test and test $test_criteria");
   if ( $test_criteria eq '>' ) {
-    unless ( $to_test > $self->test_against ) {
-      $self->devel($self->fail_message);
-      return
+    if ( $to_test > $self->test_against ) {
+      $self->devel("OnlyIf test passed");
+      super();
     }
-    $self->devel("OnlyIf test passed");
+    else {
+      $self->devel($self->fail_message);
+    }
   } else {
     $self->devel("Don't know how to do a test_criteria of $test_criteria");
-    return;
   }
-  super();
+  return;
 };
 
 __PACKAGE__->meta->make_immutable;
