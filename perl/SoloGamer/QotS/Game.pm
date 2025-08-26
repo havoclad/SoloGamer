@@ -26,14 +26,7 @@ override 'substitute_variables' => sub {
   # Call parent method first
   $text = super();
   
-  return $text unless defined $text && length $text;
-  
-  # Substitute plane name variable (QotS-specific)
-  if ($text =~ /\$plane_name/) {
-    my $plane_name = $self->save->get_plane_name();
-    $text =~ s/\$plane_name/$plane_name/g;
-  }
-  
+  $text =~ s/\$plane_name/$self->save->get_plane_name/egx;
   return $text;
 };
 
@@ -46,23 +39,23 @@ override 'smart_buffer' => sub {
   $text = $self->substitute_variables($text);
   
   # QotS-specific text pattern matching
-  if ($text =~ /^Rolling for/i) {
+  if ($text =~ /^Rolling for/ixms) {
     # Add mission number before Rolling for Mission
-    if ($text =~ /Rolling for Mission/i) {
+    if ($text =~ /Rolling for Mission/ixms) {
       my $mission = $self->save->mission;
       $self->buffer_header("MISSION $mission", 40);
     }
     $self->buffer_roll($text);
-  } elsif ($text =~ /^Welcome to/i) {
+  } elsif ($text =~ /^Welcome to/ixms) {
     # Display Welcome message
     $self->buffer_header($text, 40);
-  } elsif ($text =~ /safe|successful|On target/i) {
+  } elsif ($text =~ /safe|successful|On target/ixms) {
     $self->buffer_success($text);
-  } elsif ($text =~ /damage|hit|fail|crash/i) {
+  } elsif ($text =~ /damage|hit|fail|crash/ixms) {
     $self->buffer_danger($text);
-  } elsif ($text =~ /Moving to zone|zone:/i) {
+  } elsif ($text =~ /Moving to zone|zone:/ixms) {
     $self->buffer_location($text);
-  } elsif ($text =~ /Target:|Type:|Formation|Percent/i) {
+  } elsif ($text =~ /Target:|Type:|Formation|Percent/ixms) {
     $self->buffer_important($text);
   } else {
     $self->buffer($text);
@@ -206,8 +199,7 @@ sub process_fighter_attack {
   
   # Normalize position for lookup (replace : with _ and spaces with _)
   my $lookup_position = lc($position);
-  $lookup_position =~ s/:/_/g;
-  $lookup_position =~ s/\s+/_/g;
+  $lookup_position =~ s/:|\s+/_/gxms;
   
   # Get guns that can fire at this position
   my $guns_available = $m1_table->{'data'}->{'gun_positions'}->{$lookup_position} || {};
@@ -283,17 +275,17 @@ sub get_attack_category {
   my $position = shift;
   
   # Map specific positions to M-3 categories
-  if ($position =~ /vertical\s+dive/i) {
+  if ($position =~ /vertical\s+dive/ixms) {
     return 'vertical_dive';
-  } elsif ($position =~ /vertical\s+climb/i) {
+  } elsif ($position =~ /vertical\s+climb/ixms) {
     return 'vertical_climb';
-  } elsif ($position =~ /^12\s+(high|level|low)/i) {
+  } elsif ($position =~ /^12\s+(high|level|low)/ixms) {
     return '12_high_level_low';
-  } elsif ($position =~ /^6\s+(high|level|low)/i) {
+  } elsif ($position =~ /^6\s+(high|level|low)/ixms) {
     return '6_high_level_low';
-  } elsif ($position =~ /^(3|9)\s+(high|level|low)/i) {
+  } elsif ($position =~ /^(3|9)\s+(high|level|low)/ixms) {
     return '3_9_high_level_low';
-  } elsif ($position =~ /^(10:30|1:30)\s+(high|level|low)/i) {
+  } elsif ($position =~ /^(10:30|1:30)\s+(high|level|low)/ixms) {
     return '10:30_1:30_high_level_low';
   }
   
