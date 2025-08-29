@@ -275,22 +275,16 @@ sub get_attack_category {
   my $position = shift;
   
   # Map specific positions to M-3 categories
-  if ($position =~ /vertical\s+dive/ixms) {
-    return 'vertical_dive';
-  } elsif ($position =~ /vertical\s+climb/ixms) {
-    return 'vertical_climb';
-  } elsif ($position =~ /^12\s+(high|level|low)/ixms) {
-    return '12_high_level_low';
-  } elsif ($position =~ /^6\s+(high|level|low)/ixms) {
-    return '6_high_level_low';
-  } elsif ($position =~ /^(3|9)\s+(high|level|low)/ixms) {
-    return '3_9_high_level_low';
-  } elsif ($position =~ /^(10:30|1:30)\s+(high|level|low)/ixms) {
-    return '10:30_1:30_high_level_low';
+  SWITCH: for ($position) {
+    return 'vertical_dive' if /veritical\s+dive/imxs;
+    return 'vertical_climb' if /veritical\s+climb/imxs;
+    return '12_high_level_low' if /^12\s+(high|level|low)/ixms;
+    return '6_high_level_low' if /^6\s+(high|level|low)/ixms;
+    return '3_9_high_level_low' if /^(3|9)\s+(high|level|low)/ixms;
+    return '10:30_1:30_high_level_low' if /^(10:30|1:30)\s+(high|level|low)/ixms;
   }
   
-  # Default
-  return '12_high_level_low';
+  return '12_high_level_low'; # Default
 }
 
 sub report_mission_outcome {
