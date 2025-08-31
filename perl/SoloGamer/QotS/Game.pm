@@ -298,15 +298,15 @@ sub report_mission_outcome {
   my $game_over = 0;
   
   if ($landing_result) {
-    if ($landing_result =~ /wrecked|KIA/i) {
+    if ($landing_result =~ /wrecked|KIA/ixms) {
       $outcome = "MISSION FAILED - B-17 WRECKED";
       $game_over = 1;
-    } elsif ($landing_result =~ /irrepairably damaged/i) {
+    } elsif ($landing_result =~ /irrepairably damaged/ixms) {
       $outcome = "MISSION FAILED - B-17 IRREPARABLY DAMAGED";
       $game_over = 1;
-    } elsif ($landing_result =~ /repairable/i) {
+    } elsif ($landing_result =~ /repairable/ixms) {
       $outcome = "MISSION SUCCESS - B-17 DAMAGED BUT REPAIRABLE";
-    } elsif ($landing_result =~ /safe/i) {
+    } elsif ($landing_result =~ /safe/ixms) {
       $outcome = "MISSION SUCCESS - CREW AND B-17 SAFE";
     }
   }
