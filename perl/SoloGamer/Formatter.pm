@@ -111,7 +111,7 @@ sub _get_banner_color {
     return 'bright_yellow' if $scheme == 3;
     return 'bright_magenta' if $scheme == 4;
   }
-  elsif ($text =~ /MISSION \d+/i || $text =~ /MISSION/i) {
+  elsif ($text =~ /MISSION/ismx) {
     return 'yellow' if $scheme == 1;
     return 'white' if $scheme == 2;
     return 'bright_red' if $scheme == 3;
