@@ -8,6 +8,7 @@ use namespace::autoclean;
 
 use SoloGamer::QotS::CrewMember;
 use SoloGamer::QotS::CrewNamer;
+use SoloGamer::Formatter;
 
 with 'Logger';
 
@@ -46,6 +47,13 @@ has '_positions' => (
     'starboard_waist_gunner',
     'tail_gunner'
   ] },
+);
+
+has 'formatter' => (
+  is      => 'ro',
+  isa     => 'SoloGamer::Formatter',
+  default => sub { SoloGamer::Formatter->new() },
+  lazy    => 1,
 );
 
 sub BUILD {
@@ -232,10 +240,9 @@ sub from_hash {
 sub display_roster {
   my $self = shift;
   
-  my $output = "\n";
-  $output .= "=" x 70 . "\n";
-  $output .= "CREW ROSTER\n";
-  $output .= "=" x 70 . "\n";
+  # Use formatter to create a nice boxed header like the Welcome header
+  my $header = $self->formatter->box_header("CREW ROSTER", 70);
+  my $output = "\n$header\n";
   
   foreach my $position (@{$self->_positions}) {
     my $member = $self->crew_members->{$position};

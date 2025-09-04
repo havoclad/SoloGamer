@@ -4,6 +4,7 @@ use v5.42;
 
 use Carp;
 use HavocLad::File::RandomLine qw(random_line);
+use SoloGamer::Formatter;
 
 use Moose;
 use namespace::autoclean;
@@ -41,6 +42,13 @@ has '_input_fh' => (
   lazy     => 1,
   builder  => '_build_input_fh',
   clearer  => '_clear_input_fh',
+);
+
+has 'formatter' => (
+  is      => 'ro',
+  isa     => 'SoloGamer::Formatter',
+  default => sub { SoloGamer::Formatter->new() },
+  lazy    => 1,
 );
 
 sub get_random_name {
@@ -162,10 +170,9 @@ sub prompt_for_crew_names {
     return \@crew_names;
   }
   
-  print "\n";
-  print "=" x 50 . "\n";
-  print "CREW NAMING\n";
-  print "=" x 50 . "\n";
+  # Use formatter to create a nice boxed header like the Welcome header
+  my $header = $self->formatter->box_header("CREW NAMING", 50);
+  print "\n$header\n";
   print "Your B-17 crew needs names.\n\n";
   
   while (1) {

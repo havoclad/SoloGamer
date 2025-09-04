@@ -6,6 +6,7 @@ use Carp;
 use HavocLad::File::RandomLine qw(random_line);
 use IO::Prompter;
 use Term::ReadKey;
+use SoloGamer::Formatter;
 
 use Moose;
 use namespace::autoclean;
@@ -43,6 +44,13 @@ has '_input_fh' => (
   lazy     => 1,
   builder  => '_build_input_fh',
   clearer  => '_clear_input_fh',
+);
+
+has 'formatter' => (
+  is      => 'ro',
+  isa     => 'SoloGamer::Formatter',
+  default => sub { SoloGamer::Formatter->new() },
+  lazy    => 1,
 );
 
 sub get_random_name {
@@ -85,10 +93,9 @@ sub prompt_for_plane_name {
   
   my $suggested_name = $self->get_random_name();
   
-  print "\n";
-  print "=" x 50 . "\n";
-  print "PLANE NAMING\n";
-  print "=" x 50 . "\n";
+  # Use formatter to create a nice boxed header like the Welcome header
+  my $header = $self->formatter->box_header("PLANE NAMING", 50);
+  print "\n$header\n";
   print "Your B-17 needs a name for this mission series.\n";
   print "Suggested name: $suggested_name\n\n";
   
