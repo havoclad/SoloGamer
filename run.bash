@@ -16,5 +16,6 @@ mkdir -p ./saves
 docker run -v "$(pwd)/saves:/app/saves" --rm $INTERACTIVE_FLAGS \
     -e LANG=C.UTF-8 \
     -e LC_ALL=C.UTF-8 \
+    -e COLOR_SCHEME="${COLOR_SCHEME}" \
     -e BANNER_COLOR_SCHEME="${BANNER_COLOR_SCHEME:-4}" \
     havoclad/sologamer --game=QotS "$@"

@@ -4,6 +4,7 @@ use utf8;
 
 use Moose;
 use Term::ANSIColor;
+use SoloGamer::ColorScheme::Registry;
 
 has 'use_color' => (
   is      => 'rw',
@@ -11,6 +12,24 @@ has 'use_color' => (
   default => 1,
   lazy    => 1,
 );
+
+has 'color_registry' => (
+  is      => 'ro',
+  isa     => 'SoloGamer::ColorScheme::Registry',
+  default => sub { SoloGamer::ColorScheme::Registry->new() },
+  lazy    => 1,
+);
+
+has 'color_scheme' => (
+  is      => 'ro',
+  lazy    => 1,
+  builder => '_build_color_scheme',
+);
+
+sub _build_color_scheme {
+  my $self = shift;
+  return $self->color_registry->get_scheme();
+}
 
 sub apply_format {
   my ($self, $text, $style) = @_;
@@ -51,7 +70,7 @@ sub format_header {
 }
 
 sub box_header {
-  my ($self, $text, $width, $color_scheme) = @_;
+  my ($self, $text, $width, $color_scheme_id) = @_;
   
   $width //= length($text) + 4;
   my $padding = $width - length($text) - 2;
@@ -62,8 +81,13 @@ sub box_header {
   my $middle = "║" . (" " x $left_pad) . $text . (" " x $right_pad) . "║";
   my $bottom = "╚" . ("═" x ($width - 2)) . "╝";
   
-  # Determine color based on text content or explicit scheme
-  my $color = $self->_get_banner_color($text, $color_scheme);
+  # Get the appropriate color scheme
+  my $scheme = $color_scheme_id 
+    ? $self->color_registry->get_scheme($color_scheme_id)
+    : $self->color_scheme;
+  
+  # Get color from the scheme
+  my $color = $scheme->get_color_for($text);
   
   return join("\n", 
     $self->apply_format($top, $color),
@@ -72,60 +96,17 @@ sub box_header {
   );
 }
 
+# Legacy method kept for backward compatibility
+# New code should use color_scheme->get_color_for() directly
 sub _get_banner_color {
-  my ($self, $text, $scheme) = @_;
+  my ($self, $text, $scheme_id) = @_;
   
-  # Option 1: Military Green & Gold Theme
-  # - Welcome banners: bright green (military green)
-  # - Mission headers: yellow/gold (command briefing)
-  # - Outcome headers: bright yellow/gold
+  # Get the appropriate color scheme
+  my $scheme = $scheme_id 
+    ? $self->color_registry->get_scheme($scheme_id)
+    : $self->color_scheme;
   
-  # Option 2: Classic Aviation Theme  
-  # - Welcome banners: bright blue (sky blue)
-  # - Mission headers: white (clean cockpit)
-  # - Outcome headers: bright cyan
-  
-  # Option 3: Vintage WWII Theme
-  # - Welcome banners: bright_yellow (brass/medal)
-  # - Mission headers: bright_red (alert/mission)
-  # - Outcome headers: bright_green
-  
-  # Option 4: Terminal Classic
-  # - Welcome banners: bright_magenta
-  # - Mission headers: bright_cyan
-  # - Outcome headers: bright_white
-  
-  # Default to scheme 4 (Terminal Classic)
-  $scheme //= $ENV{BANNER_COLOR_SCHEME} // 4;
-  
-  # Check for OUTCOME first (more specific pattern)
-  if ($text =~ /OUTCOME/i) {
-    return 'bright_yellow' if $scheme == 1;
-    return 'bright_cyan' if $scheme == 2;
-    return 'bright_green' if $scheme == 3;
-    return 'bright_white' if $scheme == 4;
-  }
-  elsif ($text =~ /Welcome to/i) {
-    return 'bright_green' if $scheme == 1;
-    return 'bright_blue' if $scheme == 2;
-    return 'bright_yellow' if $scheme == 3;
-    return 'bright_magenta' if $scheme == 4;
-  }
-  elsif ($text =~ /MISSION/ismx) {
-    return 'yellow' if $scheme == 1;
-    return 'white' if $scheme == 2;
-    return 'bright_red' if $scheme == 3;
-    return 'bright_cyan' if $scheme == 4;
-  }
-  elsif ($text =~ /PLAYTHROUGH OVER/i) {
-    return 'bright_magenta' if $scheme == 1;
-    return 'bright_yellow' if $scheme == 2;
-    return 'bright_white' if $scheme == 3;
-    return 'bright_red' if $scheme == 4;
-  }
-  
-  # Default fallback
-  return 'bold cyan';
+  return $scheme->get_color_for($text);
 }
 
 sub progress_bar {
