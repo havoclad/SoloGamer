@@ -4,6 +4,7 @@ use v5.42;
 
 use Carp;
 use HavocLad::File::RandomLine qw(random_line);
+use IO::Prompter;
 use SoloGamer::Formatter;
 
 use Moose;
@@ -114,16 +115,7 @@ sub _get_input {
     }
   }
   
-  # Check if IO::Prompter is available and we should use it
-  my $use_prompter = 0;
-  eval {
-    require IO::Prompter;
-    IO::Prompter->import();
-    # Use IO::Prompter unless we have an input_file (for scripted mode)
-    $use_prompter = 1;
-  };
-  
-  if ($use_prompter && $options->{menu}) {
+  if ($options->{menu}) {
     # Use IO::Prompter for menu-based prompts
     my $choice = prompt(
       $prompt,
@@ -131,20 +123,13 @@ sub _get_input {
       -default => $options->{default} // '',
     );
     return defined $choice ? "$choice" : ($options->{default} // '');
-  } elsif ($use_prompter) {
+  } else {
     # Use IO::Prompter for simple prompts
     my $response = prompt(
       $prompt,
       -default => $options->{default} // '',
     );
     return defined $response ? "$response" : ($options->{default} // '');
-  } else {
-    # Fallback to STDIN for tests
-    print $prompt;
-    print " Your choice: " if $options->{menu};
-    my $input = <STDIN>;
-    chomp $input if defined $input;
-    return defined $input ? $input : ($options->{default} // '');
   }
 }
 
