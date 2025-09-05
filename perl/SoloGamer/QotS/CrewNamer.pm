@@ -115,22 +115,16 @@ sub _get_input {
     }
   }
   
+  my @extra_options = ();
   if ($options->{menu}) {
-    # Use IO::Prompter for menu-based prompts
-    my $choice = prompt(
-      $prompt,
-      -menu => $options->{menu},
-      -default => $options->{default} // '',
-    );
-    return defined $choice ? "$choice" : ($options->{default} // '');
-  } else {
-    # Use IO::Prompter for simple prompts
-    my $response = prompt(
-      $prompt,
-      -default => $options->{default} // '',
-    );
-    return defined $response ? "$response" : ($options->{default} // '');
+    push @extra_options, -menu => $options->{menu};
   }
+  my $choice = prompt(
+    $prompt,
+    -default => $options->{default} // '',
+    @extra_options,
+  );
+    return defined $choice ? "$choice" : ($options->{default} // '');
 }
 
 sub prompt_for_crew_names {
