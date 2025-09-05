@@ -12,6 +12,7 @@ use Moose;
 use namespace::autoclean;
 
 with 'Logger';
+with 'BufferedOutput';
 
 has 'generated_names_file' => (
   is      => 'ro',
@@ -94,10 +95,12 @@ sub prompt_for_plane_name {
   my $suggested_name = $self->get_random_name();
   
   # Use formatter to create a nice boxed header like the Welcome header
-  my $header = $self->formatter->box_header("PLANE NAMING", 50);
-  print "\n$header\n";
-  print "Your B-17 needs a name for this mission series.\n";
-  print "Suggested name: $suggested_name\n\n";
+  $self->buffer("");
+  $self->buffer_header("PLANE NAMING", 50);
+  $self->buffer("Your B-17 needs a name for this mission series.");
+  $self->buffer("Suggested name: $suggested_name");
+  $self->buffer("");
+  $self->print_output();
   
   while (prompt "[A]ccept suggested name($suggested_name), roll a (N)ew name, roll a (H)istorical name, Enter a (C)ustom name", -keyletters, -single) {
     if (/A/i) { return $suggested_name }

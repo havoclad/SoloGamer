@@ -10,6 +10,7 @@ use Moose;
 use namespace::autoclean;
 
 with 'Logger';
+with 'BufferedOutput';
 
 has 'first_names_file' => (
   is      => 'ro',
@@ -171,15 +172,18 @@ sub prompt_for_crew_names {
   }
   
   # Use formatter to create a nice boxed header like the Welcome header
-  my $header = $self->formatter->box_header("CREW NAMING", 50);
-  print "\n$header\n";
-  print "Your B-17 crew needs names.\n\n";
+  $self->buffer("");
+  $self->buffer_header("CREW NAMING", 50);
+  $self->buffer("Your B-17 crew needs names.");
+  $self->buffer("");
+  $self->print_output();
   
   while (1) {
-    print "Suggested crew roster:\n";
+    $self->buffer("Suggested crew roster:");
     for (my $i = 0; $i < 10; $i++) {
-      printf "  %-25s %s\n", $positions->[$i] . ":", $suggested_names[$i];
+      $self->buffer(sprintf "  %-25s %s", $positions->[$i] . ":", $suggested_names[$i]);
     }
+    $self->print_output();
     
     my $choice = $self->_get_input(
       "\nChoose an option:",
@@ -216,13 +220,18 @@ sub prompt_for_crew_names {
       
     } elsif ($choice eq 'reroll' || $choice eq 'r') {
       @suggested_names = $self->get_random_names(10);
-      print "\n";
+      $self->buffer("");
+      $self->print_output();
       # Loop continues, will show new roster
       
     } elsif ($choice eq 'individual' || $choice eq 'i') {
-      print "\nNaming crew individually:\n";
+      $self->buffer("");
+      $self->buffer("Naming crew individually:");
+      $self->print_output();
       for (my $i = 0; $i < 10; $i++) {
-        print "\n$positions->[$i] (suggested: $suggested_names[$i])\n";
+        $self->buffer("");
+        $self->buffer("$positions->[$i] (suggested: $suggested_names[$i])");
+        $self->print_output();
         
         my $name_choice = $self->_get_input(
           "Enter name or press Enter to accept suggestion:",
@@ -237,7 +246,9 @@ sub prompt_for_crew_names {
       return \@crew_names;
       
     } elsif ($choice eq 'custom' || $choice eq 'c') {
-      print "\nEnter custom names for each position:\n";
+      $self->buffer("");
+      $self->buffer("Enter custom names for each position:");
+      $self->print_output();
       for (my $i = 0; $i < 10; $i++) {
         my $custom_name = $self->_get_input(
           "$positions->[$i]:",
@@ -252,7 +263,8 @@ sub prompt_for_crew_names {
       return \@crew_names;
       
     } else {
-      print "Invalid choice. Please try again.\n";
+      $self->buffer("Invalid choice. Please try again.");
+      $self->print_output();
     }
   }
   return;
