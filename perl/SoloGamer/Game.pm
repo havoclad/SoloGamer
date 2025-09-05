@@ -393,8 +393,8 @@ sub do_flow {
         
         # Handle direct table references
         if ($next_flow->{'type'} eq 'table' && exists $next_flow->{'Table'}) {
-          my $table_name = $next_flow->{'Table'};
-          my $table_obj = $self->tables->{$table_name};
+          my $next_table_name = $next_flow->{'Table'};
+          my $table_obj = $self->tables->{$next_table_name};
           if ($table_obj && ref($table_obj)) {
             # Try to get rolltype if it's a RollTable
             my $rolltype = '';
@@ -402,7 +402,7 @@ sub do_flow {
               $rolltype = $table_obj->rolltype || '';
               $rolltype = " $rolltype" if $rolltype;
             }
-            my $enhanced_pre = $next_flow->{'pre'} . $rolltype . " on table $table_name";
+            my $enhanced_pre = $next_flow->{'pre'} . $rolltype . " on table $next_table_name";
             $self->smart_buffer($enhanced_pre);
             $enhanced = 1;
           }
