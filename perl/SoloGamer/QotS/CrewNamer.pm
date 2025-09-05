@@ -129,7 +129,6 @@ sub _get_input {
       $prompt,
       -menu => $options->{menu},
       -default => $options->{default} // '',
-      -prompt => 'Your choice: ',
     );
     return defined $choice ? "$choice" : ($options->{default} // '');
   } elsif ($use_prompter) {
