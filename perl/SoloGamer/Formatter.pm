@@ -96,19 +96,6 @@ sub box_header {
   );
 }
 
-# Legacy method kept for backward compatibility
-# New code should use color_scheme->get_color_for() directly
-sub _get_banner_color {
-  my ($self, $text, $scheme_id) = @_;
-  
-  # Get the appropriate color scheme
-  my $scheme = $scheme_id 
-    ? $self->color_registry->get_scheme($scheme_id)
-    : $self->color_scheme;
-  
-  return $scheme->get_color_for($text);
-}
-
 sub progress_bar {
   my ($self, $current, $total, $width) = @_;
   

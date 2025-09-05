@@ -95,10 +95,6 @@ subtest 'Formatter integration' => sub {
     my $header = $formatter->box_header('MISSION 1', 40, '1');
     like($header, qr/MISSION 1/, 'box_header contains text');
     ok(length($header) > 0, 'box_header produces output');
-    
-    # Test backward compatibility of _get_banner_color
-    my $color = $formatter->_get_banner_color('OUTCOME', 1);
-    is($color, 'bright_yellow', 'legacy method still works');
 };
 
 subtest 'Environment variable support' => sub {
