@@ -90,8 +90,8 @@ sub list_schemes {
       description => $scheme->description,
     };
   }
-  
-  return sort { $a->{name} cmp $b->{name} } values %unique_schemes;
+  my @sorted = sort { $a->{name} cmp $b->{name} } values %unique_schemes;
+  return @sorted;
 }
 
 __PACKAGE__->meta->make_immutable;
