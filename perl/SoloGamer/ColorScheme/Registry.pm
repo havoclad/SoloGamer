@@ -31,32 +31,41 @@ sub _build_schemes {
     SoloGamer::ColorScheme::TerminalClassic
   );
   
+  # Define scheme mappings to avoid if-elsif chain
+  my %scheme_mappings = (
+    'SoloGamer::ColorScheme::MilitaryGreen' => {
+      keys => ['military_green', 'military'],
+      legacy_key => 1,
+    },
+    'SoloGamer::ColorScheme::ClassicAviation' => {
+      keys => ['classic_aviation', 'aviation'],
+      legacy_key => 2,
+    },
+    'SoloGamer::ColorScheme::VintageWWII' => {
+      keys => ['vintage_wwii', 'vintage', 'wwii'],
+      legacy_key => 3,
+    },
+    'SoloGamer::ColorScheme::TerminalClassic' => {
+      keys => ['terminal_classic', 'terminal'],
+      legacy_key => 4,
+    },
+  );
+  
   foreach my $class (@scheme_classes) {
     require_module($class);
     my $scheme = $class->new();
     
     # Create multiple keys for each scheme for backwards compatibility and convenience
-    # e.g., MilitaryGreen can be accessed as: military_green, military, 1
-    if ($class =~ /MilitaryGreen/) {
-      $schemes{military_green} = $scheme;
-      $schemes{military} = $scheme;
-      $schemes{1} = $scheme;  # Backwards compatibility
-    }
-    elsif ($class =~ /ClassicAviation/) {
-      $schemes{classic_aviation} = $scheme;
-      $schemes{aviation} = $scheme;
-      $schemes{2} = $scheme;  # Backwards compatibility
-    }
-    elsif ($class =~ /VintageWWII/) {
-      $schemes{vintage_wwii} = $scheme;
-      $schemes{vintage} = $scheme;
-      $schemes{wwii} = $scheme;
-      $schemes{3} = $scheme;  # Backwards compatibility
-    }
-    elsif ($class =~ /TerminalClassic/) {
-      $schemes{terminal_classic} = $scheme;
-      $schemes{terminal} = $scheme;
-      $schemes{4} = $scheme;  # Backwards compatibility
+    if (exists $scheme_mappings{$class}) {
+      my $mapping = $scheme_mappings{$class};
+      
+      # Add all standard keys
+      foreach my $key (@{$mapping->{keys}}) {
+        $schemes{$key} = $scheme;
+      }
+      
+      # Add legacy numeric key for backwards compatibility
+      $schemes{$mapping->{legacy_key}} = $scheme;
     }
   }
   
@@ -74,7 +83,7 @@ sub get_scheme {
   
   # Normalize the identifier (lowercase, replace spaces with underscores)
   $identifier = lc($identifier);
-  $identifier =~ s/\s+/_/g;
+  $identifier =~ s/\s+/_/gsx;
   
   # Return the scheme if found, otherwise return default
   return $self->schemes->{$identifier} // $self->schemes->{$self->default_scheme_name};
