@@ -6,11 +6,11 @@ use Moose;
 with 'SoloGamer::ColorScheme';
 
 sub name {
-  'Military Green & Gold'
+  return 'Military Green & Gold'
 }
 
 sub description {
-  'Military-themed color scheme with green for welcome banners, gold for missions, and bright yellow for outcomes'
+  return 'Military-themed color scheme with green for welcome banners, gold for missions, and bright yellow for outcomes'
 }
 
 sub get_color_for {

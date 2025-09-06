@@ -6,11 +6,11 @@ use Moose;
 with 'SoloGamer::ColorScheme';
 
 sub name {
-  'Classic Aviation'
+  return 'Classic Aviation'
 }
 
 sub description {
-  'Aviation-themed color scheme with sky blue for welcome banners, clean white for missions, and bright cyan for outcomes'
+  return 'Aviation-themed color scheme with sky blue for welcome banners, clean white for missions, and bright cyan for outcomes'
 }
 
 sub get_color_for {

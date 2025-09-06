@@ -6,11 +6,11 @@ use Moose;
 with 'SoloGamer::ColorScheme';
 
 sub name {
-  'Vintage WWII'
+  return 'Vintage WWII'
 }
 
 sub description {
-  'WWII-themed color scheme with brass/medal yellow for welcome banners, alert red for missions, and bright green for outcomes'
+  return 'WWII-themed color scheme with brass/medal yellow for welcome banners, alert red for missions, and bright green for outcomes'
 }
 
 sub get_color_for {

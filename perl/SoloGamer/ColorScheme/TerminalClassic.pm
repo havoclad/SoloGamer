@@ -6,11 +6,11 @@ use Moose;
 with 'SoloGamer::ColorScheme';
 
 sub name {
-  'Terminal Classic'
+  return 'Terminal Classic'
 }
 
 sub description {
-  'Classic terminal color scheme with magenta for welcome banners, cyan for missions, and white for outcomes'
+  return 'Classic terminal color scheme with magenta for welcome banners, cyan for missions, and white for outcomes'
 }
 
 sub get_color_for {
