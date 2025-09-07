@@ -127,6 +127,76 @@ sub _get_input {
     return defined $choice ? "$choice" : ($options->{default} // '');
 }
 
+sub _handle_accept_choice {
+  my ($self, $positions, $suggested_names) = @_;
+  
+  my @crew_names;
+  for (my $i = 0; $i < 10; $i++) {
+    push @crew_names, {
+      position => $positions->[$i],
+      name => $suggested_names->[$i]
+    };
+  }
+  return \@crew_names;
+}
+
+sub _handle_reroll_choice {
+  my ($self, $positions, $suggested_names_ref) = @_;
+  
+  @$suggested_names_ref = $self->get_random_names(10);
+  $self->buffer("");
+  $self->print_output();
+  return; # Continue loop
+}
+
+sub _handle_individual_choice {
+  my ($self, $positions, $suggested_names) = @_;
+  
+  my @crew_names;
+  $self->buffer("");
+  $self->buffer("Naming crew individually:");
+  $self->print_output();
+  
+  for (my $i = 0; $i < 10; $i++) {
+    $self->buffer("");
+    $self->buffer("$positions->[$i] (suggested: $suggested_names->[$i])");
+    $self->print_output();
+    
+    my $name_choice = $self->_get_input(
+      "Enter name or press Enter to accept suggestion:",
+      { default => $suggested_names->[$i] }
+    );
+    
+    push @crew_names, {
+      position => $positions->[$i],
+      name => $name_choice || $suggested_names->[$i]
+    };
+  }
+  return \@crew_names;
+}
+
+sub _handle_custom_choice {
+  my ($self, $positions, $suggested_names) = @_;
+  
+  my @crew_names;
+  $self->buffer("");
+  $self->buffer("Enter custom names for each position:");
+  $self->print_output();
+  
+  for (my $i = 0; $i < 10; $i++) {
+    my $custom_name = $self->_get_input(
+      "$positions->[$i]:",
+      { default => $suggested_names->[$i] }
+    );
+    
+    push @crew_names, {
+      position => $positions->[$i],
+      name => $custom_name || $suggested_names->[$i]
+    };
+  }
+  return \@crew_names;
+}
+
 sub prompt_for_crew_names {
   my $self = shift;
   my $positions = shift;
@@ -178,68 +248,24 @@ sub prompt_for_crew_names {
     
     # Handle empty choice as accept
     if (!defined $choice || $choice eq '') {
-      for (my $i = 0; $i < 10; $i++) {
-        push @crew_names, {
-          position => $positions->[$i],
-          name => $suggested_names[$i]
-        };
-      }
-      return \@crew_names;
+      return $self->_handle_accept_choice($positions, \@suggested_names);
     }
     
-    if ($choice eq 'accept') {
-      for (my $i = 0; $i < 10; $i++) {
-        push @crew_names, {
-          position => $positions->[$i],
-          name => $suggested_names[$i]
-        };
-      }
-      return \@crew_names;
-      
-    } elsif ($choice eq 'reroll' || $choice eq 'r') {
-      @suggested_names = $self->get_random_names(10);
-      $self->buffer("");
-      $self->print_output();
-      # Loop continues, will show new roster
-      
-    } elsif ($choice eq 'individual' || $choice eq 'i') {
-      $self->buffer("");
-      $self->buffer("Naming crew individually:");
-      $self->print_output();
-      for (my $i = 0; $i < 10; $i++) {
-        $self->buffer("");
-        $self->buffer("$positions->[$i] (suggested: $suggested_names[$i])");
-        $self->print_output();
-        
-        my $name_choice = $self->_get_input(
-          "Enter name or press Enter to accept suggestion:",
-          { default => $suggested_names[$i] }
-        );
-        
-        push @crew_names, {
-          position => $positions->[$i],
-          name => $name_choice || $suggested_names[$i]
-        };
-      }
-      return \@crew_names;
-      
-    } elsif ($choice eq 'custom' || $choice eq 'c') {
-      $self->buffer("");
-      $self->buffer("Enter custom names for each position:");
-      $self->print_output();
-      for (my $i = 0; $i < 10; $i++) {
-        my $custom_name = $self->_get_input(
-          "$positions->[$i]:",
-          { default => $suggested_names[$i] }
-        );
-        
-        push @crew_names, {
-          position => $positions->[$i],
-          name => $custom_name || $suggested_names[$i]
-        };
-      }
-      return \@crew_names;
-      
+    # Define dispatch table for choice handlers
+    my %choice_handlers = (
+      'accept'     => sub { return $self->_handle_accept_choice($positions, \@suggested_names) },
+      'reroll'     => sub { return $self->_handle_reroll_choice($positions, \@suggested_names) },
+      'r'          => sub { return $self->_handle_reroll_choice($positions, \@suggested_names) },
+      'individual' => sub { return $self->_handle_individual_choice($positions, \@suggested_names) },
+      'i'          => sub { return $self->_handle_individual_choice($positions, \@suggested_names) },
+      'custom'     => sub { return $self->_handle_custom_choice($positions, \@suggested_names) },
+      'c'          => sub { return $self->_handle_custom_choice($positions, \@suggested_names) },
+    );
+    
+    # Dispatch to appropriate handler or show error
+    if (exists $choice_handlers{$choice}) {
+      my $result = $choice_handlers{$choice}->();
+      return $result if defined $result; # Return if we have a result, otherwise continue loop
     } else {
       $self->buffer("Invalid choice. Please try again.");
       $self->print_output();
