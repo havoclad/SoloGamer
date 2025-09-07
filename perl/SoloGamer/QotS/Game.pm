@@ -38,28 +38,45 @@ override 'smart_buffer' => sub {
   # Apply variable substitution first
   $text = $self->substitute_variables($text);
   
-  # QotS-specific text pattern matching
-  if ($text =~ /^Rolling for/ixms) {
-    # Add mission number before Rolling for Mission
-    if ($text =~ /Rolling for Mission/ixms) {
-      my $mission = $self->save->mission;
-      $self->buffer_header("MISSION $mission", 40);
+  # QotS-specific text pattern matching using dispatch table
+  my @patterns = (
+    [ qr/^Rolling for/ixms, sub {
+      # Add mission number before Rolling for Mission
+      if ($text =~ /Rolling for Mission/ixms) {
+        my $mission = $self->save->mission;
+        $self->buffer_header("MISSION $mission", 40);
+      }
+      $self->buffer_roll($text);
+    }],
+    [ qr/^Welcome to/ixms, sub {
+      # Display Welcome message
+      $self->buffer_header($text, 40);
+    }],
+    [ qr/safe|successful|On target/ixms, sub {
+      $self->buffer_success($text);
+    }],
+    [ qr/damage|hit|fail|crash/ixms, sub {
+      $self->buffer_danger($text);
+    }],
+    [ qr/Moving to zone|zone:/ixms, sub {
+      $self->buffer_location($text);
+    }],
+    [ qr/Target:|Type:|Formation|Percent/ixms, sub {
+      $self->buffer_important($text);
+    }],
+  );
+  
+  # Apply first matching pattern
+  foreach my $pattern_pair (@patterns) {
+    my ($pattern, $handler) = @$pattern_pair;
+    if ($text =~ $pattern) {
+      $handler->();
+      return;
     }
-    $self->buffer_roll($text);
-  } elsif ($text =~ /^Welcome to/ixms) {
-    # Display Welcome message
-    $self->buffer_header($text, 40);
-  } elsif ($text =~ /safe|successful|On target/ixms) {
-    $self->buffer_success($text);
-  } elsif ($text =~ /damage|hit|fail|crash/ixms) {
-    $self->buffer_danger($text);
-  } elsif ($text =~ /Moving to zone|zone:/ixms) {
-    $self->buffer_location($text);
-  } elsif ($text =~ /Target:|Type:|Formation|Percent/ixms) {
-    $self->buffer_important($text);
-  } else {
-    $self->buffer($text);
   }
+  
+  # Default case
+  $self->buffer($text);
   
   return;
 };
@@ -298,16 +315,31 @@ sub report_mission_outcome {
   my $game_over = 0;
   
   if ($landing_result) {
-    if ($landing_result =~ /wrecked|KIA/ixms) {
-      $outcome = "MISSION FAILED - B-17 WRECKED";
-      $game_over = 1;
-    } elsif ($landing_result =~ /irrepairably damaged/ixms) {
-      $outcome = "MISSION FAILED - B-17 IRREPARABLY DAMAGED";
-      $game_over = 1;
-    } elsif ($landing_result =~ /repairable/ixms) {
-      $outcome = "MISSION SUCCESS - B-17 DAMAGED BUT REPAIRABLE";
-    } elsif ($landing_result =~ /safe/ixms) {
-      $outcome = "MISSION SUCCESS - CREW AND B-17 SAFE";
+    # Use dispatch table for outcome determination
+    my @outcome_patterns = (
+      [ qr/wrecked|KIA/ixms, sub {
+        $outcome = "MISSION FAILED - B-17 WRECKED";
+        $game_over = 1;
+      }],
+      [ qr/irrepairably damaged/ixms, sub {
+        $outcome = "MISSION FAILED - B-17 IRREPARABLY DAMAGED";
+        $game_over = 1;
+      }],
+      [ qr/repairable/ixms, sub {
+        $outcome = "MISSION SUCCESS - B-17 DAMAGED BUT REPAIRABLE";
+      }],
+      [ qr/safe/ixms, sub {
+        $outcome = "MISSION SUCCESS - CREW AND B-17 SAFE";
+      }],
+    );
+    
+    # Apply first matching pattern
+    foreach my $pattern_pair (@outcome_patterns) {
+      my ($pattern, $handler) = @$pattern_pair;
+      if ($landing_result =~ $pattern) {
+        $handler->();
+        last;
+      }
     }
   }
   
