@@ -376,109 +376,188 @@ sub do_roll {
   return $roll;
 }
 
+# Dispatch table for flow types
+my %FLOW_TYPE_HANDLERS = (
+  'choosemax' => '_handle_choosemax_flow',
+  'table'     => '_handle_table_flow',
+  'loop'      => '_handle_loop_flow',
+  'flow'      => '_handle_flow_flow',
+);
+
 sub do_flow {
   my $self = shift;
   my $table_name = shift;
 
   while (my $next_flow = $self->tables->{$table_name}->get_next) {
     my $buffer_save = $self->get_buffer_size;
-    my $post = "";
-    if (exists $next_flow->{'post'}) {
-      $post = $next_flow->{'post'};
-    }
+    my $post = exists $next_flow->{'post'} ? $next_flow->{'post'} : "";
+    
+    # Handle pre-message if it exists
     if (exists $next_flow->{'pre'}) {
-      # Check if this is a table type flow to enhance the pre message
-      if (exists $next_flow->{'type'} && $next_flow->{'pre'} =~ /^Rolling for/ix) {
-        my $enhanced = 0;
-        
-        # Handle direct table references
-        if ($next_flow->{'type'} eq 'table' && exists $next_flow->{'Table'}) {
-          my $next_table_name = $next_flow->{'Table'};
-          my $table_obj = $self->tables->{$next_table_name};
-          if ($table_obj && ref($table_obj)) {
-            # Try to get rolltype if it's a RollTable
-            my $rolltype = '';
-            if ($table_obj->isa('SoloGamer::RollTable') && $table_obj->can('rolltype')) {
-              $rolltype = $table_obj->rolltype || '';
-              $rolltype = " $rolltype" if $rolltype;
-            }
-            my $enhanced_pre = $next_flow->{'pre'} . $rolltype . " on table $next_table_name";
-            $self->smart_buffer($enhanced_pre);
-            $enhanced = 1;
-          }
-        }
-        # Handle choosemax which eventually calls a table
-        elsif ($next_flow->{'type'} eq 'choosemax' && exists $next_flow->{'choices'}) {
-          # For choosemax, determine which table will be used and show it in the pre message
-          my $choice = $next_flow->{'variable'};
-          my $mission_value = $self->save->get_from_current_mission($choice);
-          # If no mission value from current mission data, use the global mission number
-          if (!defined $mission_value) {
-            $mission_value = $self->save->mission;
-          }
-          my $table = $self->do_max($mission_value, $next_flow->{'choices'});
-          my $enhanced_pre = $next_flow->{'pre'} . " on table $table";
-          $self->smart_buffer($enhanced_pre);
-          $enhanced = 1;
-        }
-        
-        if (!$enhanced) {
-          $self->smart_buffer($next_flow->{'pre'});
-        }
-      } else {
-        $self->smart_buffer($next_flow->{'pre'});
-      }
+      $self->_process_pre_message($next_flow);
     }
+    
+    # Process flow type using dispatch table
     if (exists $next_flow->{'type'}) {
-      if ($next_flow->{'type'} eq 'choosemax') {
-        $self->save->add_save('Mission', $self->save->mission);
-        my $choice = $next_flow->{'variable'};
-        my $mission_value = $self->save->get_from_current_mission($choice);
-        # If no mission value from current mission data, use the global mission number
-        if (!defined $mission_value) {
-          $mission_value = $self->save->mission;
-          $self->devel("Using global mission number: $mission_value");
-        }
-        my $table = $self->do_max($mission_value, $next_flow->{'choices'});
-        
-        my $roll = $self->do_roll($table);
-        $self->handle_output('Target', $roll->{'Target'});
-        $self->handle_output('Type', $roll->{'Type'});
-      } elsif ($next_flow->{'type'} eq 'table') {
-        my $table = $next_flow->{'Table'};
-        my $roll = $self->do_roll($table);
-        if (not defined $roll) {
-          $self->flush_to($buffer_save);
-          next;
-        }
-        my $determines = $self->tables->{$table}->determines;
-        # Pass icon along with weather value if available
-        my $icon = '';
-        if ($determines eq 'weather' && exists $roll->{'icon'}) {
-          $icon = ' ' . $roll->{'icon'};
-        }
-        $self->handle_output($determines, $roll->{$determines} . $icon, $post);
-      } elsif ($next_flow->{'type'} eq 'loop') {
-        my $loop_table = $next_flow->{'loop_table'};
-        my $loop_variable = $next_flow->{'loop_variable'};
-        my $reverse = exists $next_flow->{'reverse'} ? 1 : 0;
-        my $do_action = exists $next_flow->{'do'} ? $next_flow->{'do'} : undef;
-        my $target_city = $self->save->get_from_current_mission('Target');
-        $self->do_loop( $self->tables->{$loop_table}->{'data'}->{'target city'}->{$target_city}->{$loop_variable},
-                        "Moving to zone: ",
-                        $reverse,
-                        $do_action,
-                      );
-      } elsif ($next_flow->{'type'} eq 'flow') {
-        my $flow_table = $next_flow->{'flow_table'};
-        $self->do_flow($flow_table);
+      my $type = $next_flow->{'type'};
+      my $handler = $FLOW_TYPE_HANDLERS{$type};
+      
+      if ($handler) {
+        $self->$handler($next_flow, $buffer_save, $post);
       } else {
-        croak "Unknown flow type: ", $next_flow->{'type'};
+        croak "Unknown flow type: $type";
       }
     }
+    
     $self->devel("\nEnd flow step\n");
   }
   $self->print_output;
+  return;
+}
+
+# Process and potentially enhance pre-messages
+sub _process_pre_message {
+  my ($self, $next_flow) = @_;
+  
+  # Check if this is a "Rolling for" message that needs enhancement
+  if (exists $next_flow->{'type'} && $next_flow->{'pre'} =~ /^Rolling for/ix) {
+    my $enhanced_message = $self->_enhance_rolling_message($next_flow);
+    $self->smart_buffer($enhanced_message);
+  } else {
+    $self->smart_buffer($next_flow->{'pre'});
+  }
+  return;
+}
+
+# Enhance "Rolling for" messages with table information
+sub _enhance_rolling_message {
+  my ($self, $next_flow) = @_;
+  my $type = $next_flow->{'type'};
+  my $pre = $next_flow->{'pre'};
+  
+  if ($type eq 'table' && exists $next_flow->{'Table'}) {
+    return $self->_enhance_table_message($next_flow, $pre);
+  }
+  elsif ($type eq 'choosemax' && exists $next_flow->{'choices'}) {
+    return $self->_enhance_choosemax_message($next_flow, $pre);
+  }
+  
+  return $pre;
+}
+
+# Enhance message for table type flows
+sub _enhance_table_message {
+  my ($self, $next_flow, $pre) = @_;
+  my $next_table_name = $next_flow->{'Table'};
+  my $table_obj = $self->tables->{$next_table_name};
+  
+  if ($table_obj && ref($table_obj)) {
+    my $rolltype = $self->_get_rolltype($table_obj);
+    return "${pre}${rolltype} on table $next_table_name";
+  }
+  
+  return $pre;
+}
+
+# Enhance message for choosemax type flows
+sub _enhance_choosemax_message {
+  my ($self, $next_flow, $pre) = @_;
+  my $choice = $next_flow->{'variable'};
+  my $mission_value = $self->_get_mission_value($choice);
+  my $table = $self->do_max($mission_value, $next_flow->{'choices'});
+  
+  return "$pre on table $table";
+}
+
+# Get rolltype from table object if available
+sub _get_rolltype {
+  my ($self, $table_obj) = @_;
+  
+  if ($table_obj->isa('SoloGamer::RollTable') && $table_obj->can('rolltype')) {
+    my $rolltype = $table_obj->rolltype || '';
+    return $rolltype ? " $rolltype" : '';
+  }
+  
+  return '';
+}
+
+# Get mission value from save or default to global mission
+sub _get_mission_value {
+  my ($self, $choice) = @_;
+  my $mission_value = $self->save->get_from_current_mission($choice);
+  
+  if (!defined $mission_value) {
+    $mission_value = $self->save->mission;
+    $self->devel("Using global mission number: $mission_value");
+  }
+  
+  return $mission_value;
+}
+
+# Handler for choosemax flow type
+sub _handle_choosemax_flow {  ## no critic (ProhibitUnusedPrivateSubroutines)
+  my ($self, $next_flow, $buffer_save, $post) = @_;
+  
+  $self->save->add_save('Mission', $self->save->mission);
+  my $choice = $next_flow->{'variable'};
+  my $mission_value = $self->_get_mission_value($choice);
+  my $table = $self->do_max($mission_value, $next_flow->{'choices'});
+  
+  my $roll = $self->do_roll($table);
+  $self->handle_output('Target', $roll->{'Target'});
+  $self->handle_output('Type', $roll->{'Type'});
+  return;
+}
+
+# Handler for table flow type
+sub _handle_table_flow {  ## no critic (ProhibitUnusedPrivateSubroutines)
+  my ($self, $next_flow, $buffer_save, $post) = @_;
+  
+  my $table = $next_flow->{'Table'};
+  my $roll = $self->do_roll($table);
+  
+  if (not defined $roll) {
+    $self->flush_to($buffer_save);
+    return;
+  }
+  
+  my $determines = $self->tables->{$table}->determines;
+  my $output_value = $roll->{$determines};
+  
+  # Add weather icon if available
+  if ($determines eq 'weather' && exists $roll->{'icon'}) {
+    $output_value .= ' ' . $roll->{'icon'};
+  }
+  
+  $self->handle_output($determines, $output_value, $post);
+  return;
+}
+
+# Handler for loop flow type
+sub _handle_loop_flow {  ## no critic (ProhibitUnusedPrivateSubroutines)
+  my ($self, $next_flow, $buffer_save, $post) = @_;
+  
+  my $loop_table = $next_flow->{'loop_table'};
+  my $loop_variable = $next_flow->{'loop_variable'};
+  my $reverse = exists $next_flow->{'reverse'} ? 1 : 0;
+  my $do_action = exists $next_flow->{'do'} ? $next_flow->{'do'} : undef;
+  my $target_city = $self->save->get_from_current_mission('Target');
+  
+  $self->do_loop(
+    $self->tables->{$loop_table}->{'data'}->{'target city'}->{$target_city}->{$loop_variable},
+    "Moving to zone: ",
+    $reverse,
+    $do_action,
+  );
+  return;
+}
+
+# Handler for flow flow type (nested flow)
+sub _handle_flow_flow {  ## no critic (ProhibitUnusedPrivateSubroutines)
+  my ($self, $next_flow, $buffer_save, $post) = @_;
+  
+  my $flow_table = $next_flow->{'flow_table'};
+  $self->do_flow($flow_table);
   return;
 }
 
