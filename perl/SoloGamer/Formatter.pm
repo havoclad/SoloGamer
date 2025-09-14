@@ -190,10 +190,16 @@ sub format_zone_separator {
 }
 
 sub format_roll_details {
-  my ($self, $raw_result, $individual_rolls, $roll_type, $modifiers, $final_result) = @_;
-  
+  my ($self, $args) = @_;
+
+  my $raw_result = $args->{raw_result};
+  my $individual_rolls = $args->{individual_rolls};
+  my $roll_type = $args->{roll_type};
+  my $modifiers = $args->{modifiers};
+  my $final_result = $args->{final_result};
+
   my $output = "";
-  
+
   # Format the basic roll information
   if (@$individual_rolls > 1) {
     my $dice_str = "[" . join(",", @$individual_rolls) . "]";
@@ -201,14 +207,14 @@ sub format_roll_details {
   } else {
     $output .= $self->apply_format("Rolling $roll_type: $raw_result", 'yellow');
   }
-  
+
   # Add modifier information if present
   if ($modifiers && $modifiers != 0) {
     my $sign = $modifiers >= 0 ? '+' : '';
     $output .= $self->apply_format(" $sign$modifiers modifiers", 'cyan');
     $output .= $self->apply_format(" = $final_result", 'yellow');
   }
-  
+
   return $output;
 }
 

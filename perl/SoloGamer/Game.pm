@@ -316,13 +316,7 @@ sub do_roll {
   if ($self->tables->{$table}->can('get_last_roll_details')) {
     my $roll_details = $self->tables->{$table}->get_last_roll_details();
     if ($roll_details) {
-      $self->buffer_roll_details(
-        $roll_details->{raw_result},
-        $roll_details->{individual_rolls},
-        $roll_details->{roll_type},
-        $roll_details->{modifiers},
-        $roll_details->{final_result}
-      );
+      $self->buffer_roll_details($roll_details);
     }
   }
   

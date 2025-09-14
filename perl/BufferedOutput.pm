@@ -67,8 +67,8 @@ sub buffer_roll {
 }
 
 sub buffer_roll_details {
-  my ($self, @other_args) = @_;
-  my $text = $self->formatter->format_roll_details(@other_args);
+  my ($self, $args) = @_;
+  my $text = $self->formatter->format_roll_details($args);
   $self->buffer($text);
   return;
 }
