@@ -116,7 +116,7 @@ sub _build_table_count {
 
   my $table_count = 1;
   if ( exists $self->data->{'table_count'} ) {
-    if ( $self->data->{'table_count'} =~ /^(\d+)$/ ) {
+    if ( $self->data->{'table_count'} =~ /^(\d+)$/x ) {
       $table_count = $1;
     } else { # Not a number? Must be a current mission variable
       my $save = SoloGamer::SaveGame->instance;
@@ -149,14 +149,14 @@ sub _build_rolls {
   my $hr = {};
   foreach my $key (keys $self->data->{rolls}->%*) {
     my $value = $self->data->{'rolls'}->{$key};
-    if ($key =~ /^(\d+)-(\d+)$/) {    # example 3-11
+    if ($key =~ /^(\d+)-(\d+)$/x) {    # example 3-11
       my $min = $1;
       my $max = $2;
       $max > $min or croak "Malformed range key $key";
       foreach my $n ($min .. $max) {
         $hr->{$n} = $value;
       }
-    } elsif ( $key =~/^(\d+,)+\d+$/ ) {  # example 2,3
+    } elsif ( $key =~/^(\d+,)+\d+$/x ) {  # example 2,3
       foreach my $n (split ',', $key) {
         $hr->{$n} = $value;
       }
@@ -178,7 +178,7 @@ sub get_raw_result {
   
   $self->devel("Roll Type is: ", $roll_type);
   
-  if ($roll_type =~ /^(\d+)d(\d+)$/) {
+  if ($roll_type =~ /^(\d+)d(\d+)$/x) {
     my $num_rolls = $1;
     my $die_size  = $2;
     my $int_result = 0;
@@ -188,7 +188,7 @@ sub get_raw_result {
       $int_result += $roll;
     }
     $result = $int_result;
-  } elsif ($roll_type =~ /^(d\d+)+$/) {
+  } elsif ($roll_type =~ /^(d\d+)+$/x) {
     my @dice = split /d/, $roll_type;
     shift @dice;
     foreach my $die (@dice) {
@@ -203,6 +203,13 @@ sub get_raw_result {
   return wantarray ? ($result, \@individual_rolls, $roll_type) : $result;
 }
 
+sub _strip_quotes {
+  my $val = shift;
+  $val =~ s/^['"]//x;
+  $val =~ s/['"]$//x;
+  return $val;
+}
+
 sub evaluate_roll_modifier {
   my $self = shift;
 
@@ -214,7 +221,7 @@ sub evaluate_roll_modifier {
   return 0 unless $condition && $value;
   
   # Simple condition evaluation for "$target in [list]" format
-  if ($condition =~ /^\$(\w+)\s+in\s+\[(.+)\]$/) {
+  if ($condition =~ /^\$(\w+)\s+in\s+\[(.+)\]$/x) {
     my $var_name = $1;
     my $list_str = $2;
     
@@ -224,7 +231,7 @@ sub evaluate_roll_modifier {
     return 0 unless defined $var_value;
     
     # Parse the list and check if variable matches any value
-    my @values = map { s/^['"]//; s/['"]$//; $_ } split /,\s*/, $list_str;
+    my @values = map { _strip_quotes($_) } split /,\s*/x, $list_str;
     
     if (grep { $_ eq $var_value } @values) {
       $self->devel("Roll modifier condition '$condition' met, applying +$value");
@@ -326,10 +333,10 @@ sub set_max_min {
   my $self = shift;
   my $hr   = shift;
 
-  return unless keys $hr->%* > 1;
+  return if keys $hr->%* <= 1;
   my @keys = keys $hr->%*;
   foreach my $key (@keys) {
-    return unless $key =~ /^-?\d+$/;
+    return unless $key =~ /^-?\d+$/x;
   }
   my $min = min(@keys);
   $self->min_roll($min);
