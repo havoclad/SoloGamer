@@ -36,8 +36,9 @@ COPY --from=builder /usr/local/bin /usr/local/bin
 ADD in/perl.tar.gz /
 ADD in/games.tar.gz /
 
-# Set proper ownership for non-root user
-RUN chown -R sologamer:sologamer /perl /games
+# Clean up any macOS resource fork files and set proper ownership
+RUN find /perl /games -name "._*" -type f -delete 2>/dev/null || true && \
+    chown -R sologamer:sologamer /perl /games
 
 # Switch to non-root user
 USER sologamer
