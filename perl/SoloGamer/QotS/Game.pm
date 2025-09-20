@@ -90,7 +90,7 @@ override 'run_game' => sub {
 
   $self->devel("In run_game");
   my $mission = $self->save->mission;
-  my $max_missions = $self->tables->{'FLOW-start'}->{'data'}->{'missions'};
+  my $max_missions = $self->tables->{'FLOW-start'}->{data}->{missions};
   $mission > $max_missions and croak "25 successful missions, your crew went home!";
 
   # Initialize aircraft state if needed
@@ -136,7 +136,7 @@ sub zone_process {
   # Roll for fighter encounters (B-1 or B-2)
   my $b1_roll = $self->do_roll('B-1');
   if ($b1_roll) {
-    my $fighter_waves = $b1_roll->{'fighter_waves'} || 0;
+    my $fighter_waves = $b1_roll->{fighter_waves} || 0;
     $self->handle_output('fighter_waves', $fighter_waves, "Fighter waves: <1>");
     
     # Process each wave
@@ -145,8 +145,8 @@ sub zone_process {
       
       # Roll for fighter composition (B-3)
       my $b3_roll = $self->do_roll('B-3');
-      if ($b3_roll && exists $b3_roll->{'fighters'}) {
-        my $fighters = $b3_roll->{'fighters'};
+      if ($b3_roll && exists $b3_roll->{fighters}) {
+        my $fighters = $b3_roll->{fighters};
         my $num_fighters = scalar(@$fighters);
         
         if ($num_fighters > 0) {
@@ -192,7 +192,7 @@ sub process_fighter_combat {
     # Roll M-4 for fighter cover effectiveness
     my $m4_roll = $self->do_roll('M-4');
     if ($m4_roll) {
-      $self->handle_output('cover_result', $m4_roll->{'result'}, "Fighter cover: <1>");
+      $self->handle_output('cover_result', $m4_roll->{result}, "Fighter cover: <1>");
     }
   }
   
@@ -209,8 +209,8 @@ sub process_fighter_attack {
   my $self = shift;
   my $fighter = shift;
   
-  my $type = $fighter->{'type'} || 'Me109';
-  my $position = $fighter->{'position'} || '12 High';
+  my $type = $fighter->{type} || 'Me109';
+  my $position = $fighter->{position} || '12 High';
   
   $self->smart_buffer("$type attacking from $position");
   
@@ -223,7 +223,7 @@ sub process_fighter_attack {
   $lookup_position =~ s/:|\s+/_/gxms;
   
   # Get guns that can fire at this position
-  my $guns_available = $m1_table->{'data'}->{'gun_positions'}->{$lookup_position} || {};
+  my $guns_available = $m1_table->{data}->{gun_positions}->{$lookup_position} || {};
   
   # Process defensive fire
   my $fighter_damage = "";
@@ -242,8 +242,8 @@ sub process_fighter_attack {
       
       # Roll M-2 for damage
       my $m2_roll = $self->do_roll('M-2');
-      if ($m2_roll && exists $m2_roll->{'result'}) {
-        my $result = $m2_roll->{'result'};
+      if ($m2_roll && exists $m2_roll->{result}) {
+        my $result = $m2_roll->{result};
         if ($result eq 'FCA') {
           $fighter_damage = 'FCA';
           $self->smart_buffer("Fighter damaged, continuing attack with -1");
@@ -266,8 +266,8 @@ sub process_fighter_attack {
     my $attack_category = $self->get_attack_category($position);
     
     # Get hit requirements for this fighter type and position
-    my $attack_data = $m3_table->{'data'}->{'attack_position'}->{$attack_category}->{$type} || {};
-    my $hit_on = $attack_data->{'hit_on'} || [];
+    my $attack_data = $m3_table->{data}->{attack_position}->{$attack_category}->{$type} || {};
+    my $hit_on = $attack_data->{hit_on} || [];
     
     # Roll for fighter attack
     my $attack_roll = int(rand(6) + 1);

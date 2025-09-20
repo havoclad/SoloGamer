@@ -9,8 +9,8 @@ extends 'SoloGamer::Base';
 sub _build_pre {
   my $self = shift;
 
-  my $pre = $self->{data}->{'pre'} || '';
-  delete $self->{data}->{'pre'};
+  my $pre = $self->{data}->{pre} || '';
+  delete $self->{data}->{pre};
   return $pre;
 }
 

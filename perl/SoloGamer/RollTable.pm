@@ -98,16 +98,16 @@ has 'roll_modifier' => (
 sub _build_roll_modifier {
   my $self = shift;
 
-  my $roll_modifier = $self->data->{'roll_modifier'} || {};
-  delete $self->data->{'roll_modifier'};
+  my $roll_modifier = $self->data->{roll_modifier} || {};
+  delete $self->data->{roll_modifier};
   return $roll_modifier;
 }
 
 sub _build_table_skip {
   my $self = shift;
 
-  my $table_skip = $self->data->{'table_skip'} || '';
-  delete $self->data->{'table_skip'};
+  my $table_skip = $self->data->{table_skip} || '';
+  delete $self->data->{table_skip};
   return $table_skip;
 }
 
@@ -115,14 +115,14 @@ sub _build_table_count {
   my $self = shift;
 
   my $table_count = 1;
-  if ( exists $self->data->{'table_count'} ) {
-    if ( $self->data->{'table_count'} =~ /^(\d+)$/x ) {
+  if ( exists $self->data->{table_count} ) {
+    if ( $self->data->{table_count} =~ /^(\d+)$/x ) {
       $table_count = $1;
     } else { # Not a number? Must be a current mission variable
       my $save = SoloGamer::SaveGame->instance;
-      $table_count = $save->get_from_current_mission($self->data->{'table_count'});
+      $table_count = $save->get_from_current_mission($self->data->{table_count});
     }
-    delete $self->data->{'table_count'};
+    delete $self->data->{table_count};
   }
   return $table_count;
 }
@@ -130,16 +130,16 @@ sub _build_table_count {
 sub _build_table_input {
   my $self = shift;
 
-  my $table_input = $self->data->{'table_input'} || '';
-  delete $self->data->{'table_input'};
+  my $table_input = $self->data->{table_input} || '';
+  delete $self->data->{table_input};
   return $table_input;
 }
 
 sub _build_scope {
   my $self = shift;
 
-  my $scope = $self->data->{'scope'} || 'global';
-  delete $self->data->{'scope'};
+  my $scope = $self->data->{scope} || 'global';
+  delete $self->data->{scope};
   return $scope;
 }
 
@@ -148,7 +148,7 @@ sub _build_rolls {
 
   my $hr = {};
   foreach my $key (keys $self->data->{rolls}->%*) {
-    my $value = $self->data->{'rolls'}->{$key};
+    my $value = $self->data->{rolls}->{$key};
     if ($key =~ /^(\d+)-(\d+)$/x) {    # example 3-11
       my $min = $1;
       my $max = $2;
@@ -251,10 +251,10 @@ sub get_total_modifiers {
   # Add conditional roll modifier
   $total_modifiers += $self->evaluate_roll_modifier();
   
-  foreach my $note ($self->{'modifiers'}->@*) {
-    my $modifier      = $note->{'modifier'};
-    my $from_table    = $note->{'from_table'};
-    my $why           = $note->{'why'};
+  foreach my $note ($self->{modifiers}->@*) {
+    my $modifier      = $note->{modifier};
+    my $from_table    = $note->{from_table};
+    my $why           = $note->{why};
     my $scope         = $self->scope;
     next unless $scope eq 'global' or $scope eq $scope_in;
 
@@ -350,17 +350,17 @@ sub add_modifier {
   my $arg_ref    = shift;
 
   if ($arg_ref->{stack} == 0) {
-    foreach my $note ( $self->{'modifiers'}->@* ) {
-      if (        $arg_ref->{modifier} eq $note->{'modifier'} 
-            and ( $arg_ref->{why} eq $note->{'why'} )
-            and ( $arg_ref->{from_table} eq $note->{'from_table'} )
-            and ( $arg_ref->{scope} eq $note->{'scope'} ) ) {
+    foreach my $note ( $self->{modifiers}->@* ) {
+      if (        $arg_ref->{modifier} eq $note->{modifier} 
+            and ( $arg_ref->{why} eq $note->{why} )
+            and ( $arg_ref->{from_table} eq $note->{from_table} )
+            and ( $arg_ref->{scope} eq $note->{scope} ) ) {
         $self->devel("Not stacking modifier on table ", $self->name);
         return;
       }
     }
   }
-  push $self->{'modifiers'}->@*, {
+  push $self->{modifiers}->@*, {
                                    why        => $arg_ref->{why},
                                    modifier   => $arg_ref->{modifier},
                                    from_table => $arg_ref->{from_table},

@@ -145,7 +145,7 @@ sub _build_save {
   my $self = shift;
   
   my $save = SoloGamer::SaveGame->initialize( save_file  => $self->save_file,
-                                              verbose    => $self->{'verbose'},
+                                              verbose    => $self->{verbose},
                                               automated  => $self->automated,
                                               input_file => $self->input_file,
                                             );
@@ -279,12 +279,12 @@ sub display_applied_modifiers {
   
   # Add explicit modifiers
   foreach my $note (@{$table_obj->modifiers}) {
-    my $modifier_scope = $note->{'scope'};
+    my $modifier_scope = $note->{scope};
     next unless $modifier_scope eq 'global' or $modifier_scope eq $scope_in;
     
     push @applied_modifiers, {
-      modifier => $note->{'modifier'},
-      why      => $note->{'why'}
+      modifier => $note->{modifier},
+      why      => $note->{why}
     };
   }
   
@@ -312,10 +312,10 @@ sub do_roll {
     }
   }
   
-  if (defined $roll and exists $roll->{'notes'}) {
+  if (defined $roll and exists $roll->{notes}) {
     my @preview_modifiers;
     
-    foreach my $note ($roll->{'notes'}->@*) {
+    foreach my $note ($roll->{notes}->@*) {
       # Handle both string notes and modifier object notes
       if (ref($note) ne 'HASH') {
         # It's a simple string note, skip modifier processing
@@ -323,11 +323,11 @@ sub do_roll {
         next;
       }
       
-      my $modifier  = $note->{'modifier'};
-      my $mod_table = $note->{'table'};
-      my $why       = $note->{'why'};
-      my $scope     = $note->{'scope'} || 'global';
-      my $stack     = $note->{'stack'} || 1;
+      my $modifier  = $note->{modifier};
+      my $mod_table = $note->{table};
+      my $why       = $note->{why};
+      my $scope     = $note->{scope} || 'global';
+      my $stack     = $note->{stack} || 1;
 
       if ($scope eq 'zone' ) {
         $scope = $self->zone;
@@ -376,16 +376,16 @@ sub do_flow {
 
   while (my $next_flow = $self->tables->{$table_name}->get_next) {
     my $buffer_save = $self->get_buffer_size;
-    my $post = exists $next_flow->{'post'} ? $next_flow->{'post'} : "";
+    my $post = exists $next_flow->{post} ? $next_flow->{post} : "";
     
     # Handle pre-message if it exists
-    if (exists $next_flow->{'pre'}) {
+    if (exists $next_flow->{pre}) {
       $self->_process_pre_message($next_flow);
     }
     
     # Process flow type using dispatch table
-    if (exists $next_flow->{'type'}) {
-      my $type = $next_flow->{'type'};
+    if (exists $next_flow->{type}) {
+      my $type = $next_flow->{type};
       my $handler = $FLOW_TYPE_HANDLERS{$type};
       
       if ($handler) {
@@ -406,11 +406,11 @@ sub _process_pre_message {
   my ($self, $next_flow) = @_;
   
   # Check if this is a "Rolling for" message that needs enhancement
-  if (exists $next_flow->{'type'} && $next_flow->{'pre'} =~ /^Rolling for/ix) {
+  if (exists $next_flow->{type} && $next_flow->{pre} =~ /^Rolling for/ix) {
     my $enhanced_message = $self->_enhance_rolling_message($next_flow);
     $self->smart_buffer($enhanced_message);
   } else {
-    $self->smart_buffer($next_flow->{'pre'});
+    $self->smart_buffer($next_flow->{pre});
   }
   return;
 }
@@ -418,13 +418,13 @@ sub _process_pre_message {
 # Enhance "Rolling for" messages with table information
 sub _enhance_rolling_message {
   my ($self, $next_flow) = @_;
-  my $type = $next_flow->{'type'};
-  my $pre = $next_flow->{'pre'};
+  my $type = $next_flow->{type};
+  my $pre = $next_flow->{pre};
   
-  if ($type eq 'table' && exists $next_flow->{'Table'}) {
+  if ($type eq 'table' && exists $next_flow->{Table}) {
     return $self->_enhance_table_message($next_flow, $pre);
   }
-  elsif ($type eq 'choosemax' && exists $next_flow->{'choices'}) {
+  elsif ($type eq 'choosemax' && exists $next_flow->{choices}) {
     return $self->_enhance_choosemax_message($next_flow, $pre);
   }
   
@@ -434,7 +434,7 @@ sub _enhance_rolling_message {
 # Enhance message for table type flows
 sub _enhance_table_message {
   my ($self, $next_flow, $pre) = @_;
-  my $next_table_name = $next_flow->{'Table'};
+  my $next_table_name = $next_flow->{Table};
   my $table_obj = $self->tables->{$next_table_name};
   
   if ($table_obj && ref($table_obj)) {
@@ -448,9 +448,9 @@ sub _enhance_table_message {
 # Enhance message for choosemax type flows
 sub _enhance_choosemax_message {
   my ($self, $next_flow, $pre) = @_;
-  my $choice = $next_flow->{'variable'};
+  my $choice = $next_flow->{variable};
   my $mission_value = $self->_get_mission_value($choice);
-  my $table = $self->do_max($mission_value, $next_flow->{'choices'});
+  my $table = $self->do_max($mission_value, $next_flow->{choices});
   
   return "$pre on table $table";
 }
@@ -485,13 +485,13 @@ sub _handle_choosemax_flow {  ## no critic (ProhibitUnusedPrivateSubroutines)
   my ($self, $next_flow, $buffer_save, $post) = @_;
   
   $self->save->add_save('Mission', $self->save->mission);
-  my $choice = $next_flow->{'variable'};
+  my $choice = $next_flow->{variable};
   my $mission_value = $self->_get_mission_value($choice);
-  my $table = $self->do_max($mission_value, $next_flow->{'choices'});
+  my $table = $self->do_max($mission_value, $next_flow->{choices});
   
   my $roll = $self->do_roll($table);
-  $self->handle_output('Target', $roll->{'Target'});
-  $self->handle_output('Type', $roll->{'Type'});
+  $self->handle_output('Target', $roll->{Target});
+  $self->handle_output('Type', $roll->{Type});
   return;
 }
 
@@ -499,7 +499,7 @@ sub _handle_choosemax_flow {  ## no critic (ProhibitUnusedPrivateSubroutines)
 sub _handle_table_flow {  ## no critic (ProhibitUnusedPrivateSubroutines)
   my ($self, $next_flow, $buffer_save, $post) = @_;
   
-  my $table = $next_flow->{'Table'};
+  my $table = $next_flow->{Table};
   my $roll = $self->do_roll($table);
   
   if (not defined $roll) {
@@ -511,8 +511,8 @@ sub _handle_table_flow {  ## no critic (ProhibitUnusedPrivateSubroutines)
   my $output_value = $roll->{$determines};
   
   # Add weather icon if available
-  if ($determines eq 'weather' && exists $roll->{'icon'}) {
-    $output_value .= ' ' . $roll->{'icon'};
+  if ($determines eq 'weather' && exists $roll->{icon}) {
+    $output_value .= ' ' . $roll->{icon};
   }
   
   $self->handle_output($determines, $output_value, $post);
@@ -523,14 +523,14 @@ sub _handle_table_flow {  ## no critic (ProhibitUnusedPrivateSubroutines)
 sub _handle_loop_flow {  ## no critic (ProhibitUnusedPrivateSubroutines)
   my ($self, $next_flow, $buffer_save, $post) = @_;
   
-  my $loop_table = $next_flow->{'loop_table'};
-  my $loop_variable = $next_flow->{'loop_variable'};
-  my $reverse = exists $next_flow->{'reverse'} ? 1 : 0;
-  my $do_action = exists $next_flow->{'do'} ? $next_flow->{'do'} : undef;
+  my $loop_table = $next_flow->{loop_table};
+  my $loop_variable = $next_flow->{loop_variable};
+  my $reverse = exists $next_flow->{reverse} ? 1 : 0;
+  my $do_action = exists $next_flow->{do} ? $next_flow->{do} : undef;
   my $target_city = $self->save->get_from_current_mission('Target');
   
   $self->do_loop(
-    $self->tables->{$loop_table}->{'data'}->{'target city'}->{$target_city}->{$loop_variable},
+    $self->tables->{$loop_table}->{data}->{'target city'}->{$target_city}->{$loop_variable},
     "Moving to zone: ",
     $reverse,
     $do_action,
@@ -542,7 +542,7 @@ sub _handle_loop_flow {  ## no critic (ProhibitUnusedPrivateSubroutines)
 sub _handle_flow_flow {  ## no critic (ProhibitUnusedPrivateSubroutines)
   my ($self, $next_flow, $buffer_save, $post) = @_;
   
-  my $flow_table = $next_flow->{'flow_table'};
+  my $flow_table = $next_flow->{flow_table};
   $self->do_flow($flow_table);
   return;
 }

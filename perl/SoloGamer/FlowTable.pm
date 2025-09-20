@@ -12,11 +12,11 @@ sub _build_flow {
   my $self = shift;
 
   my $temp = [];
-  my $json_flow = $self->data->{'flow'};
+  my $json_flow = $self->data->{flow};
   foreach my $item ($json_flow->@*) {
     push @$temp, $item;
   }
-  delete $self->data->{'flow'};
+  delete $self->data->{flow};
   return $temp;
 }
 

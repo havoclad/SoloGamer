@@ -172,7 +172,7 @@ sub add_save {
   my $property = shift;
   my $value    = shift;
 
-  $self->save->{'mission'}->[$self->mission-1]->{$property} = $value;
+  $self->save->{mission}->[$self->mission-1]->{$property} = $value;
   return;
 }
 
@@ -181,13 +181,13 @@ sub get_from_current_mission {
   my $property = shift;
 
   $self->devel("Looking for $property in mission: ", $self->mission);
-  return $self->save->{'mission'}->[$self->mission-1]->{$property};
+  return $self->save->{mission}->[$self->mission-1]->{$property};
 }
 
 sub get_plane_name {
   my $self = shift;
   
-  return $self->save->{'plane_name'} || 'Unnamed B-17';
+  return $self->save->{plane_name} || 'Unnamed B-17';
 }
 
 sub _build_crew {
