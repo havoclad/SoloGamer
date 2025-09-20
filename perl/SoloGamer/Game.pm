@@ -183,23 +183,19 @@ sub _build_load_data_tables {
 
 # Intent is to return the first item in an array that is less than the input
 sub do_max {
-  my $self = shift;
+  my $self     = shift;
   my $variable = shift;
-  my $choices = shift;
+  my $choices  = shift;
 
-  # Ensure numeric comparison
-  $variable = int($variable) if defined $variable;
-  
-  foreach my $item (@$choices) {
-    my $max = int($item->{'max'});
-    return $item->{'Table'} if $variable <= $max;
+  foreach my $item ($choices->@*) {
+    return $item->{Table} if $variable <= $item->{max};
   }
   croak "Didn't find a max that matched $variable";
 }
 
 sub do_loop {
   my $self       = shift;
-  my $hr         = shift;  # Whatever hash we're looping on
+  my $hr         = shift; # Whatever hash we're looping on
   my $action     = shift;
   my $reverse    = shift; # normal is low to high numerically
   my $do_action  = shift; # What to do in each zone (e.g., "zone_process")
