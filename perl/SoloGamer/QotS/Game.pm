@@ -52,13 +52,17 @@ override 'smart_buffer' => sub {
       # Display Welcome message
       $self->buffer_header($text, 40);
     }],
+    [ qr/^Moving\s+to\s+zone/ixms, sub {
+      # Display zone transitions with box headers
+      $self->buffer_header($text, 30);
+    }],
     [ qr/safe|successful|On target/ixms, sub {
       $self->buffer_success($text);
     }],
     [ qr/damage|hit|fail|crash/ixms, sub {
       $self->buffer_danger($text);
     }],
-    [ qr/Moving to zone|zone:/ixms, sub {
+    [ qr/zone:/ixms, sub {
       $self->buffer_location($text);
     }],
     [ qr/Target:|Type:|Formation|Percent/ixms, sub {

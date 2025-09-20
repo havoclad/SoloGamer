@@ -20,6 +20,7 @@ sub get_color_for {
   
   my %colors = (
     outcome  => 'bright_yellow',
+    zone     => 'bright_yellow',
     welcome  => 'bright_green',
     mission  => 'yellow',
     gameover => 'bright_magenta',

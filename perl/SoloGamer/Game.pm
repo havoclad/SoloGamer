@@ -123,12 +123,12 @@ sub substitute_variables {
 
 sub smart_buffer {
   my ($self, $text) = @_;
-  
+
   return unless defined $text && length $text;
-  
+
   # Apply variable substitution first
   $text = $self->substitute_variables($text);
-  
+
   # Generic buffering logic - subclasses can override for game-specific patterns
   if ($text =~ /^Rolling for/ix) {
     $self->buffer_roll($text);
@@ -137,7 +137,7 @@ sub smart_buffer {
   } else {
     $self->buffer($text);
   }
-  
+
   return;
 }
 
@@ -219,10 +219,6 @@ sub do_loop {
   
   foreach my $i (@keys) {
     $current++;
-    # Add separator before moving to each zone
-    if ($action =~ /Moving to zone/i) {
-      $self->buffer_zone_separator();
-    }
     $self->smart_buffer( "$action $i");
     if ($action =~ /Moving to zone/i && $total_zones > 1) {
       $self->buffer_progress($current, $total_zones, "", 10);
