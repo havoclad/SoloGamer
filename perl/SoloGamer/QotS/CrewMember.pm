@@ -131,13 +131,13 @@ sub add_mission {
   my $self = shift;
   
   if (!$self->is_available) {
-    $self->devel("Warning: Cannot add mission to crew member with final disposition: " . 
-                 $self->name . " - " . ($self->final_disposition // 'unknown'));
+    $self->devel('Warning: Cannot add mission to crew member with final disposition: ' .
+                 $self->name . ' - ' . ($self->final_disposition // 'unknown'));
     return;
   }
   
   $self->missions($self->missions + 1);
-  $self->devel("Added mission for " . $self->name . ", total: " . $self->missions);
+  $self->devel('Added mission for ' . $self->name . ', total: ' . $self->missions);
   return;
 }
 
@@ -146,18 +146,18 @@ sub add_kills {
   my $count = shift || 0;
   
   if ($count < 0) {
-    $self->devel("Warning: Cannot add negative kills");
+    $self->devel('Warning: Cannot add negative kills');
     return;
   }
   
   if (!$self->is_available) {
-    $self->devel("Warning: Cannot add kills to crew member with final disposition: " . 
-                 $self->name . " - " . ($self->final_disposition // 'unknown'));
+    $self->devel('Warning: Cannot add kills to crew member with final disposition: ' .
+                 $self->name . ' - ' . ($self->final_disposition // 'unknown'));
     return;
   }
   
   $self->kills($self->kills + $count);
-  $self->devel("Added $count kills for " . $self->name . ", total: " . $self->kills);
+  $self->devel('Added $count kills for ' . $self->name . ', total: ' . $self->kills);
   return;
 }
 
@@ -167,20 +167,20 @@ sub apply_wound {
   my $location = shift || 'unspecified';
   
   if (!$self->is_available) {
-    $self->devel("Warning: Cannot wound crew member with final disposition: " . 
-                 $self->name . " - " . ($self->final_disposition // 'unknown'));
+    $self->devel('Warning: Cannot wound crew member with final disposition: ' .
+                 $self->name . ' - ' . ($self->final_disposition // 'unknown'));
     return;
   }
   
   unless ($severity && ($severity eq 'light' || $severity eq 'serious' || $severity eq 'none' || $severity eq 'mortal')) {
-    $self->devel("Warning: Invalid wound severity: " . ($severity // 'undefined'));
+    $self->devel('Warning: Invalid wound severity: ' . ($severity // 'undefined'));
     return;
   }
   
   my $current = $self->wound_status;
   
   if ($severity eq 'none') {
-    $self->devel($self->name . " wound cleared");
+    $self->devel($self->name . ' wound cleared');
     $self->wound_status('none');
     return;
   }
@@ -193,18 +193,18 @@ sub apply_wound {
       location => $location,
       turn => 'current'
     };
-    $self->devel($self->name . " mortally wounded - KIA");
+    $self->devel($self->name . ' mortally wounded - KIA');
     return;
   }
   
   if ($current eq 'serious' && $severity eq 'serious') {
     $self->set_disposition('KIA');
-    $self->devel($self->name . " second serious wound - KIA");
+    $self->devel($self->name . ' second serious wound - KIA');
     return;
   }
   
   if ($current eq 'serious' && $severity eq 'light') {
-    $self->devel($self->name . " already has serious wound, not downgrading to light");
+    $self->devel($self->name . ' already has serious wound, not downgrading to light');
     return;
   }
   
@@ -223,26 +223,26 @@ sub apply_frostbite {
   my $severity = shift;
   
   if (!$self->is_available) {
-    $self->devel("Warning: Cannot apply frostbite to crew member with final disposition: " . 
-                 $self->name . " - " . ($self->final_disposition // 'unknown'));
+    $self->devel('Warning: Cannot apply frostbite to crew member with final disposition: ' .
+                 $self->name . ' - ' . ($self->final_disposition // 'unknown'));
     return;
   }
   
   unless ($severity && ($severity eq 'light' || $severity eq 'serious' || $severity eq 'none')) {
-    $self->devel("Warning: Invalid frostbite severity: " . ($severity // 'undefined'));
+    $self->devel('Warning: Invalid frostbite severity: ' . ($severity // 'undefined'));
     return;
   }
   
   my $current = $self->frostbite_status;
   
   if ($severity eq 'none') {
-    $self->devel($self->name . " frostbite cleared");
+    $self->devel($self->name . ' frostbite cleared');
     $self->frostbite_status('none');
     return;
   }
   
   if ($current eq 'serious' && $severity eq 'light') {
-    $self->devel($self->name . " already has serious frostbite, not downgrading to light");
+    $self->devel($self->name . ' already has serious frostbite, not downgrading to light');
     return;
   }
   
@@ -256,12 +256,12 @@ sub move_to_position {
   my $new_position = shift;
   
   unless ($new_position && grep { $_ eq $new_position } qw(bombardier navigator pilot copilot engineer radio_operator ball_gunner port_waist_gunner starboard_waist_gunner tail_gunner)) {
-    $self->devel("Warning: Invalid position: " . ($new_position // 'undefined'));
+    $self->devel('Warning: Invalid position: ' . ($new_position // 'undefined'));
     return 0;
   }
   
   if ($self->is_incapacitated()) {
-    $self->devel("Warning: Incapacitated crew member cannot move: " . $self->name);
+    $self->devel('Warning: Incapacitated crew member cannot move: ' . $self->name);
     return 0;
   }
   
@@ -277,7 +277,7 @@ sub set_disposition {
   my $status = shift;
   
   unless ($status && grep { $_ eq $status } qw(KIA DOW LAS IH BO-C)) {
-    $self->devel("Warning: Invalid final disposition: " . ($status // 'undefined'));
+    $self->devel('Warning: Invalid final disposition: ' . ($status // 'undefined'));
     return;
   }
   

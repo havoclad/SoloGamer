@@ -200,14 +200,14 @@ sub do_loop {
   my $reverse    = shift; # normal is low to high numerically
   my $do_action  = shift; # What to do in each zone (e.g., "zone_process")
 
-  my $path = "";
+  my $path = '';
   my @keys;
   if ($reverse) { # Travelling home
     @keys = sort { $b <=> $a } keys $hr->%*;
-    $path = "i";
+    $path = 'i';
   } else {        # Outbound
     @keys = sort { $a <=> $b } keys $hr->%*;
-    $path = "o";
+    $path = 'o';
   }
 
   my $total_zones = scalar @keys;
@@ -217,7 +217,7 @@ sub do_loop {
     $current++;
     $self->smart_buffer( "$action $i");
     if ($action =~ /Moving to zone/i && $total_zones > 1) {
-      $self->buffer_progress($current, $total_zones, "", 10);
+      $self->buffer_progress($current, $total_zones, '', 10);
     }
     $self->zone("$i$path");
     
@@ -376,7 +376,7 @@ sub do_flow {
 
   while (my $next_flow = $self->tables->{$table_name}->get_next) {
     my $buffer_save = $self->get_buffer_size;
-    my $post = exists $next_flow->{post} ? $next_flow->{post} : "";
+    my $post = exists $next_flow->{post} ? $next_flow->{post} : '';
     
     # Handle pre-message if it exists
     if (exists $next_flow->{pre}) {
@@ -395,7 +395,7 @@ sub do_flow {
       }
     }
     
-    $self->devel("\nEnd flow step\n");
+    $self->devel('\nEnd flow step\n');
   }
   $self->print_output;
   return;
@@ -405,7 +405,7 @@ sub do_flow {
 sub _process_pre_message {
   my ($self, $next_flow) = @_;
   
-  # Check if this is a "Rolling for" message that needs enhancement
+  # Check if this is a 'Rolling for' message that needs enhancement
   if (exists $next_flow->{type} && $next_flow->{pre} =~ /^Rolling for/ix) {
     my $enhanced_message = $self->_enhance_rolling_message($next_flow);
     $self->smart_buffer($enhanced_message);
@@ -415,7 +415,7 @@ sub _process_pre_message {
   return;
 }
 
-# Enhance "Rolling for" messages with table information
+# Enhance 'Rolling for' messages with table information
 sub _enhance_rolling_message {
   my ($self, $next_flow) = @_;
   my $type = $next_flow->{type};
@@ -531,7 +531,7 @@ sub _handle_loop_flow {  ## no critic (ProhibitUnusedPrivateSubroutines)
   
   $self->do_loop(
     $self->tables->{$loop_table}->{data}->{'target city'}->{$target_city}->{$loop_variable},
-    "Moving to zone: ",
+    'Moving to zone: ',
     $reverse,
     $do_action,
   );
@@ -550,7 +550,7 @@ sub _handle_flow_flow {  ## no critic (ProhibitUnusedPrivateSubroutines)
 sub run_game {
   my $self = shift;
 
-  $self->devel("In run_game");
+  $self->devel('In run_game');
   
   # Basic game flow - subclasses can override for specific game logic
   $self->do_flow('FLOW-start');

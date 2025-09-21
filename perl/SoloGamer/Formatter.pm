@@ -77,9 +77,9 @@ sub box_header {
   my $left_pad = int($padding / 2);
   my $right_pad = $padding - $left_pad;
   
-  my $top    = "╔" . ("═" x ($width - 2)) . "╗";
-  my $middle = "║" . (" " x $left_pad) . $text . (" " x $right_pad) . "║";
-  my $bottom = "╚" . ("═" x ($width - 2)) . "╝";
+  my $top    = '╔' . ('═' x ($width - 2)) . '╗';
+  my $middle = '║' . (' ' x $left_pad) . $text . (' ' x $right_pad) . '║';
+  my $bottom = '╚' . ('═' x ($width - 2)) . '╝';
   
   # Get the appropriate color scheme
   my $scheme = $color_scheme_id 
@@ -115,7 +115,7 @@ sub format_modifier_preview {
   return '' unless @$modifiers;
   
   my @lines;
-  push @lines, $self->apply_format("Future rolls will be modified:", 'bright_black');
+  push @lines, $self->apply_format('Future rolls will be modified:', 'bright_black');
   
   foreach my $mod (@$modifiers) {
     my $table = $mod->{table};
@@ -135,7 +135,7 @@ sub format_modifier_applied {
   return '' unless @$modifiers;
   
   my @lines;
-  push @lines, $self->apply_format("Applied modifiers:", 'bright_black');
+  push @lines, $self->apply_format('Applied modifiers:', 'bright_black');
   
   foreach my $mod (@$modifiers) {
     my $modifier = $mod->{modifier};

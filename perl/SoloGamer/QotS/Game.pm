@@ -88,20 +88,20 @@ override 'smart_buffer' => sub {
 override 'run_game' => sub {
   my $self = shift;
 
-  $self->devel("In run_game");
+  $self->devel('In run_game');
   my $mission = $self->save->mission;
   my $max_missions = $self->tables->{'FLOW-start'}->{data}->{missions};
   $mission > $max_missions and croak "25 successful missions, your crew went home!";
 
   # Initialize aircraft state if needed
   unless ($self->save->aircraft_state) {
-    $self->devel("Initializing aircraft state for mission");
+    $self->devel('Initializing aircraft state for mission');
     # The SaveGame _build_aircraft_state will create or load it
     $self->save->aircraft_state;
   }
   
   # Initialize combat state for the mission
-  $self->devel("Initializing combat state for mission");
+  $self->devel('Initializing combat state for mission');
   $self->save->combat_state(SoloGamer::QotS::CombatState->new());
 
   # Display crew roster at start of mission

@@ -47,7 +47,7 @@ override 'roll' => sub  {
   $self->devel("In OnlyIf with testing $to_test and test $test_criteria");
   if ( $test_criteria eq '>' ) {
     if ( $to_test > $self->test_against ) {
-      $self->devel("OnlyIf test passed");
+      $self->devel('OnlyIf test passed');
       super();
     }
     else {

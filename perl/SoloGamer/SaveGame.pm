@@ -101,11 +101,11 @@ sub load_save {
       $self->devel("Last mission was: $last_mission");
       $mission = $last_mission + 1;
     } else {
-      $self->devel("No mission array found in save data");
+      $self->devel('No mission array found in save data');
     }
   } else {
     if ($save_to_load eq '') {
-      $self->devel("No save file, use --save_file on command line to set");
+      $self->devel('No save file, use --save_file on command line to set');
     } else {
       $self->devel("No save file found at $save_to_load");
     }
@@ -155,14 +155,14 @@ sub save_game {
   }
 
   if ($self->save_file) {
-    $self->devel("Writing save file to ", $self->save_file);
+    $self->devel('Writing save file to ', $self->save_file);
     my $tmp_file = $self->save_file . '.tmp';
-    open(my $fh, ">", $tmp_file) or croak "Can't open $tmp_file $!";
-    print $fh encode_json($self->save) or croak("Can't write file at: ", $tmp_file, " $!");
+    open(my $fh, '>', $tmp_file) or croak "Can't open $tmp_file $!";
+    print $fh encode_json($self->save) or croak('Can\'t write file at: ', $tmp_file, ' $!');
     close $fh;
     move($tmp_file, $self->save_file) or croak("Can't move $tmp_file to ", $self->save_file);
   } else {
-    $self->devel("No save file to write");
+    $self->devel('No save file to write');
   }
   return;
 }
