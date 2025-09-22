@@ -137,6 +137,11 @@ override 'run_game' => sub {
   $self->devel('Initializing combat state for mission');
   $self->save->combat_state(SoloGamer::QotS::CombatState->new());
 
+  # Replace any dead crew members before mission start
+  if ($self->save->crew) {
+    $self->_replace_dead_crew_members();
+  }
+
   # Display crew roster at start of mission
   if ($self->save->crew) {
     my $roster = $self->save->crew->display_roster();
@@ -830,6 +835,44 @@ sub handle_walking_hits_b {
 
   # For now, treat as superficial
   return ('Wings (Walking Hits)', 'P-1');
+}
+
+sub _replace_dead_crew_members {
+  my $self = shift;
+
+  my $crew = $self->save->crew;
+  return unless $crew;
+
+  my @all_crew = $crew->get_all_crew();
+  my $replacements_made = 0;
+
+  foreach my $member (@all_crew) {
+    next unless $member;
+
+    # Check if crew member is dead (has KIA or other final disposition)
+    if ($member->has_final_disposition && defined $member->final_disposition) {
+      my $position = $member->position;
+      my $old_name = $member->name;
+      my $disposition = $member->final_disposition;
+
+      $self->devel("Replacing $disposition crew member: $old_name ($position)");
+
+      # Replace with new crew member
+      my $new_member = $crew->replace_crew_member($position);
+      if ($new_member) {
+        $self->buffer_success("$old_name ($disposition) has been replaced by " . $new_member->name . " as $position");
+        $replacements_made++;
+      }
+    }
+  }
+
+  if ($replacements_made > 0) {
+    $self->devel("Replaced $replacements_made dead crew member(s)");
+    # Update the save data with the new crew
+    $self->save->save->{crew} = $crew->to_hash();
+  }
+
+  return $replacements_made;
 }
 
 __PACKAGE__->meta->make_immutable;
