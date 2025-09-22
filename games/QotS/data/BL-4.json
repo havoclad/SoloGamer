@@ -8,32 +8,80 @@
     "1": {
       "result": "Light Wound",
       "description": "Crewman may continue duties unimpaired",
-      "severity": "light"
+      "severity": "light",
+      "damage_effects": [
+        {
+          "type": "crew_wound",
+          "position": "target_crew_member",
+          "severity": "light",
+          "location": "body"
+        }
+      ]
     },
     "2": {
-      "result": "Light Wound", 
+      "result": "Light Wound",
       "description": "Crewman may continue duties unimpaired",
-      "severity": "light"
+      "severity": "light",
+      "damage_effects": [
+        {
+          "type": "crew_wound",
+          "position": "target_crew_member",
+          "severity": "light",
+          "location": "body"
+        }
+      ]
     },
     "3": {
       "result": "Light Wound",
-      "description": "Crewman may continue duties unimpaired", 
-      "severity": "light"
+      "description": "Crewman may continue duties unimpaired",
+      "severity": "light",
+      "damage_effects": [
+        {
+          "type": "crew_wound",
+          "position": "target_crew_member",
+          "severity": "light",
+          "location": "body"
+        }
+      ]
     },
     "4": {
       "result": "Serious Wound",
       "description": "Crewman may not continue duties, may not bailout",
-      "severity": "serious"
+      "severity": "serious",
+      "damage_effects": [
+        {
+          "type": "crew_wound",
+          "position": "target_crew_member",
+          "severity": "serious",
+          "location": "body"
+        }
+      ]
     },
     "5": {
       "result": "Serious Wound",
       "description": "Crewman may not continue duties, may not bailout",
-      "severity": "serious" 
+      "severity": "serious",
+      "damage_effects": [
+        {
+          "type": "crew_wound",
+          "position": "target_crew_member",
+          "severity": "serious",
+          "location": "body"
+        }
+      ]
     },
     "6": {
       "result": "KIA",
       "description": "Crewman killed in action",
-      "severity": "kia"
+      "severity": "kia",
+      "damage_effects": [
+        {
+          "type": "crew_wound",
+          "position": "target_crew_member",
+          "severity": "mortal",
+          "location": "body"
+        }
+      ]
     }
   },
   "wound_accumulation": {

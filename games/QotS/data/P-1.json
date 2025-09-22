@@ -7,11 +7,25 @@
   "rolls": {
     "2": {
       "result": "Starboard Cheek Gun",
-      "description": "Starboard cheek gun inoperable"
+      "description": "Starboard cheek gun inoperable",
+      "damage_effects": [
+        {
+          "type": "gun_damage",
+          "position": "starboard_cheek",
+          "damage_type": "destroy"
+        }
+      ]
     },
     "3": {
       "result": "Bomb Controls",
-      "description": "Bomb controls inoperable. Can drop all bombs at once only"
+      "description": "Bomb controls inoperable. Can drop all bombs at once only",
+      "damage_effects": [
+        {
+          "type": "equipment_damage",
+          "equipment": "bomb_controls",
+          "modifier": 0
+        }
+      ]
     },
     "4": {
       "result": "Bomb Release",
@@ -19,7 +33,14 @@
     },
     "5": {
       "result": "Nose Gun",
-      "description": "Nose gun inoperable"
+      "description": "Nose gun inoperable",
+      "damage_effects": [
+        {
+          "type": "gun_damage",
+          "position": "nose",
+          "damage_type": "destroy"
+        }
+      ]
     },
     "6": {
       "result": "Bombardier",
@@ -27,15 +48,37 @@
       "follow_up": {
         "table": "BL-4",
         "target": "Bombardier"
-      }
+      },
+      "damage_effects": [
+        {
+          "type": "crew_wound",
+          "position": "bombardier",
+          "severity": "light",
+          "location": "body"
+        }
+      ]
     },
     "7": {
       "result": "Superficial Damage",
-      "description": "No effect"
+      "description": "No effect",
+      "damage_effects": [
+        {
+          "type": "structural_damage",
+          "compartment": "nose",
+          "damage_type": "superficial"
+        }
+      ]
     },
     "8": {
       "result": "Nose Gun",
-      "description": "Nose gun inoperable"
+      "description": "Nose gun inoperable",
+      "damage_effects": [
+        {
+          "type": "gun_damage",
+          "position": "nose",
+          "damage_type": "destroy"
+        }
+      ]
     },
     "9": {
       "result": "Navigator",
@@ -43,7 +86,15 @@
       "follow_up": {
         "table": "BL-4",
         "target": "Navigator"
-      }
+      },
+      "damage_effects": [
+        {
+          "type": "crew_wound",
+          "position": "navigator",
+          "severity": "light",
+          "location": "body"
+        }
+      ]
     },
     "10": {
       "result": "Navigator's Equipment",
@@ -63,7 +114,14 @@
     },
     "12": {
       "result": "Port Cheek Gun",
-      "description": "Port cheek gun inoperable"
+      "description": "Port cheek gun inoperable",
+      "damage_effects": [
+        {
+          "type": "gun_damage",
+          "position": "port_cheek",
+          "damage_type": "destroy"
+        }
+      ]
     }
   },
   "notes": [
