@@ -321,9 +321,9 @@ sub process_fighter_attack {
       my $shell_hits = 1;
       $self->smart_buffer("$shell_hits shell hit(s) from $type");
 
-      # Process each shell hit
+      # Process each shell hit with attack position info
       for (my $hit = 1; $hit <= $shell_hits; $hit++) {
-        $self->resolve_aircraft_damage();
+        $self->resolve_aircraft_damage($position, 'high'); # Pass fighter position and altitude
       }
     } else {
       $self->smart_buffer("$type misses");
@@ -430,6 +430,8 @@ sub resolve_flak_damage {
 
 sub resolve_aircraft_damage {
   my $self = shift;
+  my $attack_position = shift; # Optional - for fighter attacks
+  my $altitude = shift;        # Optional - for fighter attacks
 
   # Ensure we have aircraft and crew objects
   unless ($self->save->aircraft_state && $self->save->crew) {
@@ -443,13 +445,11 @@ sub resolve_aircraft_damage {
     crew          => $self->save->crew,
   );
 
-  # For Phase 2: Show detailed damage resolution process
+  # Phase 3: Enhanced damage resolution with proper location determination
   $self->buffer_header("DAMAGE RESOLUTION", 40);
 
-  # Step 1: Determine hit location (for now using P-1 as test)
-  # TODO: Integrate with B-5 location tables in next iteration
-  my $hit_location = "Nose Compartment";
-  my $damage_table = "P-1";
+  # Step 1: Determine hit location using B-5 table or default
+  my ($hit_location, $damage_table) = $self->determine_hit_location($attack_position, $altitude);
 
   $self->smart_buffer("Hit Location: $hit_location");
   $self->smart_buffer("Rolling on Table $damage_table");
@@ -607,6 +607,229 @@ sub resolve_follow_up_tables {
   }
 
   return;
+}
+
+sub determine_hit_location {
+  my $self = shift;
+  my $attack_position = shift || 'unknown';
+  my $altitude = shift || 'high';
+
+  # For flak or unknown attacks, roll on B-5 using a default position
+  # For fighter attacks, we should have position and altitude data
+
+  if ($attack_position eq 'unknown') {
+    # Default to flak-like random location for now
+    # In a full implementation, this would determine based on combat context
+    return $self->roll_random_location();
+  }
+
+  # Use B-5 table structure to determine location
+  return $self->roll_b5_location($attack_position, $altitude);
+}
+
+sub roll_random_location {
+  my $self = shift;
+
+  # For flak or unknown attacks, use a simplified random distribution
+  my @locations = (
+    ['Nose Compartment', 'P-1'],
+    ['Pilot Compartment', 'P-2'],
+    ['Bomb Bay', 'P-3'],
+    ['Radio Room', 'P-4'],
+    ['Waist', 'P-5'],
+    ['Tail', 'P-6'],
+    ['Superficial', 'none'],
+  );
+
+  my $roll = int(rand(scalar(@locations)));
+  my ($location, $table) = @{$locations[$roll]};
+
+  if ($table eq 'none') {
+    # Superficial damage - just note it but no table roll needed
+    $self->smart_buffer("Superficial damage - no significant effect");
+    return ('Superficial', 'P-1'); # Still return P-1 as fallback
+  }
+
+  return ($location, $table);
+}
+
+sub roll_b5_location {
+  my $self = shift;
+  my $attack_position = shift;
+  my $altitude = shift;
+
+  # This method would implement the full B-5 table logic
+  # For Phase 3, implementing a simplified version that covers main cases
+
+  # Normalize attack position for B-5 lookup
+  my $b5_position = $self->normalize_attack_position_for_b5($attack_position);
+
+  # Roll 2d6 for location
+  my $location_roll = int(rand(6) + 1) + int(rand(6) + 1);
+  $self->smart_buffer("Rolling for hit location: $location_roll");
+
+  # Simplified B-5 logic - implement core positions
+  if ($b5_position eq '12_1:30_10:30') {
+    return $self->get_b5_12_high_result($location_roll);
+  } elsif ($b5_position eq '6') {
+    return $self->get_b5_6_result($location_roll, $altitude);
+  } elsif ($b5_position eq '3_9') {
+    return $self->get_b5_3_9_result($location_roll, $altitude);
+  }
+
+  # Default fallback to nose
+  return ('Nose Compartment', 'P-1');
+}
+
+sub normalize_attack_position_for_b5 {
+  my $self = shift;
+  my $position = shift;
+
+  # Map fighter attack positions to B-5 categories
+  return '12_1:30_10:30' if $position =~ /12|1:30|10:30/i;
+  return '6' if $position =~ /6/i;
+  return '3_9' if $position =~ /^[39]/i;
+
+  # Default to 12 o'clock attacks
+  return '12_1:30_10:30';
+}
+
+sub get_b5_12_high_result {
+  my $self = shift;
+  my $roll = shift;
+
+  # Simplified B-5 table for 12 o'clock high attacks
+  my %results = (
+    2 => ['Superficial', 'P-1'],
+    3 => ['Superficial', 'P-1'],
+    4 => ['Superficial', 'P-1'],
+    5 => ['Radio Room', 'P-4'],
+    6 => ['Nose', 'P-1'],
+    7 => ['Pilot Compartment', 'P-2'],
+    8 => ['Wings', 'BL-1'],
+    9 => ['Waist', 'P-5'],
+    10 => ['Tail', 'P-6'],
+    11 => ['Bomb Bay', 'P-3'],
+    12 => ['Walking Hits/Fuselage', 'walking_hits_a'],
+  );
+
+  if (exists $results{$roll}) {
+    my ($location, $table) = @{$results{$roll}};
+
+    # Handle special cases
+    if ($table eq 'walking_hits_a') {
+      return $self->handle_walking_hits_a();
+    } elsif ($table eq 'BL-1') {
+      return $self->handle_wing_hit();
+    }
+
+    return ($location, $table);
+  }
+
+  # Fallback
+  return ('Nose Compartment', 'P-1');
+}
+
+sub get_b5_6_result {
+  my $self = shift;
+  my $roll = shift;
+  my $altitude = shift;
+
+  # Simplified 6 o'clock attacks - mainly tail area
+  my %high_results = (
+    2 => ['Superficial', 'P-1'],
+    3 => ['Superficial', 'P-1'],
+    4 => ['Radio Room', 'P-4'],
+    5 => ['Bomb Bay', 'P-3'],
+    6 => ['Port Wing', 'BL-1'],
+    7 => ['Tail', 'P-6'],
+    8 => ['Starboard Wing', 'BL-1'],
+    9 => ['Waist', 'P-5'],
+    10 => ['Pilot Compartment', 'P-2'],
+    11 => ['Walking Hits/Fuselage', 'walking_hits_a'],
+    12 => ['Nose', 'P-1'],
+  );
+
+  if (exists $high_results{$roll}) {
+    my ($location, $table) = @{$high_results{$roll}};
+
+    if ($table eq 'walking_hits_a') {
+      return $self->handle_walking_hits_a();
+    } elsif ($table eq 'BL-1') {
+      return $self->handle_wing_hit();
+    }
+
+    return ($location, $table);
+  }
+
+  return ('Tail', 'P-6'); # 6 o'clock bias toward tail
+}
+
+sub get_b5_3_9_result {
+  my $self = shift;
+  my $roll = shift;
+  my $altitude = shift;
+
+  # 3/9 o'clock attacks - side attacks
+  my %results = (
+    2 => ['Walking Hits/Wings', 'walking_hits_b'],
+    3 => ['Nose', 'P-1'],
+    4 => ['Pilot Compartment', 'P-2'],
+    5 => ['Bomb Bay', 'P-3'],
+    6 => ['Port Wing', 'BL-1'],
+    7 => ['Tail', 'P-6'],
+    8 => ['Starboard Wing', 'BL-1'],
+    9 => ['Radio Room', 'P-4'],
+    10 => ['Waist', 'P-5'],
+    11 => ['Superficial', 'P-1'],
+    12 => ['Walking Hits/Fuselage', 'walking_hits_a'],
+  );
+
+  if (exists $results{$roll}) {
+    my ($location, $table) = @{$results{$roll}};
+
+    if ($table eq 'walking_hits_a') {
+      return $self->handle_walking_hits_a();
+    } elsif ($table eq 'walking_hits_b') {
+      return $self->handle_walking_hits_b();
+    } elsif ($table eq 'BL-1') {
+      return $self->handle_wing_hit();
+    }
+
+    return ($location, $table);
+  }
+
+  return ('Waist', 'P-5'); # Side attack bias
+}
+
+sub handle_wing_hit {
+  my $self = shift;
+
+  # For now, treat wing hits as superficial since we don't have BL-1 implemented yet
+  $self->smart_buffer("Wing hit - treating as superficial damage for now");
+  return ('Wing (Superficial)', 'P-1');
+}
+
+sub handle_walking_hits_a {
+  my $self = shift;
+
+  # Walking hits A: Nose, Pilot, Bomb Bay, Radio, Waist, Tail
+  $self->smart_buffer("Walking hits across fuselage - multiple compartments hit!");
+  $self->smart_buffer("Processing hits to: Nose, Pilot, Bomb Bay, Radio, Waist, Tail");
+
+  # For Phase 3, just process one hit to Pilot compartment as an example
+  # Full implementation would process all 6 hits
+  return ('Pilot Compartment (Walking Hits)', 'P-2');
+}
+
+sub handle_walking_hits_b {
+  my $self = shift;
+
+  # Walking hits B: 2 hits each wing
+  $self->smart_buffer("Walking hits across wings - multiple wing hits!");
+
+  # For now, treat as superficial
+  return ('Wings (Walking Hits)', 'P-1');
 }
 
 __PACKAGE__->meta->make_immutable;

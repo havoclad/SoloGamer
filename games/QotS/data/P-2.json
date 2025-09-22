@@ -14,7 +14,14 @@
     },
     "3": {
       "result": "Top Turret",
-      "description": "Top turret guns inoperable"
+      "description": "Top turret guns inoperable",
+      "damage_effects": [
+        {
+          "type": "gun_damage",
+          "position": "top_turret",
+          "damage_type": "destroy"
+        }
+      ]
     },
     "4": {
       "result": "Engineer",
@@ -22,7 +29,15 @@
       "follow_up": {
         "table": "BL-4",
         "target": "Engineer"
-      }
+      },
+      "damage_effects": [
+        {
+          "type": "crew_wound",
+          "position": "engineer",
+          "severity": "light",
+          "location": "body"
+        }
+      ]
     },
     "5": {
       "result": "Copilot",
@@ -30,7 +45,15 @@
       "follow_up": {
         "table": "BL-4",
         "target": "Copilot"
-      }
+      },
+      "damage_effects": [
+        {
+          "type": "crew_wound",
+          "position": "copilot",
+          "severity": "light",
+          "location": "body"
+        }
+      ]
     },
     "6": {
       "result": "Superficial Damage",
@@ -46,7 +69,15 @@
       "follow_up": {
         "table": "BL-4",
         "target": "Pilot"
-      }
+      },
+      "damage_effects": [
+        {
+          "type": "crew_wound",
+          "position": "pilot",
+          "severity": "light",
+          "location": "body"
+        }
+      ]
     },
     "9": {
       "result": "Intercom",
