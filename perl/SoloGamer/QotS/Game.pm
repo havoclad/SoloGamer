@@ -290,7 +290,12 @@ sub process_fighter_attack {
           return; # Fighter driven off
         } elsif ($result eq 'Destroyed') {
           $self->buffer_success("Fighter destroyed!");
-          # Award kill to gunner (would update CrewMember in full implementation)
+
+          # Award kill to gunner
+          if ($self->save->combat_state) {
+            $self->save->combat_state->record_kill($gun);
+          }
+
           return; # Fighter destroyed
         }
       }
@@ -394,6 +399,11 @@ sub report_mission_outcome {
     }
   }
   
+  # Transfer fighter kills from combat state to crew members
+  if ($self->save->crew && $self->save->combat_state) {
+    $self->_transfer_mission_kills_to_crew();
+  }
+
   # Update crew mission counts for successful missions
   if ($self->save->crew && !$game_over) {
     $self->save->update_crew_after_mission();
@@ -873,6 +883,73 @@ sub _replace_dead_crew_members {
   }
 
   return $replacements_made;
+}
+
+sub _map_gun_position_to_crew {
+  my ($self, $gun_position) = @_;
+
+  # Map gun positions from M-1 table to crew member positions
+  my %gun_to_crew = (
+    'Top_Turret'        => 'engineer',
+    'Ball_Turret'       => 'ball_gunner',
+    'Tail'              => 'tail_gunner',
+    'Port_Waist'        => 'port_waist_gunner',
+    'Starboard_Waist'   => 'starboard_waist_gunner',
+    'Radio'             => 'radio_operator',
+    'Nose'              => 'bombardier',     # Primary nose gunner
+    'Port_Cheek'        => 'navigator',      # Navigator mans port cheek gun
+    'Starboard_Cheek'   => 'bombardier',     # Bombardier mans starboard cheek gun
+  );
+
+  return $gun_to_crew{$gun_position};
+}
+
+sub _transfer_mission_kills_to_crew {
+  my $self = shift;
+
+  # Only transfer kills if we have both combat state and crew
+  return unless ($self->save->combat_state && $self->save->crew);
+
+  my $combat_state = $self->save->combat_state;
+  my $crew = $self->save->crew;
+  my $kill_summary = $combat_state->get_kill_summary();
+
+  # Transfer kills from combat state to crew members
+  for my $gun_position (keys %$kill_summary) {
+    my $kill_data = $kill_summary->{$gun_position};
+    my $kills_this_mission = $kill_data->{kills};
+
+    next unless $kills_this_mission > 0;
+
+    # Map gun position to crew position
+    my $crew_position = $self->_map_gun_position_to_crew($gun_position);
+    next unless $crew_position;
+
+    # Get the crew member for this position
+    my $crew_member = $crew->get_crew_member($crew_position);
+    next unless $crew_member;
+
+    # Only award kills to living crew members
+    next unless $crew_member->is_available;
+
+    # Award kills to crew member
+    $crew_member->add_kills($kills_this_mission);
+
+    my $total_kills = $crew_member->kills;
+    my $name = $crew_member->name;
+
+    $self->buffer_success("$name ($crew_position) awarded $kills_this_mission kill(s) this mission (Total: $total_kills)");
+
+    # Check for ace status
+    if ($total_kills >= 5 && ($total_kills - $kills_this_mission) < 5) {
+      $self->buffer_success("*** $name is now an ACE with $total_kills kills! ***");
+    }
+  }
+
+  # Update save data
+  $self->save->save->{crew} = $crew->to_hash();
+
+  return;
 }
 
 __PACKAGE__->meta->make_immutable;

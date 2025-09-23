@@ -362,10 +362,14 @@ sub get_display_status {
     $status .= "  [" . uc($self->frostbite_status) . " FROSTBITE]";
   }
   
+  if ($self->kills >= 5) {
+    $status .= "  [ACE]";
+  }
+
   if ($self->has_final_disposition && defined $self->final_disposition) {
     $status .= "  [" . $self->final_disposition . "]";
   }
-  
+
   return $status;
 }
 

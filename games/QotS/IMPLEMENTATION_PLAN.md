@@ -315,9 +315,23 @@ This implementation has transformed the basic framework into a fully playable B-
 6. ✅ Phase 5: State Management & Integration - COMPLETE
 7. ✅ Phase 6: Combat System Integration - COMPLETE
 
+## Current Enhancement Status
+**Enhancement #1: Complete Combat System Integration** ✅ COMPLETE
+- All B-series, M-series, P-series, and BL-series tables implemented and functional
+- Fighter combat with defensive fire, damage resolution, and kill tracking working
+- CombatState properly tracks kills per mission by gun position
+- Combat system fully integrated into mission flow
+
+**Enhancement #2: Crew Member Kill Tracking** ✅ COMPLETE
+- ✅ Connected CombatState kill tracking to CrewMember permanent records
+- ✅ Implemented gun position to crew position mapping (Top_Turret→engineer, etc.)
+- ✅ Added kill transfer logic in mission completion workflow
+- ✅ Enhanced crew roster display with ACE status for 5+ kills
+- ✅ Kills are now properly awarded to crew members when fighters are destroyed
+
 ## Future Enhancements
-1. Connect P-series damage tables to AircraftState for B-17 damage tracking
-2. Award kills to crew members when destroying fighters
+1. ✅ Connect P-series damage tables to AircraftState for B-17 damage tracking
+2. ✅ Award kills to crew members when destroying fighters
 3. Implement successive attacks using B-6 table
 4. Add conditional flow execution based on game state
 5. Implement crew replacement mechanics for casualties
