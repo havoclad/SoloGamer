@@ -129,13 +129,9 @@ sub can_operate_gun {
 
 sub add_mission {
   my $self = shift;
-  
-  if (!$self->is_available) {
-    $self->devel('Warning: Cannot add mission to crew member with final disposition: ' .
-                 $self->name . ' - ' . ($self->final_disposition // 'unknown'));
-    return;
-  }
-  
+
+  # Always credit missions - even if crew member was KIA/DOW during the mission
+  # They still flew the mission and deserve credit
   $self->missions($self->missions + 1);
   $self->devel('Added mission for ' . $self->name . ', total: ' . $self->missions);
   return;

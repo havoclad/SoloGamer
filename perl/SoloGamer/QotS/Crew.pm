@@ -167,13 +167,15 @@ sub get_all_crew {
 
 sub add_mission_for_active {
   my $self = shift;
-  
-  my @active = $self->get_active_crew();
-  foreach my $member (@active) {
+
+  # Add mission credit for ALL crew members who started the mission
+  # This includes those who were killed or wounded during the mission
+  my @all = $self->get_all_crew();
+  foreach my $member (@all) {
     $member->add_mission();
   }
-  
-  $self->devel("Added mission for " . scalar(@active) . " active crew members");
+
+  $self->devel("Added mission for " . scalar(@all) . " crew members");
   return;
 }
 
