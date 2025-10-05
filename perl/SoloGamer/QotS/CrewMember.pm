@@ -198,9 +198,11 @@ sub apply_wound {
     $self->devel($self->name . ' second serious wound - KIA');
     return;
   }
-  
+
   if ($current eq 'serious' && $severity eq 'light') {
-    $self->devel($self->name . ' already has serious wound, not downgrading to light');
+    # Light wound + serious wound = KIA (per game rules)
+    $self->set_disposition('KIA');
+    $self->devel($self->name . ' light wound on top of serious wound - KIA');
     return;
   }
   

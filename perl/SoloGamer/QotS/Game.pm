@@ -160,6 +160,12 @@ override 'run_game' => sub {
     $self->_replace_dead_crew_members();
   }
 
+  # Credit mission to all crew members BEFORE the mission starts
+  # This ensures everyone who flies gets credit, even if KIA during mission
+  if ($self->save->crew) {
+    $self->save->update_crew_after_mission();
+  }
+
   # Display crew roster at start of mission
   if ($self->save->crew) {
     my $roster = $self->save->crew->display_roster();
@@ -581,11 +587,9 @@ sub report_mission_outcome {
     $self->_transfer_mission_kills_to_crew();
   }
 
-  # Update crew mission counts for successful missions
-  if ($self->save->crew && !$game_over) {
-    $self->save->update_crew_after_mission();
-  }
-  
+  # Note: Mission credit is now added at mission START (before takeoff)
+  # This ensures KIA crew members get proper mission credit
+
   # Display outcome
   $self->buffer_header("MISSION $mission OUTCOME", 40);
   $self->buffer_success($outcome);

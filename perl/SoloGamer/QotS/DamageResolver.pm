@@ -36,7 +36,7 @@ sub resolve_damage {
   if (exists $damage_result->{damage_effects}) {
     foreach my $effect (@{$damage_result->{damage_effects}}) {
       # Replace target_crew_member placeholder with actual position
-      if ($effect->{position} eq 'target_crew_member' && $target_crew_member) {
+      if (defined($effect->{position}) && $effect->{position} eq 'target_crew_member' && $target_crew_member) {
         $effect->{position} = $target_crew_member;
       }
 
@@ -111,16 +111,26 @@ sub _apply_crew_wound {
     return "No crew member at $position to wound";
   }
 
+  my $previous_disposition = $crew_member->final_disposition;
   $crew_member->apply_wound($severity, $location);
 
   my $name = $crew_member->name;
+  my $message;
+
   if ($severity eq 'mortal') {
-    return "$name ($position) killed instantly by $location wound";
+    $message = "$name ($position) killed instantly by $location wound";
   } elsif ($severity eq 'serious') {
-    return "$name ($position) seriously wounded in $location";
+    $message = "$name ($position) seriously wounded in $location";
   } else {
-    return "$name ($position) lightly wounded in $location";
+    $message = "$name ($position) lightly wounded in $location";
   }
+
+  # Check if the wound resulted in KIA (e.g., light wound on top of serious wound)
+  if (!$previous_disposition && defined($crew_member->final_disposition) && $crew_member->final_disposition eq 'KIA') {
+    $message .= "\n$name ($position) succumbs to multiple wounds and is KIA";
+  }
+
+  return $message;
 }
 
 sub _apply_engine_damage {
