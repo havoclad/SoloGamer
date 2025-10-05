@@ -55,13 +55,13 @@ override 'handle_output' => sub {
   # Check for flak hits in various forms
   my $flak_hits = 0;
 
-  if ($template && $template =~ /(\d+)\s+flak\s+hits?\s+to\s+the\s+B-17/i) {
+  if ($template && $template =~ /(\d+)\s+flak\s+hits?\s+to\s+the\s+B-17/ixms) {
     $flak_hits = $1;
     $self->devel("Found flak hits in template: $flak_hits");
-  } elsif ($value && $value =~ /(\d+)\s+flak\s+hits?\s+to\s+the\s+B-17/i) {
+  } elsif ($value && $value =~ /(\d+)\s+flak\s+hits?\s+to\s+the\s+B-17/ixms) {
     $flak_hits = $1;
     $self->devel("Found flak hits in value: $flak_hits");
-  } elsif ($template && $template =~ /<(\d+)>\s+flak\s+hit\(s\)\s+to\s+the\s+B-17/i) {
+  } elsif ($template && $template =~ /<(\d+)>\s+flak\s+hit\(s\)\s+to\s+the\s+B-17/ixms) {
     $flak_hits = $1;
     $self->devel("Found flak hits in template with brackets: $flak_hits");
   }
@@ -647,7 +647,7 @@ sub resolve_follow_up_tables {
       if (exists $follow_result->{damage_effects}) {
         # Extract target crew member position from the original damage result
         my $target_position = lc($target);
-        $target_position =~ s/\s+/_/g;  # Convert "Navigator" to "navigator", etc.
+        $target_position =~ s/\s+/_/gxms;  # Convert "Navigator" to "navigator", etc.
 
         my @follow_reports = $resolver->resolve_damage($follow_result, $target_position);
         foreach my $report (@follow_reports) {
@@ -674,7 +674,7 @@ sub resolve_follow_up_tables {
     foreach my $range (keys %$sub_roll) {
       next if $range eq 'type';
 
-      if ($range =~ /^(\d+)-(\d+)$/) {
+      if ($range =~ /^(\d+)-(\d+)$/xms) {
         my ($min, $max) = ($1, $2);
         if ($sub_result >= $min && $sub_result <= $max) {
           $self->buffer_important("Sub-roll Result: " . $sub_roll->{$range});
@@ -764,9 +764,9 @@ sub normalize_attack_position_for_b5 {
   my $position = shift;
 
   # Map fighter attack positions to B-5 categories
-  return '12_1:30_10:30' if $position =~ /12|1:30|10:30/i;
-  return '6' if $position =~ /6/i;
-  return '3_9' if $position =~ /^[39]/i;
+  return '12_1:30_10:30' if $position =~ /12|1:30|10:30/ixms;
+  return '6' if $position =~ /6/ixms;
+  return '3_9' if $position =~ /^[39]/ixms;
 
   # Default to 12 o'clock attacks
   return '12_1:30_10:30';
@@ -982,7 +982,9 @@ sub _transfer_mission_kills_to_crew {
     my $kill_data = $kill_summary->{$gun_position};
     my $kills_this_mission = $kill_data->{kills};
 
-    next unless $kills_this_mission > 0;
+    if ($kills_this_mission == 0) {
+      next;
+    }
 
     # Map gun position to crew position
     my $crew_position = $self->_map_gun_position_to_crew($gun_position);

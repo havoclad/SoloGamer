@@ -153,6 +153,8 @@ sub _apply_engine_damage {
     # Default
     return "$engine_pos damaged ($damage_type)";
   }
+
+  return;
 }
 
 sub _apply_gun_damage {
@@ -199,6 +201,8 @@ sub _apply_fuel_damage {
     # Default
     return "$tank fuel tank damaged";
   }
+
+  return;
 }
 
 sub _apply_structural_damage {
