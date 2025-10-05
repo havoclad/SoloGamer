@@ -160,6 +160,14 @@ override 'run_game' => sub {
     $self->_replace_dead_crew_members();
   }
 
+  # Heal light wounds between missions (they automatically heal)
+  if ($self->save->crew) {
+    my $healed = $self->save->crew->heal_light_wounds();
+    if ($healed > 0) {
+      $self->devel("Healed $healed light wound(s) between missions");
+    }
+  }
+
   # Credit mission to all crew members BEFORE the mission starts
   # This ensures everyone who flies gets credit, even if KIA during mission
   if ($self->save->crew) {

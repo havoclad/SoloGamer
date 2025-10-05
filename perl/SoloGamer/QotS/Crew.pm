@@ -292,13 +292,89 @@ sub get_gunner_positions {
 
 sub get_officer_positions {
   my $self = shift;
-  
+
   return qw(
     bombardier
     navigator
     pilot
     copilot
   );
+}
+
+sub heal_light_wounds {
+  my $self = shift;
+
+  # Light wounds heal between missions automatically
+  my @all = $self->get_all_crew();
+  my $healed_count = 0;
+
+  foreach my $member (@all) {
+    next unless $member;
+    next unless $member->is_available;
+
+    if ($member->wound_status eq 'light') {
+      $member->apply_wound('none');
+      $self->devel($member->name . ' light wound healed between missions');
+      $healed_count++;
+    }
+  }
+
+  if ($healed_count > 0) {
+    $self->devel("Healed $healed_count light wound(s)");
+  }
+
+  return $healed_count;
+}
+
+sub process_serious_wounds {
+  my $self = shift;
+  my $game = shift;  # Need game object for dice rolling and output
+
+  unless ($game) {
+    $self->devel('Warning: process_serious_wounds requires game object');
+    return 0;
+  }
+
+  my @all = $self->get_all_crew();
+  my $processed_count = 0;
+
+  foreach my $member (@all) {
+    next unless $member;
+    next unless $member->is_available;
+    next unless $member->wound_status eq 'serious';
+
+    # Roll 1d6 for survival per BL-4 subnote b)
+    my $roll = $game->roll_dice('1d6');
+    my $name = $member->name;
+    my $position = $member->position;
+
+    if ($roll == 1) {
+      # Rapid recovery - may fly next mission
+      $member->apply_wound('none');
+      $game->buffer_success("$name: Survival roll $roll - Rapid recovery, cleared for next mission");
+      $self->devel("$name rapid recovery from serious wound");
+    }
+    elsif ($roll >= 2 && $roll <= 5) {
+      # Recovery but cannot fly more missions - mark as IH (Invalidated Home)
+      $member->set_disposition('IH');
+      $game->buffer_info("$name: Survival roll $roll - Recovered but invalidated home (IH)");
+      $self->devel("$name invalidated home due to serious wound");
+    }
+    else {  # roll == 6
+      # Wounds fatal - mark as DOW (Died of Wounds)
+      $member->set_disposition('DOW');
+      $game->buffer_error("$name: Survival roll $roll - Wounds fatal, died of wounds (DOW)");
+      $self->devel("$name died of wounds");
+    }
+
+    $processed_count++;
+  }
+
+  if ($processed_count > 0) {
+    $self->devel("Processed $processed_count serious wound(s)");
+  }
+
+  return $processed_count;
 }
 
 __PACKAGE__->meta->make_immutable;

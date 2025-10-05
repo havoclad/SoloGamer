@@ -364,10 +364,11 @@ sub do_roll {
 
 # Dispatch table for flow types
 my %FLOW_TYPE_HANDLERS = (
-  'choosemax' => '_handle_choosemax_flow',
-  'table'     => '_handle_table_flow',
-  'loop'      => '_handle_loop_flow',
-  'flow'      => '_handle_flow_flow',
+  'choosemax'       => '_handle_choosemax_flow',
+  'table'           => '_handle_table_flow',
+  'loop'            => '_handle_loop_flow',
+  'flow'            => '_handle_flow_flow',
+  'process_wounds'  => '_handle_process_wounds_flow',
 );
 
 sub do_flow {
@@ -541,9 +542,24 @@ sub _handle_loop_flow {  ## no critic (ProhibitUnusedPrivateSubroutines)
 # Handler for flow flow type (nested flow)
 sub _handle_flow_flow {  ## no critic (ProhibitUnusedPrivateSubroutines)
   my ($self, $next_flow, $buffer_save, $post) = @_;
-  
+
   my $flow_table = $next_flow->{flow_table};
   $self->do_flow($flow_table);
+  return;
+}
+
+sub _handle_process_wounds_flow {  ## no critic (ProhibitUnusedPrivateSubroutines)
+  my ($self, $next_flow, $buffer_save, $post) = @_;
+
+  # Process serious wounds for survival per BL-4 subnote b)
+  if ($self->save->crew) {
+    my $processed = $self->save->crew->process_serious_wounds($self);
+    if ($processed > 0) {
+      $self->devel("Processed $processed serious wound(s) post-landing");
+      # Update save with crew changes
+      $self->save->save->{crew} = $self->save->crew->to_hash();
+    }
+  }
   return;
 }
 
