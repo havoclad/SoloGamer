@@ -79,9 +79,16 @@ has 'formation_position' => (
   default => 'middle',
 );
 
+has 'current_fighter_context' => (
+  is      => 'rw',
+  isa     => 'Maybe[HashRef]',
+  default => undef,
+  clearer => 'clear_current_fighter_context',
+);
+
 sub reset_for_zone {
   my ($self, $zone) = @_;
-  
+
   $self->zone($zone) if defined $zone;
   $self->wave_number(0);
   $self->clear_current_wave();
@@ -89,9 +96,10 @@ sub reset_for_zone {
   $self->clear_defensive_fire_queue();
   $self->clear_successive_attacks();
   $self->clear_fighter_damage();
-  
+  $self->clear_current_fighter_context();
+
   $self->devel("Combat state reset for zone: " . ($zone || 'unknown'));
-  
+
   return 1;
 }
 
@@ -409,8 +417,51 @@ sub complete_wave {
   
   $self->clear_current_wave();
   $self->devel("Wave " . $self->wave_number . " completed");
-  
+
   return 1;
+}
+
+sub set_fighter_context {
+  my ($self, $fighter_id) = @_;
+
+  my $fighter = $self->get_fighter($fighter_id);
+  return 0 unless $fighter;
+
+  $self->current_fighter_context({
+    id           => $fighter->{id},
+    type         => $fighter->{type},
+    position     => $fighter->{position},
+    attacks_made => $fighter->{attacks_made},
+  });
+
+  $self->devel("Set fighter context: $fighter->{type} at $fighter->{position}, attacks: $fighter->{attacks_made}");
+
+  return 1;
+}
+
+sub get_fighter_type {
+  my $self = shift;
+
+  return unless defined $self->current_fighter_context;
+  return $self->current_fighter_context->{type} || '';
+}
+
+sub get_fighter_attack_number {
+  my $self = shift;
+
+  return 0 unless defined $self->current_fighter_context;
+  return $self->current_fighter_context->{attacks_made} || 0;
+}
+
+sub get_fighter_attack_ordinal {
+  my $self = shift;
+
+  my $num = $self->get_fighter_attack_number();
+
+  return 'first'  if $num == 1;
+  return 'second' if $num == 2;
+  return 'third'  if $num == 3;
+  return '';
 }
 
 __PACKAGE__->meta->make_immutable;

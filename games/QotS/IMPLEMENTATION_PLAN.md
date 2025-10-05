@@ -318,7 +318,7 @@ This implementation has transformed the basic framework into a fully playable B-
 ## Future Enhancements
 1. ✅ Connect P-series damage tables to AircraftState for B-17 damage tracking
 2. ✅ Award kills to crew members when destroying fighters
-3. Implement successive attacks using B-6 table
+3. ✅ Implement successive attacks using B-6 table
 4. Add conditional flow execution based on game state
 5. Implement crew replacement mechanics for casualties
 6. Add campaign progression features (25 mission tours)
