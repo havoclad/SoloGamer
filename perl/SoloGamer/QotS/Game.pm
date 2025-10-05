@@ -76,12 +76,21 @@ override 'handle_output' => sub {
 
 override 'smart_buffer' => sub {
   my ($self, $text) = @_;
-  
+
   return unless defined $text && length $text;
-  
+
   # Apply variable substitution first
   $text = $self->substitute_variables($text);
-  
+
+  # Apply pattern-based formatting
+  $self->_apply_text_formatting($text);
+
+  return;
+};
+
+sub _apply_text_formatting {
+  my ($self, $text) = @_;
+
   # QotS-specific text pattern matching using dispatch table
   my @patterns = (
     [ qr/^Rolling for/ixms, sub {
@@ -93,11 +102,9 @@ override 'smart_buffer' => sub {
       $self->buffer_roll($text);
     }],
     [ qr/^Welcome to/ixms, sub {
-      # Display Welcome message
       $self->buffer_header($text, 40);
     }],
     [ qr/^Moving\s+to\s+zone/ixms, sub {
-      # Display zone transitions with box headers
       $self->buffer_header($text, 30);
     }],
     [ qr/safe|successful|On target/ixms, sub {
@@ -113,7 +120,7 @@ override 'smart_buffer' => sub {
       $self->buffer_important($text);
     }],
   );
-  
+
   # Apply first matching pattern
   foreach my $pattern_pair (@patterns) {
     my ($pattern, $handler) = @$pattern_pair;
@@ -122,12 +129,12 @@ override 'smart_buffer' => sub {
       return;
     }
   }
-  
+
   # Default case
   $self->buffer($text);
-  
+
   return;
-};
+}
 
 override 'run_game' => sub {
   my $self = shift;
@@ -266,142 +273,249 @@ sub process_fighter_attack {
   $attack_num++;
 
   $self->smart_buffer("$type attacking from $position");
-  
+
+  # Process defensive fire - returns fighter damage status or undef if destroyed
+  my $fighter_damage = $self->_process_defensive_fire($type, $position);
+  return unless defined $fighter_damage; # Fighter destroyed or driven off
+
+  # Fighter attacks bomber
+  $self->_process_fighter_offensive({
+    fighter => $fighter,
+    type => $type,
+    position => $position,
+    fighter_damage => $fighter_damage,
+    attack_num => $attack_num,
+  });
+
+  return;
+}
+
+sub _process_defensive_fire {
+  my ($self, $type, $position) = @_;
+
   # Get M-1 table for defensive fire positions
   my $m1_table = $self->tables->{'M-1'};
-  return unless $m1_table;
-  
+  return '' unless $m1_table;
+
   # Normalize position for lookup (replace : with _ and spaces with _)
   my $lookup_position = lc($position);
   $lookup_position =~ s/:|\s+/_/gxms;
-  
+
   # Get guns that can fire at this position
   my $guns_available = $m1_table->{data}->{gun_positions}->{$lookup_position} || {};
-  
+
   # Process defensive fire
-  my $fighter_damage = "";
+  my $fighter_damage = '';
   foreach my $gun (keys %$guns_available) {
     my $to_hit = $guns_available->{$gun};
-    
-    # Check if gun is operational (would check AircraftState in full implementation)
-    # For now assume all guns work
-    
+
     # Roll for hit
     my $roll = int(rand(6) + 1);
     $self->devel("$gun fires at $type: rolled $roll, needs $to_hit to hit");
-    
+
     if ($roll >= $to_hit) {
       $self->buffer_success("$gun hits the $type!");
-      
-      # Roll M-2 for damage
-      my $m2_roll = $self->do_roll('M-2');
-      if ($m2_roll && exists $m2_roll->{result}) {
-        my $result = $m2_roll->{result};
-        if ($result eq 'FCA') {
-          $fighter_damage = 'FCA';
-          $self->smart_buffer("Fighter damaged, continuing attack with -1");
-        } elsif ($result eq 'FBOA') {
-          $self->smart_buffer("Fighter breaks off attack!");
-          return; # Fighter driven off
-        } elsif ($result eq 'Destroyed') {
-          $self->buffer_success("Fighter destroyed!");
 
-          # Award kill to gunner
-          if ($self->save->combat_state) {
-            $self->save->combat_state->record_kill($gun);
-          }
+      # Check fighter damage result
+      my $damage_result = $self->_resolve_fighter_damage($gun, $type);
+      return $damage_result if $damage_result; # undef means destroyed/driven off
 
-          return; # Fighter destroyed
-        }
-      }
+      # Fighter continues with damage
+      $fighter_damage = 'FCA';
     }
   }
-  
+
+  return $fighter_damage;
+}
+
+sub _resolve_fighter_damage {
+  my ($self, $gun, $type) = @_;
+
+  # Roll M-2 for damage
+  my $m2_roll = $self->do_roll('M-2');
+  return '' unless ($m2_roll && exists $m2_roll->{result});
+
+  my $result = $m2_roll->{result};
+  if ($result eq 'FCA') {
+    $self->smart_buffer("Fighter damaged, continuing attack with -1");
+    return ''; # Continue processing, will set FCA later
+  }
+
+  if ($result eq 'FBOA') {
+    $self->smart_buffer("Fighter breaks off attack!");
+    return; # undef = driven off
+  }
+
+  if ($result eq 'Destroyed') {
+    $self->buffer_success("Fighter destroyed!");
+    if ($self->save->combat_state) {
+      $self->save->combat_state->record_kill($gun);
+    }
+    return; # undef = destroyed
+  }
+
+  return '';
+}
+
+sub _process_fighter_offensive {
+  my ($self, $args) = @_;
+
+  my $fighter = $args->{fighter};
+  my $type = $args->{type};
+  my $position = $args->{position};
+  my $fighter_damage = $args->{fighter_damage};
+  my $attack_num = $args->{attack_num};
+
   # Fighter attacks (M-3)
   my $m3_table = $self->tables->{'M-3'};
-  if ($m3_table) {
-    # Determine attack position category
-    my $attack_category = $self->get_attack_category($position);
-    
-    # Get hit requirements for this fighter type and position
-    my $attack_data = $m3_table->{data}->{attack_position}->{$attack_category}->{$type} || {};
-    my $hit_on = $attack_data->{hit_on} || [];
-    
-    # Roll for fighter attack
-    my $attack_roll = int(rand(6) + 1);
-    
-    # Apply damage modifier if fighter was hit
-    if ($fighter_damage eq 'FCA') {
-      $attack_roll -= 1;
-    }
-    
-    $self->devel("$type attacks: rolled $attack_roll (modified), needs " . join(",", @$hit_on) . " to hit");
-    
-    # Check if hit (6 always hits regardless of modifiers)
-    if ($attack_roll == 6 || grep {$_ == $attack_roll} @$hit_on) {
-      $self->buffer_danger("B-17 hit by $type!");
+  return unless $m3_table;
 
-      # Roll for number of shell hits (would typically use B-4 table)
-      # For now, assume 1 shell hit for simplicity
-      my $shell_hits = 1;
-      $self->smart_buffer("$shell_hits shell hit(s) from $type");
+  # Determine attack position category
+  my $attack_category = $self->get_attack_category($position);
 
-      # Process each shell hit with attack position info
-      for (my $hit = 1; $hit <= $shell_hits; $hit++) {
-        $self->resolve_aircraft_damage($position, 'high'); # Pass fighter position and altitude
-      }
+  # Get hit requirements for this fighter type and position
+  my $attack_data = $m3_table->{data}->{attack_position}->{$attack_category}->{$type} || {};
+  my $hit_on = $attack_data->{hit_on} || [];
 
-      # Successive attack logic (rule 6.5)
-      # Any fighter that hits gets another attack, max 3 total attacks
-      $self->devel("Checking successive attack: attack_num=$attack_num, limit=3");
-      if ($attack_num < 3) {
-        # Set fighter context for variable substitution
-        if ($self->save->combat_state) {
-          my $fighter_id = $fighter->{id} || "${type}_temp";
-          my $temp_fighter = {
-            id => $fighter_id,
-            type => $type,
-            position => $position,
-            attacks_made => $attack_num,
-          };
-          # Add to combat state if not already there
-          unless ($self->save->combat_state->get_fighter($fighter_id)) {
-            $self->save->combat_state->add_fighter($temp_fighter);
-          }
-          $self->save->combat_state->set_fighter_context($fighter_id);
-        }
+  # Roll for fighter attack
+  my $attack_roll = int(rand(6) + 1);
 
-        # Display successive attack message
-        my $plane_name = $self->save->get_plane_name || "the B-17";
-        $self->print_output; # Flush buffered output before successive attack
-        if ($attack_num == 1) {
-          $self->buffer("The $type hit $plane_name and is coming back for another attack, rolling on Table B-6 for position");
-        } elsif ($attack_num == 2) {
-          $self->buffer("The $type hit again! Rolling on Table B-6 for final attack position");
-        }
-        $self->print_output; # Display message immediately
-
-        # Roll B-6 for new attack position
-        my $b6_roll = $self->do_roll('B-6');
-        if ($b6_roll && exists $b6_roll->{position}) {
-          my $new_position = $b6_roll->{position};
-          $self->smart_buffer("New attack position: $new_position");
-
-          # Create new fighter hash with updated position
-          my $successive_fighter = {
-            type => $type,
-            position => $new_position,
-            id => $fighter->{id},
-          };
-
-          # Recursive call for successive attack
-          $self->process_fighter_attack($successive_fighter, $attack_num);
-        }
-      }
-    } else {
-      $self->smart_buffer("$type misses");
-    }
+  # Apply damage modifier if fighter was hit
+  if ($fighter_damage eq 'FCA') {
+    $attack_roll -= 1;
   }
+
+  $self->devel("$type attacks: rolled $attack_roll (modified), needs " . join(",", @$hit_on) . " to hit");
+
+  # Check if hit (6 always hits regardless of modifiers)
+  if ($attack_roll == 6 || grep {$_ == $attack_roll} @$hit_on) {
+    $self->_handle_bomber_hit({
+      fighter => $fighter,
+      type => $type,
+      position => $position,
+      attack_num => $attack_num,
+    });
+  } else {
+    $self->smart_buffer("$type misses");
+  }
+
+  return;
+}
+
+sub _handle_bomber_hit {
+  my ($self, $args) = @_;
+
+  my $fighter = $args->{fighter};
+  my $type = $args->{type};
+  my $position = $args->{position};
+  my $attack_num = $args->{attack_num};
+
+  $self->buffer_danger("B-17 hit by $type!");
+
+  # Roll for number of shell hits (would typically use B-4 table)
+  my $shell_hits = 1;
+  $self->smart_buffer("$shell_hits shell hit(s) from $type");
+
+  # Process each shell hit with attack position info
+  for (my $hit = 1; $hit <= $shell_hits; $hit++) {
+    $self->resolve_aircraft_damage($position, 'high');
+  }
+
+  # Handle successive attacks
+  $self->_handle_successive_attack({
+    fighter => $fighter,
+    type => $type,
+    position => $position,
+    attack_num => $attack_num,
+  });
+
+  return;
+}
+
+sub _handle_successive_attack {
+  my ($self, $args) = @_;
+
+  my $fighter = $args->{fighter};
+  my $type = $args->{type};
+  my $position = $args->{position};
+  my $attack_num = $args->{attack_num};
+
+  # Successive attack logic (rule 6.5)
+  # Any fighter that hits gets another attack, max 3 total attacks
+  $self->devel("Checking successive attack: attack_num=$attack_num, limit=3");
+  return if $attack_num >= 3;
+
+  # Set fighter context for variable substitution
+  $self->_set_fighter_context({
+    fighter => $fighter,
+    type => $type,
+    position => $position,
+    attack_num => $attack_num,
+  });
+
+  # Display successive attack message
+  $self->_display_successive_attack_message($type, $attack_num);
+
+  # Roll B-6 for new attack position and continue
+  my $b6_roll = $self->do_roll('B-6');
+  return unless ($b6_roll && exists $b6_roll->{position});
+
+  my $new_position = $b6_roll->{position};
+  $self->smart_buffer("New attack position: $new_position");
+
+  # Create new fighter hash with updated position
+  my $successive_fighter = {
+    type => $type,
+    position => $new_position,
+    id => $fighter->{id},
+  };
+
+  # Recursive call for successive attack
+  $self->process_fighter_attack($successive_fighter, $attack_num);
+
+  return;
+}
+
+sub _set_fighter_context {
+  my ($self, $args) = @_;
+
+  return unless $self->save->combat_state;
+
+  my $fighter = $args->{fighter};
+  my $type = $args->{type};
+  my $position = $args->{position};
+  my $attack_num = $args->{attack_num};
+
+  my $fighter_id = $fighter->{id} || "${type}_temp";
+  my $temp_fighter = {
+    id => $fighter_id,
+    type => $type,
+    position => $position,
+    attacks_made => $attack_num,
+  };
+
+  # Add to combat state if not already there
+  unless ($self->save->combat_state->get_fighter($fighter_id)) {
+    $self->save->combat_state->add_fighter($temp_fighter);
+  }
+  $self->save->combat_state->set_fighter_context($fighter_id);
+
+  return;
+}
+
+sub _display_successive_attack_message {
+  my ($self, $type, $attack_num) = @_;
+
+  my $plane_name = $self->save->get_plane_name || "the B-17";
+  $self->print_output; # Flush buffered output before successive attack
+
+  if ($attack_num == 1) {
+    $self->buffer("The $type hit $plane_name and is coming back for another attack, rolling on Table B-6 for position");
+  } elsif ($attack_num == 2) {
+    $self->buffer("The $type hit again! Rolling on Table B-6 for final attack position");
+  }
+
+  $self->print_output; # Display message immediately
 
   return;
 }
