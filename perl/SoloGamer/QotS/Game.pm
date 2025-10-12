@@ -45,31 +45,11 @@ override 'substitute_variables' => sub {
 override 'handle_output' => sub {
   my ($self, $field, $value, $template) = @_;
 
-  # Debug: Log all parameters to see what we're getting
   $self->devel("handle_output called: field='$field', value='" . ($value || 'undef') . "', template='" . ($template || 'undef') . "'");
 
-  # Call parent method first
   super();
 
-  # Intercept flak hits for damage processing
-  # Check for flak hits in various forms
-  my $flak_hits = 0;
-
-  if ($template && $template =~ /(\d+)\s+flak\s+hits?\s+to\s+the\s+B-17/ixms) {
-    $flak_hits = $1;
-    $self->devel("Found flak hits in template: $flak_hits");
-  } elsif ($value && $value =~ /(\d+)\s+flak\s+hits?\s+to\s+the\s+B-17/ixms) {
-    $flak_hits = $1;
-    $self->devel("Found flak hits in value: $flak_hits");
-  } elsif ($template && $template =~ /<(\d+)>\s+flak\s+hit\(s\)\s+to\s+the\s+B-17/ixms) {
-    $flak_hits = $1;
-    $self->devel("Found flak hits in template with brackets: $flak_hits");
-  }
-
-  if ($flak_hits > 0) {
-    $self->devel("Processing $flak_hits flak hits");
-    $self->resolve_flak_damage($flak_hits);
-  }
+  $self->_process_flak_hits($value, $template);
 
   return;
 };
@@ -132,6 +112,30 @@ sub _apply_text_formatting {
 
   # Default case
   $self->buffer($text);
+
+  return;
+}
+
+sub _process_flak_hits {
+  my ($self, $value, $template) = @_;
+
+  my $flak_hits = 0;
+
+  if ($template && $template =~ /(\d+)\s+flak\s+hits?\s+to\s+the\s+B-17/ixms) {
+    $flak_hits = $1;
+    $self->devel("Found flak hits in template: $flak_hits");
+  } elsif ($value && $value =~ /(\d+)\s+flak\s+hits?\s+to\s+the\s+B-17/ixms) {
+    $flak_hits = $1;
+    $self->devel("Found flak hits in value: $flak_hits");
+  } elsif ($template && $template =~ /<(\d+)>\s+flak\s+hit\(s\)\s+to\s+the\s+B-17/ixms) {
+    $flak_hits = $1;
+    $self->devel("Found flak hits in template with brackets: $flak_hits");
+  }
+
+  if ($flak_hits > 0) {
+    $self->devel("Processing $flak_hits flak hits");
+    $self->resolve_flak_damage($flak_hits);
+  }
 
   return;
 }
