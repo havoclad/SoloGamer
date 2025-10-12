@@ -222,15 +222,19 @@ sub display_mission_record {
   my @completed_missions = $self->_get_completed_missions();
   return "No completed missions yet.\n" unless @completed_missions;
 
-  # Build the mission record display
+  # Build the mission table and get its width
+  my ($table_content, $table_width) = $self->_format_unified_mission_table(\@completed_missions);
+
+  # Build the mission record display with dynamic width
   my $formatter = SoloGamer::Formatter->new();
-  my $header = $formatter->box_header("B-17 COMPOSITE MISSION RECORD", 140);
+  my $header = $formatter->box_header("B-17 COMPOSITE MISSION RECORD", $table_width);
   my $output = "\n$header\n\n";
 
-  # Single unified table with all crew positions
-  $output .= $self->_format_unified_mission_table(\@completed_missions);
+  # Add table content
+  $output .= $table_content;
 
-  $output .= "=" x 140 . "\n";
+  # Add bottom separator
+  $output .= "=" x $table_width . "\n";
 
   return $output;
 }
@@ -248,95 +252,139 @@ sub _get_completed_missions {
 sub _format_unified_mission_table {
   my ($self, $missions) = @_;
 
+  # First pass: collect all data and calculate column widths
+  my @rows;
+  my %max_widths = (
+    msn => 3,
+    plane => length("B-17 NAME"),
+    target => length("TARGET"),
+    bomb => length("BOMB%"),
+    bombardier => length("BOMBARDIER"),
+    navigator => length("NAVIGATOR"),
+    pilot => length("PILOT"),
+    copilot => length("CO-PILOT"),
+    engineer => length("ENGINEER"),
+    radio => length("RADIO OP"),
+    ball => length("BALL"),
+    port => length("PORT WAIST"),
+    stbd => length("STBD WAIST"),
+    tail => length("TAIL"),
+  );
+
+  # Collect data and track maximum widths
+  foreach my $mission_data (@$missions) {
+    my $row = $self->_extract_mission_data($mission_data);
+    push @rows, $row;
+
+    # Update maximum widths
+    $max_widths{msn} = _max($max_widths{msn}, length($row->{msn}));
+    $max_widths{plane} = _max($max_widths{plane}, length($row->{plane}));
+    $max_widths{target} = _max($max_widths{target}, length($row->{target}));
+    $max_widths{bomb} = _max($max_widths{bomb}, length($row->{bomb}));
+    $max_widths{bombardier} = _max($max_widths{bombardier}, length($row->{bombardier}));
+    $max_widths{navigator} = _max($max_widths{navigator}, length($row->{navigator}));
+    $max_widths{pilot} = _max($max_widths{pilot}, length($row->{pilot}));
+    $max_widths{copilot} = _max($max_widths{copilot}, length($row->{copilot}));
+    $max_widths{engineer} = _max($max_widths{engineer}, length($row->{engineer}));
+    $max_widths{radio} = _max($max_widths{radio}, length($row->{radio}));
+    $max_widths{ball} = _max($max_widths{ball}, length($row->{ball}));
+    $max_widths{port} = _max($max_widths{port}, length($row->{port}));
+    $max_widths{stbd} = _max($max_widths{stbd}, length($row->{stbd}));
+    $max_widths{tail} = _max($max_widths{tail}, length($row->{tail}));
+  }
+
+  # Also check rank sub-header widths
+  $max_widths{bombardier} = _max($max_widths{bombardier}, length("Lieut."));
+  $max_widths{navigator} = _max($max_widths{navigator}, length("Lieut."));
+  $max_widths{pilot} = _max($max_widths{pilot}, length("Capt."));
+  $max_widths{copilot} = _max($max_widths{copilot}, length("Lieut."));
+  $max_widths{engineer} = _max($max_widths{engineer}, length("Tech Sgt."));
+  $max_widths{radio} = _max($max_widths{radio}, length("Sgt."));
+  $max_widths{ball} = _max($max_widths{ball}, length("Sgt."));
+  $max_widths{port} = _max($max_widths{port}, length("Sgt."));
+  $max_widths{stbd} = _max($max_widths{stbd}, length("Sgt."));
+  $max_widths{tail} = _max($max_widths{tail}, length("Sgt."));
+
+  # Add padding (2 spaces between columns)
+  foreach my $key (keys %max_widths) {
+    $max_widths{$key} += 2;
+  }
+
+  # Build format string
+  my $fmt = "%-$max_widths{msn}s%-$max_widths{plane}s%-$max_widths{target}s%-$max_widths{bomb}s" .
+            "%-$max_widths{bombardier}s%-$max_widths{navigator}s%-$max_widths{pilot}s%-$max_widths{copilot}s" .
+            "%-$max_widths{engineer}s%-$max_widths{radio}s%-$max_widths{ball}s%-$max_widths{port}s" .
+            "%-$max_widths{stbd}s%-$max_widths{tail}s\n";
+
+  # Calculate total width
+  my $total_width = 0;
+  foreach my $width (values %max_widths) {
+    $total_width += $width;
+  }
+
+  # Build output
   my $output = "";
 
-  # Table header - all crew positions in one line
-  $output .= sprintf("%-3s %-12s %-18s %-6s %-12s %-12s %-12s %-12s %-12s %-12s %-12s %-12s %-12s %-12s\n",
+  # Table header
+  $output .= sprintf($fmt,
     "MSN", "B-17 NAME", "TARGET", "BOMB%",
     "BOMBARDIER", "NAVIGATOR", "PILOT", "CO-PILOT",
     "ENGINEER", "RADIO OP", "BALL", "PORT WAIST", "STBD WAIST", "TAIL");
 
   # Rank sub-header
-  $output .= sprintf("%-3s %-12s %-18s %-6s %-12s %-12s %-12s %-12s %-12s %-12s %-12s %-12s %-12s %-12s\n",
+  $output .= sprintf($fmt,
     "", "", "", "",
     "Lieut.", "Lieut.", "Capt.", "Lieut.",
     "Tech Sgt.", "Sgt.", "Sgt.", "Sgt.", "Sgt.", "Sgt.");
 
-  $output .= "=" x 140 . "\n";
+  $output .= "=" x $total_width . "\n";
 
   # Display each mission
-  foreach my $mission_data (@$missions) {
-    $output .= $self->_format_unified_mission_row($mission_data);
+  foreach my $row (@rows) {
+    $output .= sprintf($fmt,
+      $row->{msn}, $row->{plane}, $row->{target}, $row->{bomb},
+      $row->{bombardier}, $row->{navigator}, $row->{pilot}, $row->{copilot},
+      $row->{engineer}, $row->{radio}, $row->{ball}, $row->{port},
+      $row->{stbd}, $row->{tail});
   }
 
-  return $output;
+  return ($output, $total_width);
 }
 
-sub _format_unified_mission_row {
+sub _max {
+  my ($a, $b) = @_;
+  return $a > $b ? $a : $b;
+}
+
+sub _extract_mission_data {
   my ($self, $mission_data) = @_;
 
   my $mission_num = $mission_data->{Mission} || '?';
   my $plane_name = $self->get_plane_name || 'Unknown';
-  my $target = $self->_format_target($mission_data, 18);
+  my $target = ($mission_data->{Target} || 'Unknown') . ' (' . ($mission_data->{Type} || '?') . ')';
 
-  # Format bomb percentage: show actual % if available, otherwise show On/Off status
+  # Format bomb percentage
   my $bomb_pct = $mission_data->{bombing_accuracy} || '0';
   if ($bomb_pct =~ /^\d+$/xms) {
-    # If it's just a number, add % sign
     $bomb_pct = $bomb_pct . '%';
   }
 
-  # Get all crew names from historical mission data (trimmed to 12 chars)
-  my $bombardier = $self->_trim_name($mission_data->{crew_bombardier}, 12);
-  my $navigator = $self->_trim_name($mission_data->{crew_navigator}, 12);
-  my $pilot = $self->_trim_name($mission_data->{crew_pilot}, 12);
-  my $copilot = $self->_trim_name($mission_data->{crew_copilot}, 12);
-  my $engineer = $self->_trim_name($mission_data->{crew_engineer}, 12);
-  my $radio_op = $self->_trim_name($mission_data->{crew_radio_operator}, 12);
-  my $ball = $self->_trim_name($mission_data->{crew_ball_gunner}, 12);
-  my $port = $self->_trim_name($mission_data->{crew_port_waist_gunner}, 12);
-  my $stbd = $self->_trim_name($mission_data->{crew_starboard_waist_gunner}, 12);
-  my $tail = $self->_trim_name($mission_data->{crew_tail_gunner}, 12);
-
-  # Trim plane name to fit
-  $plane_name = substr($plane_name, 0, 11) if length($plane_name) > 12;
-
-  # Trim bomb percentage to fit
-  $bomb_pct = substr($bomb_pct, 0, 5) if length($bomb_pct) > 6;
-
-  return sprintf("%-3d %-12s %-18s %-6s %-12s %-12s %-12s %-12s %-12s %-12s %-12s %-12s %-12s %-12s\n",
-    $mission_num, $plane_name, $target, $bomb_pct,
-    $bombardier, $navigator, $pilot, $copilot,
-    $engineer, $radio_op, $ball, $port, $stbd, $tail);
-}
-
-sub _format_target {
-  my ($self, $mission_data, $max_length) = @_;
-
-  $max_length = $max_length || 20;
-
-  my $target = ($mission_data->{Target} || 'Unknown') . ' (' . ($mission_data->{Type} || '?') . ')';
-
-  # Trim target if too long
-  if (length($target) > $max_length) {
-    $target = substr($target, 0, $max_length - 3) . '...';
-  }
-
-  return $target;
-}
-
-sub _trim_name {
-  my ($self, $name, $max_length) = @_;
-
-  $max_length = $max_length || 15;
-  $name = $name || 'Unknown';
-
-  # Trim name if too long
-  if (length($name) > $max_length) {
-    $name = substr($name, 0, $max_length - 1);
-  }
-
-  return $name;
+  return {
+    msn => $mission_num,
+    plane => $plane_name,
+    target => $target,
+    bomb => $bomb_pct,
+    bombardier => $mission_data->{crew_bombardier} || 'Unknown',
+    navigator => $mission_data->{crew_navigator} || 'Unknown',
+    pilot => $mission_data->{crew_pilot} || 'Unknown',
+    copilot => $mission_data->{crew_copilot} || 'Unknown',
+    engineer => $mission_data->{crew_engineer} || 'Unknown',
+    radio => $mission_data->{crew_radio_operator} || 'Unknown',
+    ball => $mission_data->{crew_ball_gunner} || 'Unknown',
+    port => $mission_data->{crew_port_waist_gunner} || 'Unknown',
+    stbd => $mission_data->{crew_starboard_waist_gunner} || 'Unknown',
+    tail => $mission_data->{crew_tail_gunner} || 'Unknown',
+  };
 }
 
 sub _build_aircraft_state {
