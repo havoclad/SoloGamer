@@ -278,7 +278,13 @@ sub _format_unified_mission_row {
   my $mission_num = $mission_data->{Mission} || '?';
   my $plane_name = $self->get_plane_name || 'Unknown';
   my $target = $self->_format_target($mission_data, 18);
-  my $bomb_pct = $mission_data->{bomb_run_on_target} || $mission_data->{bombing_accuracy} || '0';
+
+  # Format bomb percentage: show actual % if available, otherwise show On/Off status
+  my $bomb_pct = $mission_data->{bombing_accuracy} || '0';
+  if ($bomb_pct =~ /^\d+$/xms) {
+    # If it's just a number, add % sign
+    $bomb_pct = $bomb_pct . '%';
+  }
 
   # Get all crew names from historical mission data (trimmed to 12 chars)
   my $bombardier = $self->_trim_name($mission_data->{crew_bombardier}, 12);
