@@ -207,12 +207,149 @@ sub get_crew {
 
 sub update_crew_after_mission {
   my $self = shift;
-  
+
   if ($self->crew) {
     $self->crew->add_mission_for_active();
     $self->save->{crew} = $self->crew->to_hash();
   }
   return;
+}
+
+sub display_mission_record {
+  my $self = shift;
+
+  # Get and validate mission history
+  my @completed_missions = $self->_get_completed_missions();
+  return "No completed missions yet.\n" unless @completed_missions;
+
+  # Build the mission record display
+  my $formatter = SoloGamer::Formatter->new();
+  my $header = $formatter->box_header("B-17 COMPOSITE MISSION RECORD", 90);
+  my $output = "\n$header\n\n";
+
+  # Officers section (bombardier, navigator, pilot, copilot)
+  $output .= $self->_format_officers_section(\@completed_missions);
+
+  # Enlisted section (engineer, radio, gunners)
+  $output .= $self->_format_enlisted_section(\@completed_missions);
+
+  $output .= "=" x 90 . "\n";
+
+  return $output;
+}
+
+sub _get_completed_missions {
+  my $self = shift;
+
+  my $missions = $self->save->{mission};
+  return () unless ($missions && ref($missions) eq 'ARRAY');
+
+  # Filter out empty missions (mission 0 placeholder)
+  return grep { defined $_->{Mission} && $_->{Mission} > 0 } @$missions;
+}
+
+sub _format_officers_section {
+  my ($self, $missions) = @_;
+
+  my $output = "";
+
+  # Table header
+  $output .= sprintf("%-4s %-15s %-20s %-8s %-15s %-15s %-15s %-15s\n",
+    "MSN", "B-17 NAME", "TARGET", "BOMB%", "BOMBARDIER", "NAVIGATOR", "PILOT", "CO-PILOT");
+  $output .= sprintf("%-4s %-15s %-20s %-8s %-15s %-15s %-15s %-15s\n",
+    "", "", "", "", "Lieut.", "Lieut.", "Capt.", "Lieut.");
+  $output .= "=" x 90 . "\n";
+
+  # Display each mission
+  foreach my $mission_data (@$missions) {
+    $output .= $self->_format_mission_officers_row($mission_data);
+  }
+
+  $output .= "\n";
+
+  return $output;
+}
+
+sub _format_enlisted_section {
+  my ($self, $missions) = @_;
+
+  my $output = "";
+
+  # Table header
+  $output .= sprintf("%-4s %-15s %-15s %-15s %-15s %-15s %-15s\n",
+    "MSN", "ENGINEER", "RADIO OP", "BALL TURRET", "PORT WAIST", "STBD WAIST", "TAIL GUNNER");
+  $output .= sprintf("%-4s %-15s %-15s %-15s %-15s %-15s %-15s\n",
+    "", "Tech Sgt.", "Sgt.", "Sgt.", "Sgt.", "Sgt.", "Sgt.");
+  $output .= "=" x 90 . "\n";
+
+  # Display each mission
+  foreach my $mission_data (@$missions) {
+    $output .= $self->_format_mission_enlisted_row($mission_data);
+  }
+
+  return $output;
+}
+
+sub _format_mission_officers_row {
+  my ($self, $mission_data) = @_;
+
+  my $mission_num = $mission_data->{Mission} || '?';
+  my $plane_name = $self->get_plane_name || 'Unknown';
+  my $target = $self->_format_target($mission_data);
+  my $bomb_pct = $mission_data->{bomb_run_on_target} || $mission_data->{bombing_accuracy} || '0';
+
+  # Get crew names from historical mission data
+  my $bombardier = $self->_trim_name($mission_data->{crew_bombardier});
+  my $navigator = $self->_trim_name($mission_data->{crew_navigator});
+  my $pilot = $self->_trim_name($mission_data->{crew_pilot});
+  my $copilot = $self->_trim_name($mission_data->{crew_copilot});
+
+  return sprintf("%-4d %-15s %-20s %-8s %-15s %-15s %-15s %-15s\n",
+    $mission_num, $plane_name, $target, $bomb_pct,
+    $bombardier, $navigator, $pilot, $copilot);
+}
+
+sub _format_mission_enlisted_row {
+  my ($self, $mission_data) = @_;
+
+  my $mission_num = $mission_data->{Mission} || '?';
+
+  # Get crew names from historical mission data
+  my $engineer = $self->_trim_name($mission_data->{crew_engineer});
+  my $radio_op = $self->_trim_name($mission_data->{crew_radio_operator});
+  my $ball = $self->_trim_name($mission_data->{crew_ball_gunner});
+  my $port = $self->_trim_name($mission_data->{crew_port_waist_gunner});
+  my $stbd = $self->_trim_name($mission_data->{crew_starboard_waist_gunner});
+  my $tail = $self->_trim_name($mission_data->{crew_tail_gunner});
+
+  return sprintf("%-4d %-15s %-15s %-15s %-15s %-15s %-15s\n",
+    $mission_num, $engineer, $radio_op, $ball, $port, $stbd, $tail);
+}
+
+sub _format_target {
+  my ($self, $mission_data) = @_;
+
+  my $target = ($mission_data->{Target} || 'Unknown') . ' (' . ($mission_data->{Type} || '?') . ')';
+
+  # Trim target if too long
+  if (length($target) > 20) {
+    $target = substr($target, 0, 17) . '...';
+  }
+
+  return $target;
+}
+
+sub _trim_name {
+  my ($self, $name) = @_;
+
+  $name = $name || 'Unknown';
+
+  # Trim name if too long (max 15 chars, trim to 14)
+  if (length($name) > 15) {
+    $name = substr($name, 0, 14);
+  }
+
+  return $name;
 }
 
 sub _build_aircraft_state {

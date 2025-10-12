@@ -598,20 +598,27 @@ sub report_mission_outcome {
   # Note: Mission credit is now added at mission START (before takeoff)
   # This ensures KIA crew members get proper mission credit
 
+  # Save crew roster for this mission (historical record)
+  $self->_save_mission_crew_roster();
+
   # Display outcome
   $self->buffer_header("MISSION $mission OUTCOME", 40);
   $self->buffer_success($outcome);
-  
+
   # Display updated crew roster after mission
   if ($self->save->crew) {
     my $roster = $self->save->crew->display_roster();
     $self->buffer($roster);
   }
-  
+
+  # Display mission record after crew roster
+  my $mission_record = $self->save->display_mission_record();
+  $self->buffer($mission_record);
+
   if ($game_over) {
     $self->buffer_header("PLAYTHROUGH OVER", 40);
   }
-  
+
   return;
 }
 
@@ -1139,6 +1146,31 @@ sub _transfer_mission_kills_to_crew {
 
   # Update save data
   $self->save->save->{crew} = $crew->to_hash();
+
+  return;
+}
+
+sub _save_mission_crew_roster {
+  my $self = shift;
+
+  return unless $self->save->crew;
+
+  my $crew = $self->save->crew;
+
+  # Save crew names for each position for this mission
+  my @positions = qw(
+    bombardier navigator pilot copilot engineer
+    radio_operator ball_gunner port_waist_gunner
+    starboard_waist_gunner tail_gunner
+  );
+
+  foreach my $position (@positions) {
+    my $member = $crew->get_crew_member($position);
+    if ($member) {
+      my $crew_key = "crew_$position";
+      $self->save->add_save($crew_key, $member->name);
+    }
+  }
 
   return;
 }
