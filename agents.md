@@ -132,7 +132,11 @@ When fixing bugs or adding features:
 
 ### Code Quality Standards
 - **ALWAYS** run `./test.bash` before commits to ensure all tests pass
-- Run `./critic.bash` for Perl::Critic code quality checks
+- **MANDATORY**: Run `./critic.bash` and fix ALL perlcritic warnings before committing
+  - The codebase currently has ZERO perlcritic warnings
+  - Keep it that way: any code changes that introduce warnings must be refactored
+  - Do not ignore or skip perlcritic warnings
+  - If you modify a file, check it with perlcritic and fix any issues
 - Follow existing Moose patterns for new modules
 - Use roles for shared functionality
 - Keep table logic in JSON, not Perl code
@@ -141,4 +145,5 @@ When fixing bugs or adding features:
 ## Development Principles
 
 - **Always fix warnings before marking a task complete**
+- **Zero tolerance for perlcritic warnings**: The codebase is clean, keep it clean
 - remember, the build will take around 10 minutes
