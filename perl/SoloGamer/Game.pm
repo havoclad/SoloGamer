@@ -5,6 +5,7 @@ use v5.42;
 use File::Basename;
 use Carp;
 use Module::Runtime qw(require_module);
+use List::Util qw(first);
 
 use Moose;
 use namespace::autoclean;
@@ -179,18 +180,6 @@ sub _build_load_data_tables {
     $h->{$filename} = $factory->new_table( $table);
   }
   return $h;
-}
-
-# Intent is to return the first item in an array that is less than the input
-sub do_max {
-  my $self     = shift;
-  my $variable = shift;
-  my $choices  = shift;
-
-  foreach my $item ($choices->@*) {
-    return $item->{Table} if $variable <= $item->{max};
-  }
-  croak "Didn't find a max that matched $variable";
 }
 
 sub do_loop {
@@ -451,8 +440,9 @@ sub _enhance_choosemax_message {
   my ($self, $next_flow, $pre) = @_;
   my $choice = $next_flow->{variable};
   my $mission_value = $self->_get_mission_value($choice);
-  my $table = $self->do_max($mission_value, $next_flow->{choices});
-  
+  my $table_item = first { $mission_value <= $_->{max} } $next_flow->{choices}->@*;
+  my $table = $table_item->{Table};
+
   return "$pre on table $table";
 }
 
@@ -484,12 +474,13 @@ sub _get_mission_value {
 # Handler for choosemax flow type
 sub _handle_choosemax_flow {  ## no critic (ProhibitUnusedPrivateSubroutines)
   my ($self, $next_flow, $buffer_save, $post) = @_;
-  
+
   $self->save->add_save('Mission', $self->save->mission);
   my $choice = $next_flow->{variable};
   my $mission_value = $self->_get_mission_value($choice);
-  my $table = $self->do_max($mission_value, $next_flow->{choices});
-  
+  my $table_item = first { $mission_value <= $_->{max} } $next_flow->{choices}->@*;
+  my $table = $table_item->{Table};
+
   my $roll = $self->do_roll($table);
   $self->handle_output('Target', $roll->{Target});
   $self->handle_output('Type', $roll->{Type});
