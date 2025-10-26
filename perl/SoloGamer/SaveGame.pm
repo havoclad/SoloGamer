@@ -105,6 +105,13 @@ sub _should_load_existing_save {
 
   return 0 unless $save_to_load && -e $save_to_load;
 
+  # Check if autosave is a completed campaign (25 successful missions)
+  if ($is_autosave && $self->_is_campaign_complete($save_to_load)) {
+    $self->devel("Autosave has 25 successful missions - deleting and starting fresh");
+    unlink $save_to_load or $self->devel("Warning: Could not delete completed autosave: $!");
+    return 0;
+  }
+
   # Not autosave or automated mode - always load
   if (!$is_autosave || $self->automated) {
     return 1;
@@ -490,6 +497,24 @@ sub _build_input_fh {
   open my $fh, '<', $self->input_file
     or croak "Cannot open input file '" . $self->input_file . "': $!";
   return $fh;
+}
+
+sub _is_campaign_complete {
+  my ($self, $save_file) = @_;
+
+  # Read the save file and check if it has 25 successful missions
+  return 0 unless -e $save_file;
+
+  my $json = read_file($save_file);
+  my $save_data = decode_json($json);
+
+  return 0 unless exists $save_data->{mission};
+  return 0 unless ref($save_data->{mission}) eq 'ARRAY';
+
+  # Count missions (array has a placeholder at index 0, so length >= 26 means 25+ missions)
+  my $mission_count = scalar @{$save_data->{mission}};
+
+  return $mission_count >= 26;
 }
 
 sub reset_combat_for_zone {
