@@ -93,6 +93,18 @@ sub buffer_success {
   return;
 }
 
+sub buffer_info {
+  my ($self, $text) = @_;
+  $self->buffer($self->formatter->format_info($text));
+  return;
+}
+
+sub buffer_error {
+  my ($self, $text) = @_;
+  $self->buffer($self->formatter->format_error($text));
+  return;
+}
+
 sub buffer_danger {
   my ($self, $text) = @_;
   $self->buffer($self->formatter->format_danger($text));

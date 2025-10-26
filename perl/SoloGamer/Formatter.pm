@@ -49,6 +49,16 @@ sub format_success {
   return $self->apply_format($text, 'green');
 }
 
+sub format_info {
+  my ($self, $text) = @_;
+  return $self->apply_format($text, 'cyan');
+}
+
+sub format_error {
+  my ($self, $text) = @_;
+  return $self->apply_format($text, 'red');
+}
+
 sub format_danger {
   my ($self, $text) = @_;
   return $self->apply_format($text, 'red');
