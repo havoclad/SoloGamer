@@ -16,7 +16,7 @@ my %options = (
   info       => 0,
   debug      => 0,
   game       => '',
-  save_file  => '',
+  save_file  => '/app/saves/automated.json',
   automated  => 0,
   color      => 1,
   help       => 0,
@@ -24,17 +24,17 @@ my %options = (
 );
 
 sub validate_save_file ($opt_name, $opt_value) {
-  
-  # Handle optional parameter case (no value provided)
+
+  # Handle optional parameter case (no value provided) - use default autosave
   if (!defined $opt_value || $opt_value eq '') {
-    $options{save_file} = '';
+    $options{save_file} = '/app/saves/automated.json';
     return;
   }
-  
+
   if ($opt_value !~ /^\w+$/x) {
     croak "Invalid save file name '$opt_value': must contain only letters, numbers, and underscores";
   }
-  
+
   # Construct safe path within saves directory and store in global variable
   $options{save_file} = "/app/saves/$opt_value.json";
   return;
@@ -56,7 +56,7 @@ Usage: SoloGamer.pl [options]
 
 Options:
   --game=NAME        Set game name (default: QotS)
-  --save_file[=NAME] Save/load game to specified file
+  --save_file[=NAME] Save/load game to specified file (default: automated)
   --automated        Run in automated mode (no user input)
   --input_file=FILE  Read user inputs from file for scripted interaction
   --info             Enable verbose logging
@@ -65,9 +65,9 @@ Options:
   --help, -h         Show this help message
 
 Examples:
-  SoloGamer.pl                      # Run QotS interactively
-  SoloGamer.pl --automated          # Run QotS automated
-  SoloGamer.pl --save_file=mysave   # Load specific save file
+  SoloGamer.pl                      # Run QotS with autosave
+  SoloGamer.pl --automated          # Run QotS automated with autosave
+  SoloGamer.pl --save_file=mysave   # Use specific save file
   SoloGamer.pl --info --debug       # Run with verbose output and debug
 EOF
   exit 0;

@@ -5,6 +5,7 @@ use v5.42;
 use File::Copy;
 use File::Slurp;
 use Carp;
+use IO::Prompter;
 
 use MooseX::Singleton;
 use Mojo::JSON qw ( encode_json decode_json );
@@ -51,6 +52,13 @@ has 'input_file' => (
   default  => '',
 );
 
+has '_input_fh' => (
+  is       => 'ro',
+  lazy     => 1,
+  builder  => '_build_input_fh',
+  clearer  => '_clear_input_fh',
+);
+
 has 'crew' => (
   is      => 'rw',
   isa     => 'Maybe[SoloGamer::QotS::Crew]',
@@ -77,68 +85,137 @@ sub load_save {
   my $self = shift;
 
   my $save_to_load = $self->save_file;
+  my $is_autosave = $save_to_load && $save_to_load eq '/app/saves/automated.json';
 
   my $mission = 1;
-  if ($save_to_load && -e $save_to_load) {
-    $self->devel("Trying to load $save_to_load");
-    my $json = read_file($save_to_load);
-    my $decoded = decode_json($json);
-    $self->save($decoded) or croak $!;
-    
-    # Load crew if it exists
-    if (exists $self->save->{crew}) {
-      $self->crew(SoloGamer::QotS::Crew->from_hash($self->save->{crew}, $self->automated));
-    }
-    
-    # Load aircraft state if it exists
-    if (exists $self->save->{aircraft_state}) {
-      $self->aircraft_state(SoloGamer::QotS::AircraftState->from_hash($self->save->{aircraft_state}));
-    }
-    
-    # Check if mission exists and is an array
-    if (exists $self->save->{mission} && ref($self->save->{mission}) eq 'ARRAY') {
-      my $last_mission = $self->save->{mission}->$#* + 1;
-      $self->devel("Last mission was: $last_mission");
-      $mission = $last_mission + 1;
-    } else {
-      $self->devel('No mission array found in save data');
-    }
+  my $load_existing = $self->_should_load_existing_save($save_to_load, $is_autosave);
+
+  if ($load_existing) {
+    $mission = $self->_load_existing_save($save_to_load);
   } else {
-    if ($save_to_load eq '') {
-      $self->devel('No save file, use --save_file on command line to set');
-    } else {
-      $self->devel("No save file found at $save_to_load");
-    }
-    
-    # Create new save with plane name selection
-    my $plane_namer = SoloGamer::QotS::PlaneNamer->new(
-      automated  => $self->automated,
-      input_file => $self->input_file,
-    );
-    my $plane_name = $plane_namer->prompt_for_plane_name();
-    
-    # Create new crew
-    my $crew = SoloGamer::QotS::Crew->new(
-      automated  => $self->automated,
-      input_file => $self->input_file,
-    );
-    
-    # Create new aircraft state
-    my $aircraft = SoloGamer::QotS::AircraftState->new();
-    
-    my $temp = { 
-      mission => [{}],
-      plane_name => $plane_name,
-      crew => $crew->to_hash(),
-      aircraft_state => $aircraft->to_hash()
-    };
-    $self->save($temp);
-    $self->crew($crew);
-    $self->aircraft_state($aircraft);
+    $self->_create_new_save($save_to_load);
   }
+
   $self->mission($mission);
   return $mission;
+}
 
+sub _should_load_existing_save {
+  my ($self, $save_to_load, $is_autosave) = @_;
+
+  return 0 unless $save_to_load && -e $save_to_load;
+
+  # Not autosave or automated mode - always load
+  if (!$is_autosave || $self->automated) {
+    return 1;
+  }
+
+  # Interactive mode with autosave - ask user
+  return $self->_prompt_for_autosave_choice($save_to_load);
+}
+
+sub _prompt_for_autosave_choice {
+  my ($self, $save_to_load) = @_;
+
+  say "\nFound existing autosave game.";
+
+  my $response = $self->_get_autosave_response();
+
+  if (defined $response && $response =~ /C/i) {
+    return 1;
+  } elsif (defined $response && $response =~ /N/i) {
+    $self->devel("User chose to start new game, deleting autosave");
+    unlink $save_to_load or $self->devel("Warning: Could not delete old autosave: $!");
+    return 0;
+  }
+
+  # Default to continue
+  return 1;
+}
+
+sub _get_autosave_response {
+  my $self = shift;
+
+  if ($self->input_file && $self->_input_fh) {
+    say "[C]ontinue previous game or start [N]ew game?";
+    my $response = readline($self->_input_fh);
+    if (defined $response) {
+      chomp $response;
+      $self->devel("Read from input file: $response");
+    }
+    return $response;
+  }
+
+  return prompt '[C]ontinue previous game or start [N]ew game?', -keyletters, -single;
+}
+
+sub _load_existing_save {
+  my ($self, $save_to_load) = @_;
+
+  $self->devel("Trying to load $save_to_load");
+  my $json = read_file($save_to_load);
+  my $decoded = decode_json($json);
+  $self->save($decoded) or croak $!;
+
+  # Load crew if it exists
+  if (exists $self->save->{crew}) {
+    $self->crew(SoloGamer::QotS::Crew->from_hash($self->save->{crew}, $self->automated));
+  }
+
+  # Load aircraft state if it exists
+  if (exists $self->save->{aircraft_state}) {
+    $self->aircraft_state(SoloGamer::QotS::AircraftState->from_hash($self->save->{aircraft_state}));
+  }
+
+  # Calculate next mission number
+  my $mission = 1;
+  if (exists $self->save->{mission} && ref($self->save->{mission}) eq 'ARRAY') {
+    my $last_mission = $self->save->{mission}->$#* + 1;
+    $self->devel("Last mission was: $last_mission");
+    $mission = $last_mission + 1;
+  } else {
+    $self->devel('No mission array found in save data');
+  }
+
+  return $mission;
+}
+
+sub _create_new_save {
+  my ($self, $save_to_load) = @_;
+
+  if ($save_to_load eq '') {
+    $self->devel('No save file, use --save_file on command line to set');
+  } else {
+    $self->devel("No save file found at $save_to_load or user chose to start new");
+  }
+
+  # Create new save with plane name selection
+  my $plane_namer = SoloGamer::QotS::PlaneNamer->new(
+    automated  => $self->automated,
+    input_file => $self->input_file,
+  );
+  my $plane_name = $plane_namer->prompt_for_plane_name();
+
+  # Create new crew
+  my $crew = SoloGamer::QotS::Crew->new(
+    automated  => $self->automated,
+    input_file => $self->input_file,
+  );
+
+  # Create new aircraft state
+  my $aircraft = SoloGamer::QotS::AircraftState->new();
+
+  my $temp = {
+    mission => [{}],
+    plane_name => $plane_name,
+    crew => $crew->to_hash(),
+    aircraft_state => $aircraft->to_hash()
+  };
+  $self->save($temp);
+  $self->crew($crew);
+  $self->aircraft_state($aircraft);
+
+  return;
 }
 
 sub save_game {
@@ -399,8 +476,18 @@ sub _build_aircraft_state {
 
 sub _build_combat_state {
   my $self = shift;
-  
+
   return SoloGamer::QotS::CombatState->new();
+}
+
+sub _build_input_fh {
+  my $self = shift;
+
+  return unless $self->input_file;
+
+  open my $fh, '<', $self->input_file
+    or croak "Cannot open input file '" . $self->input_file . "': $!";
+  return $fh;
 }
 
 sub reset_combat_for_zone {
