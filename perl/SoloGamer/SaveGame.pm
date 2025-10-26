@@ -146,7 +146,7 @@ sub _get_autosave_response {
     return $response;
   }
 
-  return prompt '[C]ontinue previous game or start [N]ew game?', -keyletters, -single;
+  return prompt 'Continue previous game or start New game?', -menu => ['Continue', 'New'], -keyletters, -single;
 }
 
 sub _load_existing_save {
