@@ -554,11 +554,30 @@ sub _handle_process_wounds_flow {  ## no critic (ProhibitUnusedPrivateSubroutine
   return;
 }
 
+sub roll_dice {
+  my ($self, $dice_spec) = @_;
+
+  # Parse dice specification (e.g., "1d6", "2d6")
+  if ($dice_spec =~ /^(\d+)d(\d+)$/x) {
+    my $num_dice = $1;
+    my $die_size = $2;
+    my $total = 0;
+
+    for (1 .. $num_dice) {
+      $total += int(rand($die_size) + 1);
+    }
+
+    return $total;
+  }
+
+  croak "Invalid dice specification: $dice_spec";
+}
+
 sub run_game {
   my $self = shift;
 
   $self->devel('In run_game');
-  
+
   # Basic game flow - subclasses can override for specific game logic
   $self->do_flow('FLOW-start');
   $self->print_output;
