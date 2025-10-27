@@ -511,10 +511,10 @@ sub _is_campaign_complete {
   return 0 unless exists $save_data->{mission};
   return 0 unless ref($save_data->{mission}) eq 'ARRAY';
 
-  # Count missions (array has a placeholder at index 0, so length >= 26 means 25+ missions)
+  # Count missions - campaign is complete at 25 missions
   my $mission_count = scalar @{$save_data->{mission}};
 
-  return $mission_count >= 26;
+  return $mission_count >= 25;
 }
 
 sub reset_combat_for_zone {
