@@ -1140,7 +1140,8 @@ sub _transfer_mission_kills_to_crew {
     my $total_kills = $crew_member->kills;
     my $name = $crew_member->name;
 
-    $self->buffer_success("$name ($crew_position) awarded $kills_this_mission kill(s) this mission (Total: $total_kills)");
+    my $kill_word = $kills_this_mission == 1 ? 'kill' : 'kills';
+    $self->buffer_success("$name ($crew_position) awarded $kills_this_mission $kill_word this mission (Total: $total_kills)");
 
     # Check for ace status
     if ($total_kills >= 5 && ($total_kills - $kills_this_mission) < 5) {

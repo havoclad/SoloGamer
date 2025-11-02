@@ -260,7 +260,8 @@ sub record_kill {
   $self->ace_tracker->{$gunner_position}++;
   
   my $kills = $self->ace_tracker->{$gunner_position};
-  $self->devel("$gunner_position gunner has $kills kill(s) this mission");
+  my $kill_word = $kills == 1 ? 'kill' : 'kills';
+  $self->devel("$gunner_position gunner has $kills $kill_word this mission");
   
   if ($kills == 5) {
     $self->devel("$gunner_position gunner is now an ACE!");
