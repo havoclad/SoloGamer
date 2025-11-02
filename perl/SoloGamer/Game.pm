@@ -550,6 +550,10 @@ sub _handle_process_wounds_flow {  ## no critic (ProhibitUnusedPrivateSubroutine
       # Update save with crew changes
       $self->save->save->{crew} = $self->save->crew->to_hash();
     }
+    else {
+      # No wounds to process - rollback the pre-message
+      $self->flush_to($buffer_save);
+    }
   }
   return;
 }
