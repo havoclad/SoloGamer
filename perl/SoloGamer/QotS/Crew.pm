@@ -351,19 +351,19 @@ sub process_serious_wounds {
     if ($roll == 1) {
       # Rapid recovery - may fly next mission
       $member->apply_wound('none');
-      $game->buffer_success("$name: Survival roll $roll - Rapid recovery, cleared for next mission");
+      $game->buffer_success("$name ($position): Survival roll $roll - Rapid recovery, cleared for next mission");
       $self->devel("$name rapid recovery from serious wound");
     }
     elsif ($roll >= 2 && $roll <= 5) {
       # Recovery but cannot fly more missions - mark as IH (Invalidated Home)
       $member->set_disposition('IH');
-      $game->buffer_info("$name: Survival roll $roll - Recovered but invalidated home (IH)");
+      $game->buffer_info("$name ($position): Survival roll $roll - Recovered but invalidated home (IH)");
       $self->devel("$name invalidated home due to serious wound");
     }
     else {  # roll == 6
       # Wounds fatal - mark as DOW (Died of Wounds)
       $member->set_disposition('DOW');
-      $game->buffer_error("$name: Survival roll $roll - Wounds fatal, died of wounds (DOW)");
+      $game->buffer_error("$name ($position): Survival roll $roll - Wounds fatal, died of wounds (DOW)");
       $self->devel("$name died of wounds");
     }
 
