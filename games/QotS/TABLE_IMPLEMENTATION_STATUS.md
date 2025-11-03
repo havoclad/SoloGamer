@@ -5,10 +5,10 @@
 This document tracks the implementation status of all game tables for the B-17 Queen of the Skies board game translation into the SoloGamer automation engine. The original board game contains numerous tables that drive all aspects of gameplay, from mission selection to combat resolution.
 
 **Current Status Overview:**
-- ✅ **Complete**: 46 tables (Core game flow operational, complete fighter combat, defensive fire, damage resolution, and bailout systems)
-- 🔶 **Partial**: 0 tables 
-- ❌ **Missing**: ~2 optional tables (Advanced crew management extensions)
-- 📊 **Overall Completion**: ~96% (Complete B-17 bomber simulation with all essential systems)
+- ✅ **Complete**: 46 tables (All base game tables from original rulebook)
+- 🔶 **Partial**: 0 tables
+- ❌ **Missing**: 0 base game tables
+- 📊 **Overall Completion**: 100% (Complete B-17 bomber simulation with all base game systems operational)
 
 ---
 
@@ -21,7 +21,7 @@ This document tracks the implementation status of all game tables for the B-17 Q
 | Target Zone Operations | ✅ Complete | `FLOW-target-zone.json` | HIGH | ✅ Bombing sequence functional |
 | Landing Procedures | ✅ Complete | `FLOW-landing.json` | HIGH | ✅ Return-to-base mechanics |
 
-### 🎲 Mission Tables (G-Series) - MOSTLY COMPLETE
+### 🎲 Mission Tables (G-Series) - COMPLETE
 | Table | Status | File | Priority | Notes |
 |-------|--------|------|----------|--------|
 | G-1: Missions 1-5 | ✅ Complete | `G-1.json` | HIGH | ✅ Early war targets (6 targets) |
@@ -37,7 +37,7 @@ This document tracks the implementation status of all game tables for the B-17 Q
 | G-8: Bailout Over Water | ✅ Complete | `G-8.json` | HIGH | ✅ Water bailout with drowning risks |
 | G-10: Landing in Water | ✅ Complete | `G-10.json` | HIGH | ✅ Ditching procedure with crew survival mechanics |
 
-### 🎯 Combat Operations (O-Series) - BASIC COMPLETE
+### 🎯 Combat Operations (O-Series) - COMPLETE
 | Table | Status | File | Priority | Notes |
 |-------|--------|------|----------|--------|
 | O-1: Weather | ✅ Complete | `O-1.json` | HIGH | ✅ Good/Poor/Bad with modifiers |
@@ -84,51 +84,53 @@ This document tracks the implementation status of all game tables for the B-17 Q
 | BL-4: Wounds | ✅ Complete | `BL-4.json` | HIGH | ✅ Crew casualty determination |
 | BL-5: Frostbite | ✅ Complete | `BL-5.json` | MEDIUM | ✅ Cold exposure effects |
 
-### 👥 Crew Management System - MISSING  
-| Table | Status | File | Priority | Notes |
-|-------|--------|------|----------|--------|
-| C-1: Crew Positions | ❌ Missing | - | HIGH | 10 crew member positions |
-| C-2: Experience Levels | ❌ Missing | - | MEDIUM | Green/Seasoned/Veteran progression |
-| C-3: Crew Skills | ❌ Missing | - | MEDIUM | Individual skill modifiers |
-| C-4: Promotion System | ❌ Missing | - | LOW | Rank advancement |
+### 👥 Crew Management - COMPLETE (Base Game)
+**Note:** The base game rulebook does not contain C-series crew management tables. All required crew tracking is implemented via the `CrewMember` and `SaveGame` classes, including:
+- ✅ Crew positions and assignments
+- ✅ Wound tracking (Light/Serious/KIA)
+- ✅ Kill credits for ace gunners
+- ✅ Frostbite effects
+- ✅ Crew replacement mechanics
 
-### 📍 Navigation System - PARTIALLY MISSING
-| Table | Status | File | Priority | Notes |
-|-------|--------|------|----------|--------|
-| N-1: Zone Movement | 🔶 Partial | `G-11.json` | HIGH | ✅ Zone data exists, ❌ movement mechanics missing |
-| N-2: Navigation Errors | ❌ Missing | - | MEDIUM | Off-course determination |
-| N-3: Fuel Consumption | ❌ Missing | - | MEDIUM | Range/fuel tracking |
+**Optional Enhancement Ideas** (not in original rulebook):
+- Experience levels (Green/Seasoned/Veteran with combat modifiers)
+- Individual skill progression
+- Promotion and rank system
+
+### 📍 Navigation System - COMPLETE (Base Game)
+**Note:** The base game rulebook does not contain explicit N-series navigation tables. Zone movement and fuel tracking are implemented through existing systems:
+- ✅ Zone movement via G-11 Flight Gazetteer and FLOW-zone-movement
+- ✅ Fuel tracking via BL-1 Wings damage table (fuel tank hits)
+- ✅ All target zones with proper distances and modifiers
+
+**Optional Enhancement Ideas** (not in original rulebook):
+- Random navigation errors and off-course events
+- Detailed fuel consumption calculations
+- Weather-based navigation difficulty
 
 ---
 
-## Implementation Priority Matrix
+## Optional Enhancement Opportunities
 
-### 🚨 CRITICAL PRIORITY (Game-breaking if missing)
-1. **B-3: Fighter Type Determination** - Fighter types and numbers per wave
-2. **B-4: Fighter Attack Position** - Attack angles and positions  
-3. **B-5: Fighter Attack Resolution** - Core combat mechanic
-4. **B-6: Fighter Damage Effects** - Damage system foundation
-5. **B-7: Crew Casualties** - Life/death consequences
+**Note:** All base game tables are complete! The items below are potential enhancements not present in the original board game rulebook.
 
-### 🔥 HIGH PRIORITY (Major gameplay impact)
-1. **B-8: Return Fire** - B-17 defensive capabilities
-2. **B-9: Fighter Results** - Combat conclusion mechanics
-3. **D-1 through D-3: Damage Systems** - Aircraft degradation
-4. **C-1: Crew Positions** - Individual crew tracking
-5. **N-1: Zone Movement** - Proper navigation mechanics
+### 🌟 HIGH VALUE ENHANCEMENTS
+1. **Crew Experience System** - Green/Veteran progression with combat bonuses
+2. **Historical Scenarios** - Pre-scripted missions based on actual raids
+3. **Mission Debriefing Reports** - Detailed post-mission statistics
+4. **Achievement System** - Track milestones and notable events
 
-### 🔶 MEDIUM PRIORITY (Enhanced gameplay)
-1. **G-6: Crew Replacement** - Campaign continuity
-2. **G-7: Crew Experience** - Character progression
-3. **D-4: Electrical Systems** - Additional complexity
-4. **C-2/C-3: Crew Skills** - Individual variation
-5. **N-2: Navigation Errors** - Realism enhancement
+### 🔶 MEDIUM VALUE ENHANCEMENTS
+1. **Navigation Uncertainty** - Random off-course events for realism
+2. **Crew Personality System** - Individual traits and morale
+3. **Detailed Repair System** - Between-mission maintenance decisions
+4. **Campaign Statistics** - Long-term tracking and graphs
 
-### 🔵 LOW PRIORITY (Nice-to-have features)
-1. **G-8: Mission Bonuses** - Special circumstances
-2. **C-4: Promotion System** - Long-term progression
-3. **D-5: Repair Procedures** - Between-mission activities
-4. **N-3: Fuel Consumption** - Resource management
+### 🔵 NICE-TO-HAVE ENHANCEMENTS
+1. **Late War Period** - 1944-1945 targets and fighter types
+2. **Alternative Bomber Types** - B-24 Liberator variant rules
+3. **Multi-plane Formations** - Control multiple bombers
+4. **Weather Prediction** - Intel-based forecast system
 
 ---
 
@@ -193,13 +195,7 @@ This document tracks the implementation status of all game tables for the B-17 Q
 - [ ] Cross-references to other tables are accurate
 - [ ] Variable dependencies are correct
 
-**For Each Missing Table**:  
-- [ ] Original table located in rules/charts
-- [ ] Dependencies on other tables identified
-- [ ] Required variables documented
-- [ ] Implementation complexity assessed
-
-### 🧪 Integration Testing Required
+### 🧪 Integration Testing Recommended
 
 **Core Game Flow**:
 - [ ] Complete mission from start to landing
@@ -207,11 +203,17 @@ This document tracks the implementation status of all game tables for the B-17 Q
 - [ ] Variables persist across table calls
 - [ ] Modifiers apply correctly
 
-**Fighter Combat** (When Implemented):
+**Fighter Combat System**:
 - [ ] Fighters appear based on zone/position
 - [ ] Combat resolution produces realistic results
 - [ ] Damage accumulates properly
 - [ ] Crew casualties affect subsequent missions
+
+**Campaign Progression**:
+- [ ] 25-mission tour completes successfully
+- [ ] Crew replacements function correctly
+- [ ] Aircraft damage persists between missions
+- [ ] Historical accuracy (~30% survival rate)
 
 ### 📊 Data Integrity Checks
 
@@ -240,37 +242,37 @@ This document tracks the implementation status of all game tables for the B-17 Q
 - **PHASE 3 COMPLETE**: P-1 through P-6 and BL-1 through BL-5 - Complete damage resolution system
 - **PHASE 4 COMPLETE**: G-6, G-7, G-8, G-10 - Complete bailout and emergency landing system
 
-### Currently In Progress 🔄
-- Final integration testing of complete B-17 simulation
-- Performance optimization and validation
-- Documentation updates
+### Current Status 🎯
+- ✅ **Base game implementation: COMPLETE**
+- All 46 tables from original rulebook implemented
+- Ready for comprehensive integration testing
 
-### Next Milestones 🎯
-1. **Integration Testing** - Full missions with complete systems (fighter combat, damage, bailout)
-2. **Advanced Crew Management** - Optional C-series crew progression tables 
-3. **Historical Validation** - Compare results with historical mission outcomes
-4. **Performance Optimization** - Optimize complex combat resolution sequences
+### Recommended Next Steps
+1. **Integration Testing** - Run complete 25-mission campaigns to validate all systems
+2. **Historical Validation** - Compare results with historical ~30% survival rate
+3. **Performance Optimization** - Profile and optimize complex combat sequences
+4. **Player Documentation** - Create gameplay guides and strategy tips
 
-### Long-term Goals 🚀
-- Complete 25-mission campaign system
-- Advanced crew progression mechanics
-- Historical accuracy validation
-- Performance optimization for complex combat resolution
+### Optional Enhancement Goals 🚀
+- Crew experience and progression system
+- Historical scenario missions
+- Advanced statistics and reporting
+- Alternative bomber types or time periods
 
 ---
 
 ## Development Notes
 
 ### File Naming Convention
-- `FLOW-*.json`: Game flow sequences
-- `G-*.json`: General game tables (missions, positions, etc.)
-- `O-*.json`: Operational tables (weather, combat, bombing)
-- `B-*.json`: Fighter combat tables *(✅ implemented)*
-- `P-*.json`: Compartment damage tables *(✅ implemented)*
-- `BL-*.json`: Generic damage system tables *(✅ implemented)*
-- `M-*.json`: Combat resolution tables *(✅ implemented)*
-- `C-*.json`: Crew management tables *(optional - not yet implemented)*
-- `N-*.json`: Navigation system tables *(optional - not yet implemented)*
+- `FLOW-*.json`: Game flow sequences *(✅ complete)*
+- `G-*.json`: General game tables (missions, positions, etc.) *(✅ complete)*
+- `O-*.json`: Operational tables (weather, combat, bombing) *(✅ complete)*
+- `B-*.json`: Fighter combat tables *(✅ complete)*
+- `P-*.json`: Compartment damage tables *(✅ complete)*
+- `BL-*.json`: Generic damage system tables *(✅ complete)*
+- `M-*.json`: Combat resolution tables *(✅ complete)*
+
+**Note:** C-series and N-series tables referenced in older documentation do not exist in the original board game rulebook.
 
 ### JSON Structure Standards
 All tables follow the SoloGamer engine patterns:
@@ -289,6 +291,6 @@ All tables follow the SoloGamer engine patterns:
 
 ---
 
-*Last Updated: 2025-08-11*  
-*Document Version: 1.2*  
-*Total Tables: 31 implemented / ~48 total needed*
+*Last Updated: 2025-11-02*
+*Document Version: 2.0*
+*Total Tables: 46/46 base game tables - 100% COMPLETE*
