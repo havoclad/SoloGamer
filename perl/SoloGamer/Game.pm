@@ -394,9 +394,9 @@ sub do_flow {
 # Process and potentially enhance pre-messages
 sub _process_pre_message {
   my ($self, $next_flow) = @_;
-  
+
   # Check if this is a 'Rolling for' message that needs enhancement
-  if (exists $next_flow->{type} && $next_flow->{pre} =~ /^Rolling for/ix) {
+  if (exists $next_flow->{type} && $next_flow->{pre} =~ /^Rolling\s+for/ixms) {
     my $enhanced_message = $self->_enhance_rolling_message($next_flow);
     $self->smart_buffer($enhanced_message);
   } else {
@@ -426,12 +426,12 @@ sub _enhance_table_message {
   my ($self, $next_flow, $pre) = @_;
   my $next_table_name = $next_flow->{Table};
   my $table_obj = $self->tables->{$next_table_name};
-  
+
   if ($table_obj && ref($table_obj)) {
     my $rolltype = $self->_get_rolltype($table_obj);
     return "${pre}${rolltype} on table $next_table_name";
   }
-  
+
   return $pre;
 }
 
